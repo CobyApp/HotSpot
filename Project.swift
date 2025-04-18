@@ -16,8 +16,8 @@ let project = Project(
             .automaticCodeSigning(devTeam: "3Y8YH8GWMM")
             .swiftVersion("5.9"),
         configurations: [
-            .debug(name: .debug),
-            .release(name: .release)
+            .debug(name: .debug, xcconfig: "\(projectName)/Configuration/Config.xcconfig"),
+            .release(name: .release, xcconfig: "\(projectName)/Configuration/Config.xcconfig")
         ]
     ),
     targets: [
@@ -36,13 +36,22 @@ let project = Project(
                         "UIColorName": "",
                         "UIImageName": "",
                     ],
+                    "NSAppTransportSecurity": [
+                        "NSExceptionDomains": [
+                            "webservice.recruit.co.jp": [
+                                "NSExceptionAllowsInsecureHTTPLoads": true
+                            ]
+                        ]
+                    ]
                 ]
             ),
             sources: ["\(projectName)/Sources/**"],
             resources: ["\(projectName)/Resources/**"],
             dependencies: [
+                .external(name: "CobyDS"),
                 .external(name: "Moya"),
-                .external(name: "ComposableArchitecture")
+                .external(name: "ComposableArchitecture"),
+                .external(name: "Kingfisher")
             ]
         ),
         .target(

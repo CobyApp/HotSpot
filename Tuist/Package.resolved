@@ -1,5 +1,4 @@
 {
-  "originHash" : "964feea04d83f26ab801f1cad421ba7bb73c0838625efdf26d734ca51b08fc02",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -11,12 +10,30 @@
       }
     },
     {
+      "identity" : "cobyds",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CobyLibrary/CobyDS.git",
+      "state" : {
+        "revision" : "52fc41848b3ff0aa91cac568978121d5755dd8af",
+        "version" : "1.7.2"
+      }
+    },
+    {
       "identity" : "combine-schedulers",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/combine-schedulers",
       "state" : {
         "revision" : "5928286acce13def418ec36d05a001a9641086f2",
         "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "7deda23bbdca612076c5c315003d8638a08ed0f1",
+        "version" : "8.3.2"
       }
     },
     {
@@ -164,5 +181,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
