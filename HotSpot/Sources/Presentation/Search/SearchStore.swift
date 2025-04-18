@@ -3,7 +3,6 @@ import ComposableArchitecture
 
 @Reducer
 struct SearchStore {
-    @ObservableState
     struct State: Equatable {
         var selectedRange: Int = 1
     }

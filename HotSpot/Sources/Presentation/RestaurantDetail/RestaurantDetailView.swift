@@ -5,17 +5,9 @@ struct RestaurantDetailView: View {
     let store: StoreOf<RestaurantDetailStore>
     
     var body: some View {
-        WithPerceptionTracking {
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-                Button(action: { store.send(.toggleFavorite) }) {
-                    Label(
-                        store.isFavorite ? "즐겨찾기 제거" : "즐겨찾기 추가",
-                        systemImage: store.isFavorite ? "star.fill" : "star"
-                    )
-                }
-                .buttonStyle(.bordered)
-                
-                Button(action: { store.send(.navigateToSettings) }) {
+                Button(action: { viewStore.send(.navigateToSettings) }) {
                     Label("설정", systemImage: "gear")
                 }
                 .buttonStyle(.bordered)

@@ -5,15 +5,17 @@ struct AppCoordinatorView: View {
     let store: StoreOf<AppCoordinator>
 
     var body: some View {
-        NavigationView {
-            WithViewStore(store, observe: { $0 }) { viewStore in
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            NavigationView {
                 VStack {
                     SearchView(store: store.scope(state: \.search, action: \.search))
 
                     NavigationLink(
                         destination: IfLetStore(
                             store.scope(state: \.restaurantDetail, action: \.restaurantDetail),
-                            then: RestaurantDetailView.init(store:)
+                            then: { store in
+                                RestaurantDetailView(store: store)
+                            }
                         ),
                         isActive: viewStore.binding(
                             get: { $0.restaurantDetail != nil },
@@ -27,7 +29,9 @@ struct AppCoordinatorView: View {
                     NavigationLink(
                         destination: IfLetStore(
                             store.scope(state: \.favorite, action: \.favorite),
-                            then: FavoriteView.init(store:)
+                            then: { store in
+                                FavoriteView(store: store)
+                            }
                         ),
                         isActive: viewStore.binding(
                             get: { $0.favorite != nil },
@@ -41,7 +45,9 @@ struct AppCoordinatorView: View {
                     NavigationLink(
                         destination: IfLetStore(
                             store.scope(state: \.settings, action: \.settings),
-                            then: SettingsView.init(store:)
+                            then: { store in
+                                SettingsView(store: store)
+                            }
                         ),
                         isActive: viewStore.binding(
                             get: { $0.settings != nil },

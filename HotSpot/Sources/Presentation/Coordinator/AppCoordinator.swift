@@ -3,7 +3,6 @@ import ComposableArchitecture
 
 @Reducer
 struct AppCoordinator {
-    @ObservableState
     struct State: Equatable {
         var search: SearchStore.State = .init()
         var restaurantDetail: RestaurantDetailStore.State?

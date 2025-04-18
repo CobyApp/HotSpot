@@ -5,9 +5,9 @@ struct FavoriteView: View {
     let store: StoreOf<FavoriteStore>
     
     var body: some View {
-        WithPerceptionTracking {
+        WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-                Button(action: { store.send(.pop) }) {
+                Button(action: { viewStore.send(.pop) }) {
                     Label("뒤로", systemImage: "chevron.left")
                 }
             }

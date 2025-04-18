@@ -3,7 +3,6 @@ import ComposableArchitecture
 
 @Reducer
 struct RestaurantDetailStore {
-    @ObservableState
     struct State: Equatable {
         var isFavorite: Bool = false
     }

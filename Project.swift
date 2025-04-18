@@ -14,7 +14,7 @@ let project = Project(
     settings: .settings(
         base: SettingsDictionary()
             .automaticCodeSigning(devTeam: "3Y8YH8GWMM")
-            .swiftVersion("6.0"),
+            .swiftVersion("5.9"),
         configurations: [
             .debug(name: .debug),
             .release(name: .release)

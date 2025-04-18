@@ -3,7 +3,6 @@ import ComposableArchitecture
 
 @Reducer
 struct FavoriteStore {
-    @ObservableState
     struct State: Equatable {
         // Empty state for now
     }
