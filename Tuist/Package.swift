@@ -1,22 +1,34 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 5.9
 import PackageDescription
 
 #if TUIST
     import struct ProjectDescription.PackageSettings
 
     let packageSettings = PackageSettings(
-        // Customize the product types for specific package product
-        // Default is .staticFramework
-        // productTypes: ["Alamofire": .framework,]
-        productTypes: [:]
+        productTypes: [
+            "Moya": .framework,
+            "CombineMoya": .framework,
+            "ComposableArchitecture": .framework,
+            "Kingfisher": .framework
+        ],
+        baseSettings: .settings(
+            configurations: [
+                .debug(name: .debug),
+                .release(name: .release)
+            ]
+        )
     )
 #endif
 
 let package = Package(
     name: "HotSpot",
+    platforms: [
+        .iOS(.v15)
+    ],
     dependencies: [
-        // Add your own dependencies here:
-        // .package(url: "https://github.com/Alamofire/Alamofire", from: "5.0.0"),
-        // You can read more about dependencies here: https://docs.tuist.io/documentation/tuist/dependencies
+        .package(url: "https://github.com/CobyLibrary/CobyDS.git", from: "1.7.2"),
+        .package(url: "https://github.com/Moya/Moya.git", from: "15.0.3"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.19.1"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.3.2")
     ]
 )

@@ -18,8 +18,14 @@ jobs:
           curl https://mise.run | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install Tuist (via mise)
+      - name: Trust mise config
+        run: mise trust
+
+      - name: Install Tuist via mise
         run: mise x -- tuist install
+
+      - name: Generate Xcode project
+        run: mise x -- tuist generate
 
       - name: Run Unit Tests
         run: mise x -- tuist test Weave2-UnitTest --no-selective-testing
