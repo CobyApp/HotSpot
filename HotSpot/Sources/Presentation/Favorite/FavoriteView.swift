@@ -2,17 +2,11 @@ import SwiftUI
 import ComposableArchitecture
 
 struct FavoriteView: View {
-    @Bindable var store: StoreOf<FavoriteStore>
+    let store: StoreOf<FavoriteStore>
     
     var body: some View {
-        ContentUnavailableView(
-            "즐겨찾기 없음",
-            systemImage: "star",
-            description: Text("맛집을 즐겨찾기에 추가해보세요")
-        )
-        .navigationTitle("즐겨찾기")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+        WithPerceptionTracking {
+            VStack {
                 Button(action: { store.send(.pop) }) {
                     Label("뒤로", systemImage: "chevron.left")
                 }
@@ -22,9 +16,7 @@ struct FavoriteView: View {
 }
 
 #Preview {
-    NavigationStack {
-        FavoriteView(store: Store(initialState: FavoriteStore.State()) {
-            FavoriteStore()
-        })
-    }
-} 
+    FavoriteView(store: Store(initialState: FavoriteStore.State()) {
+        FavoriteStore()
+    })
+}

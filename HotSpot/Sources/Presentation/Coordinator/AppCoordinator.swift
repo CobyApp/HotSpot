@@ -5,97 +5,85 @@ import ComposableArchitecture
 struct AppCoordinator {
     @ObservableState
     struct State: Equatable {
-        var path: StackState<Path.State> = StackState()
-        var search: SearchStore.State
-        
-        init(search: SearchStore.State = .init()) {
-            self.search = search
-        }
+        var search: SearchStore.State = .init()
+        var restaurantDetail: RestaurantDetailStore.State?
+        var favorite: FavoriteStore.State?
+        var settings: SettingsStore.State?
     }
-    
+
     enum Action {
-        case path(StackAction<Path.State, Path.Action>)
         case search(SearchStore.Action)
-        case resetNavigation
+        case restaurantDetail(RestaurantDetailStore.Action)
+        case favorite(FavoriteStore.Action)
+        case settings(SettingsStore.Action)
+
+        case showRestaurantDetail
         case navigateToFavorite
         case navigateToSettings
+        case dismissDetail
+        case dismissFavorite
+        case dismissSettings
     }
-    
-    @Reducer(state: .equatable)
-    enum Path {
-        case search(SearchStore)
-        case restaurantDetail(RestaurantDetailStore)
-        case favorite(FavoriteStore)
-        case settings(SettingsStore)
-    }
-    
+
     var body: some ReducerOf<Self> {
         Scope(state: \.search, action: \.search) {
             SearchStore()
         }
-        
+
         Reduce { state, action in
             switch action {
             case .search(.showRestaurantDetail):
-                state.path.append(.restaurantDetail(.init()))
+                state.restaurantDetail = .init()
+                return .none
+                
+            case .search(.navigateToSettings):
+                state.settings = .init()
+                return .none
+                
+            case .showRestaurantDetail:
                 return .none
                 
             case .navigateToFavorite:
-                state.path.append(.favorite(.init()))
+                state.favorite = .init()
                 return .none
                 
             case .navigateToSettings:
-                state.path.append(.settings(.init()))
+                state.settings = .init()
                 return .none
                 
-            case .resetNavigation:
-                state.path = StackState()
+            case .dismissDetail:
+                state.restaurantDetail = nil
                 return .none
                 
-            case .path:
+            case .dismissFavorite:
+                state.favorite = nil
+                return .none
+                
+            case .dismissSettings:
+                state.settings = nil
                 return .none
                 
             case .search:
                 return .none
+                
+            case .restaurantDetail:
+                return .none
+                
+            case .favorite:
+                return .none
+                
+            case .settings:
+                return .none
             }
         }
-        .forEach(\.path, action: \.path) {
-            Path.body
+        .ifLet(\.restaurantDetail, action: \.restaurantDetail) {
+            RestaurantDetailStore()
+        }
+        .ifLet(\.favorite, action: \.favorite) {
+            FavoriteStore()
+        }
+        .ifLet(\.settings, action: \.settings) {
+            SettingsStore()
         }
     }
 }
-
-struct AppCoordinatorView: View {
-    @Bindable var store: StoreOf<AppCoordinator>
-    
-    var body: some View {
-        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
-            SearchView(store: store.scope(state: \.search, action: \.search))
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            Button(action: { store.send(.navigateToFavorite) }) {
-                                Label("즐겨찾기", systemImage: "star")
-                            }
-                            Button(action: { store.send(.navigateToSettings) }) {
-                                Label("설정", systemImage: "gear")
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                        }
-                    }
-                }
-        } destination: { store in
-            switch store.case {
-            case let .search(store):
-                SearchView(store: store)
-            case let .restaurantDetail(store):
-                RestaurantDetailView(store: store)
-            case let .favorite(store):
-                FavoriteView(store: store)
-            case let .settings(store):
-                SettingsView(store: store)
-            }
-        }
-    }
-} 

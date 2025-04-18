@@ -11,6 +11,7 @@ struct SearchStore {
     enum Action {
         case showRestaurantDetail
         case updateRange(Int)
+        case navigateToSettings
     }
     
     var body: some ReducerOf<Self> {
@@ -18,8 +19,10 @@ struct SearchStore {
             switch action {
             case .showRestaurantDetail:
                 return .none
-            case .updateRange(let range):
+            case let .updateRange(range):
                 state.selectedRange = range
+                return .none
+            case .navigateToSettings:
                 return .none
             }
         }

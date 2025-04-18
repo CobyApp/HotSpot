@@ -23,11 +23,15 @@ let project = Project(
     targets: [
         .target(
             name: projectName,
-            destinations: .iOS,
+            destinations: [.iPhone],
             product: .app,
             bundleId: bundleID,
+            deploymentTargets: .iOS(targetVersion),
             infoPlist: .extendingDefault(
                 with: [
+                    "CFBundleShortVersionString": "\(version)",
+                    "CFBundleVersion": "\(bundleVersion)",
+                    "CFBundleDisplayName": "\(projectName)",
                     "UILaunchScreen": [
                         "UIColorName": "",
                         "UIImageName": "",
@@ -42,7 +46,7 @@ let project = Project(
             ]
         ),
         .target(
-            name: "HotSpotTests",
+            name: "\(projectName)Tests",
             destinations: .iOS,
             product: .unitTests,
             bundleId: bundleTestID,
