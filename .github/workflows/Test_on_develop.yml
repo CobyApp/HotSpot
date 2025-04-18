@@ -1,0 +1,25 @@
+name: Test_on_develop
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  run-unitTest:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Mise & Set PATH
+        run: |
+          curl https://mise.run | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Tuist (via mise)
+        run: mise x -- tuist install
+
+      - name: Run Unit Tests
+        run: mise x -- tuist test Weave2-UnitTest --no-selective-testing
