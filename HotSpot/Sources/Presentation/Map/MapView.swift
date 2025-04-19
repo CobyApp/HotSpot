@@ -1,11 +1,10 @@
 import SwiftUI
-
-import CobyDS
 import ComposableArchitecture
+import CobyDS
 
 struct MapView: View {
     let store: StoreOf<MapStore>
-    
+
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
@@ -18,41 +17,33 @@ struct MapView: View {
                         viewStore.send(.showSearch)
                     }
                 )
-                
+
                 ZStack(alignment: .bottom) {
                     MapRepresentableView(
-                        restaurants: viewStore.binding(
-                            get: { $0.restaurants },
-                            send: { _ in .getRestaurants }
-                        ),
-                        topLeft: viewStore.binding(
-                            get: { $0.topLeft },
-                            send: { .updateTopLeft($0) }
-                        ),
-                        bottomRight: viewStore.binding(
-                            get: { $0.bottomRight },
-                            send: { .updateBottomRight($0) }
-                        )
+                        shops: viewStore.shops,
+                        onRegionChanged: {
+                            viewStore.send(.mapDidMove)
+                        }
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
                     .onAppear {
-                        print("MapView appeared")
                         viewStore.send(.onAppear)
                     }
 
+                    // 하단 카드 스크롤
                     SnappingScrollView(
-                        items: viewStore.restaurants,
+                        items: viewStore.shops,
                         itemWidth: BaseSize.fullWidth
-                    ) { restaurant in
+                    ) { shop in
                         ThumbnailTileView(
-                            image: nil,
-                            title: restaurant.name,
-                            subTitle: "",
-                            description: restaurant.address
+                            image: nil, // 이미지 URL 있으면 Kingfisher 등으로 연결
+                            title: shop.name,
+                            subTitle: shop.access,
+                            description: shop.address
                         )
                         .frame(width: BaseSize.fullWidth, height: 120)
                         .onTapGesture {
-                            viewStore.send(.showRestaurantDetail(restaurant.id))
+                            viewStore.send(.showShopDetail(shop.id))
                         }
                     }
                     .frame(height: 120)

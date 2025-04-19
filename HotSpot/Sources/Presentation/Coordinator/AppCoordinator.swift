@@ -6,16 +6,16 @@ struct AppCoordinator {
     struct State: Equatable {
         var map: MapStore.State = .init()
         var search: SearchStore.State? = nil
-        var restaurantDetail: RestaurantDetailStore.State?
-        var selectedRestaurantId: UUID?
+        var shopDetail: ShopDetailStore.State?
+        var selectedShopId: String?
     }
 
     enum Action {
         case map(MapStore.Action)
         case search(SearchStore.Action)
-        case restaurantDetail(RestaurantDetailStore.Action)
+        case shopDetail(ShopDetailStore.Action)
 
-        case showRestaurantDetail(UUID)
+        case showShopDetail(String)
         case showSearch
         case dismissSearch
         case dismissDetail
@@ -32,24 +32,24 @@ struct AppCoordinator {
                 state.search = nil
                 return .none
                 
-            case let .search(.selectRestaurant(restaurant)):
-                state.selectedRestaurantId = restaurant.id
-                return .send(.showRestaurantDetail(restaurant.id))
+            case let .search(.selectShop(shop)):
+                state.selectedShopId = shop.id
+                return .send(.showShopDetail(shop.id))
                 
-            case let .showRestaurantDetail(id):
-                state.restaurantDetail = .init(restaurantId: id)
+            case let .showShopDetail(id):
+                state.shopDetail = .init(shopId: id)
                 return .none
                 
-            case .restaurantDetail(.pop), .dismissDetail:
-                state.restaurantDetail = nil
-                state.selectedRestaurantId = nil
+            case .shopDetail(.pop), .dismissDetail:
+                state.shopDetail = nil
+                state.selectedShopId = nil
                 return .none
                 
-            case let .map(.showRestaurantDetail(id)):
-                state.selectedRestaurantId = id
-                return .send(.showRestaurantDetail(id))
+            case let .map(.showShopDetail(id)):
+                state.selectedShopId = id
+                return .send(.showShopDetail(id))
                 
-            case .map, .search, .restaurantDetail:
+            case .map, .search, .shopDetail:
                 return .none
             }
         }

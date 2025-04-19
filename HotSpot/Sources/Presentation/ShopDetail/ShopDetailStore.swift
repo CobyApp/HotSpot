@@ -2,17 +2,17 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct RestaurantDetailStore {
+struct ShopDetailStore {
     struct State: Equatable {
-        var restaurantId: UUID
-        var restaurant: Restaurant?
+        var shopId: String
+        var shop: Shop?
         var isLoading: Bool = false
     }
     
     enum Action {
         case onAppear
-        case fetchRestaurant
-        case fetchRestaurantResponse(TaskResult<Restaurant>)
+        case fetchShop
+        case fetchShopResponse(TaskResult<Shop>)
         case pop
     }
     
@@ -21,15 +21,15 @@ struct RestaurantDetailStore {
             switch action {
             case .onAppear:
                 return .run { send in
-                    await send(.fetchRestaurant)
+                    await send(.fetchShop)
                 }
                 
-            case .fetchRestaurant:
+            case .fetchShop:
                 state.isLoading = true
-                return .run { [id = state.restaurantId] send in
+                return .run { [id = state.shopId] send in
                     // TODO: 실제 API 호출로 대체
                     try await Task.sleep(nanoseconds: 500_000_000)
-                    let restaurant = Restaurant(
+                    let shop = Shop(
                         id: id,
                         name: "BBQ치킨 강남점",
                         address: "서울시 강남구 테헤란로 123",
@@ -37,15 +37,15 @@ struct RestaurantDetailStore {
                         phone: "02-123-4567",
                         location: Location(lat: 37.5665, lon: 126.9780)
                     )
-                    await send(.fetchRestaurantResponse(.success(restaurant)))
+                    await send(.fetchShopResponse(.success(shop)))
                 }
                 
-            case let .fetchRestaurantResponse(.success(restaurant)):
+            case let .fetchShopResponse(.success(shop)):
                 state.isLoading = false
-                state.restaurant = restaurant
+                state.shop = shop
                 return .none
                 
-            case .fetchRestaurantResponse(.failure):
+            case .fetchShopResponse(.failure):
                 state.isLoading = false
                 return .none
                 

@@ -1,13 +1,13 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct RestaurantCell: View {
-    let restaurant: Restaurant
+struct ShopCell: View {
+    let shop: Shop
     
     var body: some View {
         HStack(spacing: 12) {
-            // Restaurant Image
-            AsyncImage(url: restaurant.imageURL) { image in
+            // Shop Image
+            AsyncImage(url: shop.imageURL) { image in
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -18,17 +18,17 @@ struct RestaurantCell: View {
             .frame(width: 60, height: 60)
             .cornerRadius(8)
             
-            // Restaurant Info
+            // Shop Info
             VStack(alignment: .leading, spacing: 4) {
-                Text(restaurant.name)
+                Text(shop.name)
                     .font(.headline)
                     .foregroundColor(.primary)
                 
-                Text(restaurant.address)
+                Text(shop.address)
                     .font(.subheadline)
                     .foregroundColor(.gray)
                 
-                if let phone = restaurant.phone {
+                if let phone = shop.phone {
                     Text(phone)
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -47,9 +47,9 @@ struct RestaurantCell: View {
 }
 
 #Preview {
-    RestaurantCell(
-        restaurant: Restaurant(
-            id: UUID(),
+    ShopCell(
+        shop: Shop(
+            id: "1",
             name: "BBQ치킨 강남점",
             address: "서울시 강남구 테헤란로 123",
             imageURL: URL(string: "https://example.com/image1.jpg"),

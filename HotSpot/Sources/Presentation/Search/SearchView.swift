@@ -76,7 +76,7 @@ struct SearchView: View {
                     if viewStore.isLoading {
                         ProgressView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if viewStore.restaurants.isEmpty {
+                    } else if viewStore.shops.isEmpty {
                         VStack(spacing: 16) {
                             Image(systemName: "magnifyingglass")
                                 .font(.system(size: 48))
@@ -89,13 +89,13 @@ struct SearchView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 0) {
-                                ForEach(viewStore.restaurants) { restaurant in
-                                    RestaurantCell(restaurant: restaurant)
+                                ForEach(viewStore.shops) { shop in
+                                    ShopCell(shop: shop)
                                         .onTapGesture {
-                                            viewStore.send(.selectRestaurant(restaurant))
+                                            viewStore.send(.selectShop(shop))
                                         }
                                     
-                                    if restaurant.id != viewStore.restaurants.last?.id {
+                                    if shop.id != viewStore.shops.last?.id {
                                         Divider()
                                             .padding(.leading)
                                     }

@@ -28,14 +28,14 @@ struct AppCoordinatorView: View {
 
                     NavigationLink(
                         destination: IfLetStore(
-                            store.scope(state: \.restaurantDetail, action: \.restaurantDetail),
+                            store.scope(state: \.shopDetail, action: \.shopDetail),
                             then: { store in
-                                RestaurantDetailView(store: store)
+                                ShopDetailView(store: store)
                             }
                         ),
                         isActive: viewStore.binding(
-                            get: { $0.restaurantDetail != nil },
-                            send: { $0 ? .showRestaurantDetail(viewStore.selectedRestaurantId ?? UUID()) : .dismissDetail }
+                            get: { $0.shopDetail != nil },
+                            send: { $0 ? .showShopDetail(viewStore.selectedShopId ?? "0") : .dismissDetail }
                         )
                     ) {
                         EmptyView()

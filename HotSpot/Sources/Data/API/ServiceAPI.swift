@@ -2,6 +2,7 @@ import Foundation
 import Moya
 
 enum ServiceAPI {
+    case searchShops(ShopSearchRequestDTO)
 }
 
 extension ServiceAPI: TargetType {
@@ -15,30 +16,37 @@ extension ServiceAPI: TargetType {
 
     var path: String {
         switch self {
-        default:
-            return ""
+        case .searchShops:
+            return "/gourmet/v1/"
         }
     }
 
     var method: Moya.Method {
         switch self {
-        default:
+        case .searchShops:
             return .get
         }
     }
 
     var task: Task {
+        guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String else {
+            fatalError("API_KEY is not set in configuration")
+        }
+
         switch self {
-        default:
-            return .requestPlain
+        case let .searchShops(request):
+            var parameters = request.asParameters
+            parameters["key"] = apiKey
+            parameters["format"] = "json"
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
         }
     }
 
     var headers: [String: String]? {
-        return [
-            "Content-Type": "application/json"
-        ]
+        return nil
     }
 
-    var validationType: ValidationType { .successCodes }
+    var validationType: ValidationType {
+        return .successCodes
+    }
 }

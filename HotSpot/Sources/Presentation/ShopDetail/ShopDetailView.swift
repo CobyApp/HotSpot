@@ -3,8 +3,8 @@ import SwiftUI
 import CobyDS
 import ComposableArchitecture
 
-struct RestaurantDetailView: View {
-    let store: StoreOf<RestaurantDetailStore>
+struct ShopDetailView: View {
+    let store: StoreOf<ShopDetailStore>
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -14,17 +14,17 @@ struct RestaurantDetailView: View {
                     leftAction: {
                         viewStore.send(.pop)
                     },
-                    title: viewStore.restaurant?.name ?? "Restaurant"
+                    title: viewStore.shop?.name ?? "Shop"
                 )
                 
                 if viewStore.isLoading {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let restaurant = viewStore.restaurant {
+                } else if let shop = viewStore.shop {
                     ScrollView {
                         VStack(spacing: 16) {
-                            // Restaurant Image
-                            if let imageURL = restaurant.imageURL {
+                            // Shop Image
+                            if let imageURL = shop.imageURL {
                                 AsyncImage(url: imageURL) { image in
                                     image
                                         .resizable()
@@ -36,17 +36,17 @@ struct RestaurantDetailView: View {
                                 .clipped()
                             }
                             
-                            // Restaurant Info
+                            // Shop Info
                             VStack(alignment: .leading, spacing: 12) {
-                                Text(restaurant.name)
+                                Text(shop.name)
                                     .font(.title)
                                     .fontWeight(.bold)
                                 
-                                Text(restaurant.address)
+                                Text(shop.address)
                                     .font(.body)
                                     .foregroundColor(.gray)
                                 
-                                if let phone = restaurant.phone {
+                                if let phone = shop.phone {
                                     Text(phone)
                                         .font(.body)
                                         .foregroundColor(.gray)
@@ -70,10 +70,10 @@ struct RestaurantDetailView: View {
 }
 
 #Preview {
-    RestaurantDetailView(
+    ShopDetailView(
         store: Store(
-            initialState: RestaurantDetailStore.State(restaurantId: UUID()),
-            reducer: { RestaurantDetailStore() }
+            initialState: ShopDetailStore.State(shopId: ""),
+            reducer: { ShopDetailStore() }
         )
     )
 } 

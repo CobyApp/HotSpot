@@ -7,7 +7,7 @@ import ComposableArchitecture
 struct SearchStore {
     struct State: Equatable {
         var searchText: String = ""
-        var restaurants: [Restaurant] = []
+        var shops: [Shop] = []
         var isLoading: Bool = false
         var currentPage: Int = 1
         var hasMorePages: Bool = true
@@ -16,9 +16,9 @@ struct SearchStore {
     enum Action {
         case searchTextChanged(String)
         case search
-        case searchResponse(TaskResult<[Restaurant]>)
+        case searchResponse(TaskResult<[Shop]>)
         case loadMore
-        case selectRestaurant(Restaurant)
+        case selectShop(Shop)
         case pop
     }
     
@@ -34,18 +34,18 @@ struct SearchStore {
                 
                 state.isLoading = true
                 state.currentPage = 1
-                state.restaurants = []
+                state.shops = []
                 state.hasMorePages = true
                 
                 return .run { [text = state.searchText] send in
                     try await Task.sleep(nanoseconds: 500_000_000) // Simulate network delay
-                    let restaurants = generateDummyRestaurants(for: text)
-                    await send(.searchResponse(.success(restaurants)))
+                    let shops = generateDummyShops(for: text)
+                    await send(.searchResponse(.success(shops)))
                 }
                 
-            case let .searchResponse(.success(restaurants)):
+            case let .searchResponse(.success(shops)):
                 state.isLoading = false
-                state.restaurants = restaurants
+                state.shops = shops
                 return .none
                 
             case .searchResponse(.failure):
@@ -55,7 +55,7 @@ struct SearchStore {
             case .loadMore:
                 return .none
                 
-            case let .selectRestaurant(restaurant):
+            case let .selectShop(shop):
                 return .none
                 
             case .pop:
@@ -64,27 +64,27 @@ struct SearchStore {
         }
     }
     
-    private func generateDummyRestaurants(for query: String, page: Int = 1) -> [Restaurant] {
+    private func generateDummyShops(for query: String, page: Int = 1) -> [Shop] {
         // Always return some results for testing
-        let restaurants = [
-            Restaurant(
-                id: UUID(),
+        let shops = [
+            Shop(
+                id: "1",
                 name: "BBQ치킨 강남점",
                 address: "서울시 강남구 테헤란로 123",
                 imageURL: URL(string: "https://example.com/image1.jpg"),
                 phone: "02-123-4567",
                 location: Location(lat: 37.5665, lon: 126.9780)
             ),
-            Restaurant(
-                id: UUID(),
+            Shop(
+                id: "2",
                 name: "BHC치킨 홍대점",
                 address: "서울시 마포구 홍대입구로 123",
                 imageURL: URL(string: "https://example.com/image2.jpg"),
                 phone: "02-234-5678",
                 location: Location(lat: 37.5665, lon: 126.9780)
             ),
-            Restaurant(
-                id: UUID(),
+            Shop(
+                id: "3",
                 name: "교촌치킨 이태원점",
                 address: "서울시 용산구 이태원로 123",
                 imageURL: URL(string: "https://example.com/image3.jpg"),
@@ -93,6 +93,6 @@ struct SearchStore {
             )
         ]
         
-        return restaurants
+        return shops
     }
 } 
