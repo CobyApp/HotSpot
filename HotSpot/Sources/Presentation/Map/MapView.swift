@@ -21,8 +21,8 @@ struct MapView: View {
                 ZStack(alignment: .bottom) {
                     MapRepresentableView(
                         shops: viewStore.shops,
-                        onRegionChanged: {
-                            viewStore.send(.mapDidMove)
+                        onRegionChanged: { lat, lng in
+                            viewStore.send(.mapDidMove(lat: lat, lng: lng))
                         }
                     )
                     .ignoresSafeArea(.all, edges: .bottom)

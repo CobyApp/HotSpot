@@ -42,7 +42,9 @@ let project = Project(
                                 "NSExceptionAllowsInsecureHTTPLoads": true
                             ]
                         ]
-                    ]
+                    ],
+                    "NSLocationWhenInUseUsageDescription": "周辺の店舗を表示するために位置情報が必要です。",
+                    "NSLocationAlwaysAndWhenInUseUsageDescription": "周辺の店舗を表示するために位置情報が必要です。"
                 ]
             ),
             sources: ["\(projectName)/Sources/**"],

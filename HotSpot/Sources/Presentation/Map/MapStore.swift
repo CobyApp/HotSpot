@@ -8,11 +8,13 @@ struct MapStore {
     struct State: Equatable {
         var shops: [ShopModel] = []
         var selectedShopId: String? = nil
+        var centerLat: Double = 35.6762  // Default to Tokyo coordinates
+        var centerLng: Double = 139.6503
     }
 
     enum Action {
         case onAppear
-        case mapDidMove
+        case mapDidMove(lat: Double, lng: Double)
         case fetchShops
         case fetchShopsResponse(TaskResult<[ShopModel]>)
         case showSearch
@@ -25,24 +27,25 @@ struct MapStore {
             case .onAppear:
                 return .send(.fetchShops)
 
-            case .mapDidMove:
+            case let .mapDidMove(lat, lng):
+                state.centerLat = lat
+                state.centerLng = lng
                 return .send(.fetchShops)
 
             case .fetchShops:
-                // 서울 시청 좌표
-                let centerLat = 37.5665
-                let centerLng = 126.9780
-
-                return .run { send in
+                print("🔍 Fetching shops for coordinates: lat=\(state.centerLat), lng=\(state.centerLng)")
+                return .run { [centerLat = state.centerLat, centerLng = state.centerLng] send in
                     await send(
                         .fetchShopsResponse(
                             TaskResult {
-                                try await shopRepository.searchShops(
+                                let shops = try await shopRepository.searchShops(
                                     lat: centerLat,
                                     lng: centerLng,
                                     range: 3,
                                     count: 100
                                 )
+                                print("✅ Successfully fetched \(shops.count) shops")
+                                return shops
                             }
                         )
                     )
@@ -50,9 +53,11 @@ struct MapStore {
 
             case let .fetchShopsResponse(.success(shops)):
                 state.shops = shops
+                print("📊 Updated shops count: \(shops.count)")
                 return .none
 
-            case .fetchShopsResponse(.failure):
+            case .fetchShopsResponse(.failure(let error)):
+                print("❌ Failed to fetch shops: \(error)")
                 // TODO: 에러 처리 로직 추가 가능
                 return .none
 

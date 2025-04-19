@@ -66,7 +66,7 @@ class ShopAnnotationView: MKAnnotationView {
 
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
-    var onRegionChanged: (() -> Void)?
+    var onRegionChanged: ((Double, Double) -> Void)?
 
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapRepresentableView
@@ -76,7 +76,8 @@ struct MapRepresentableView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            parent.onRegionChanged?()
+            let center = mapView.region.center
+            parent.onRegionChanged?(center.latitude, center.longitude)
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -99,10 +100,15 @@ struct MapRepresentableView: UIViewRepresentable {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
+        mapView.userTrackingMode = .none  // 위치 추적 모드 설정
+
+        // 위치 서비스 권한 확인
+        let locationManager = CLLocationManager()
+        locationManager.requestWhenInUseAuthorization()
 
         // 초기 위치
         let region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 37.5665, longitude: 126.9780),
+            center: CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503),
             span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         )
         mapView.setRegion(region, animated: false)
