@@ -24,6 +24,9 @@ jobs:
       - name: Install Tuist via mise
         run: mise install tuist
 
+      - name: Resolve dependencies
+        run: mise x -- tuist install
+
       - name: Generate Xcode project
         run: mise x -- tuist generate
 
