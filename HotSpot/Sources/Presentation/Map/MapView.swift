@@ -1,9 +1,12 @@
 import SwiftUI
+
 import ComposableArchitecture
 import CobyDS
+import Kingfisher
 
 struct MapView: View {
     let store: StoreOf<MapStore>
+    @State private var shopImages: [String: UIImage] = [:]
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -37,14 +40,18 @@ struct MapView: View {
                         itemWidth: BaseSize.fullWidth
                     ) { shop in
                         ThumbnailTileView(
-                            image: nil, // TODO: Connect with Kingfisher when image URL is available
+                            image: shopImages[shop.id],
                             title: shop.name,
-                            subTitle: shop.access,
-                            description: shop.address
+                            subTitle: nil,
+                            description: shop.access,
+                            subDescription: nil
                         )
-                        .frame(width: BaseSize.fullWidth, height: 120)
+                        .frame(width: BaseSize.fullWidth)
                         .onTapGesture {
                             viewStore.send(.showShopDetail(shop.id))
+                        }
+                        .onAppear {
+                            loadImage(for: shop)
                         }
                     }
                     .frame(height: 120)
@@ -53,6 +60,16 @@ struct MapView: View {
             }
             .onAppear {
                 viewStore.send(.onAppear)
+            }
+        }
+    }
+
+    private func loadImage(for shop: ShopModel) {
+        guard shopImages[shop.id] == nil else { return }
+
+        UIImage.load(from: shop.imageUrl) { image in
+            DispatchQueue.main.async {
+                shopImages[shop.id] = image
             }
         }
     }

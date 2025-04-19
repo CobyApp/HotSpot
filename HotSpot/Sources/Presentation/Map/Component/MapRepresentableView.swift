@@ -1,69 +1,6 @@
 import SwiftUI
 import MapKit
 
-// MARK: - Custom Annotation
-
-class ShopAnnotation: NSObject, MKAnnotation {
-    var coordinate: CLLocationCoordinate2D
-    var title: String?
-
-    init(coordinate: CLLocationCoordinate2D, title: String?) {
-        self.coordinate = coordinate
-        self.title = title
-    }
-}
-
-// MARK: - Custom Annotation View
-
-class ShopAnnotationView: MKAnnotationView {
-    static let reuseIdentifier = "ShopAnnotationView"
-
-    private var iconImageView: UIImageView?
-
-    override var annotation: MKAnnotation? {
-        willSet {
-            guard newValue is ShopAnnotation else { return }
-            canShowCallout = true
-            rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-        }
-    }
-
-    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        setupView()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        setupView()
-    }
-
-    private func setupView() {
-        let size: CGFloat = 40
-        let backgroundView = UIView(frame: CGRect(x: 0, y: 0, width: size, height: size))
-        backgroundView.backgroundColor = UIColor.black
-        backgroundView.layer.cornerRadius = size / 2
-        backgroundView.layer.borderColor = UIColor.gray.cgColor
-        backgroundView.layer.borderWidth = 1
-
-        let iconImageView = UIImageView(frame: CGRect(x: 8, y: 8, width: 24, height: 24))
-        iconImageView.tintColor = .white
-        iconImageView.contentMode = .scaleAspectFit
-
-        backgroundView.addSubview(iconImageView)
-        addSubview(backgroundView)
-        self.iconImageView = iconImageView
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        subviews.first?.center = CGPoint(x: bounds.midX, y: bounds.midY)
-        iconImageView?.center = CGPoint(x: bounds.midX, y: bounds.midY)
-    }
-}
-
-// MARK: - UIViewRepresentable Map
-
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
     var centerCoordinate: Binding<(Double, Double)>
@@ -84,14 +21,15 @@ struct MapRepresentableView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            guard let annotation = annotation as? ShopAnnotation else { return nil }
-
-            if let view = mapView.dequeueReusableAnnotationView(withIdentifier: ShopAnnotationView.reuseIdentifier) as? ShopAnnotationView {
-                view.annotation = annotation
-                return view
-            } else {
-                return ShopAnnotationView(annotation: annotation, reuseIdentifier: ShopAnnotationView.reuseIdentifier)
+            if let cluster = annotation as? MKClusterAnnotation {
+                return ShopClusterAnnotationView(annotation: cluster, reuseIdentifier: "cluster")
             }
+            
+            if let shopAnnotation = annotation as? ShopAnnotation {
+                return ShopAnnotationView(annotation: shopAnnotation, reuseIdentifier: ShopAnnotationView.reuseIdentifier)
+            }
+            
+            return nil
         }
     }
 
@@ -103,6 +41,7 @@ struct MapRepresentableView: UIViewRepresentable {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
+        mapView.register(ShopAnnotationView.self, forAnnotationViewWithReuseIdentifier: ShopAnnotationView.reuseIdentifier)
         return mapView
     }
 
@@ -112,7 +51,8 @@ struct MapRepresentableView: UIViewRepresentable {
         let annotations = shops.map {
             ShopAnnotation(
                 coordinate: CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude),
-                title: $0.name
+                title: $0.name,
+                shopId: $0.id
             )
         }
 

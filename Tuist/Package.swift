@@ -26,7 +26,7 @@ let package = Package(
         .iOS(.v15)
     ],
     dependencies: [
-        .package(url: "https://github.com/CobyLibrary/CobyDS.git", from: "1.7.6"),
+        .package(url: "https://github.com/CobyLibrary/CobyDS.git", from: "1.7.8"),
         .package(url: "https://github.com/Moya/Moya.git", from: "15.0.3"),
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.19.1"),
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.3.2")
