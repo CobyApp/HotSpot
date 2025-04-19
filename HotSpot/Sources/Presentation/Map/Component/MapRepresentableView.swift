@@ -4,7 +4,7 @@ import MapKit
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
     var centerCoordinate: Binding<(Double, Double)>
-    var onRegionChanged: (CLLocationCoordinate2D) -> Void
+    var onRegionChanged: (MKCoordinateRegion) -> Void
 
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapRepresentableView
@@ -14,9 +14,9 @@ struct MapRepresentableView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            let center = mapView.centerCoordinate
+            let region = mapView.region
             DispatchQueue.main.async {
-                self.parent.onRegionChanged(center)
+                self.parent.onRegionChanged(region)
             }
         }
 
@@ -52,7 +52,8 @@ struct MapRepresentableView: UIViewRepresentable {
             ShopAnnotation(
                 coordinate: CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude),
                 title: $0.name,
-                shopId: $0.id
+                shopId: $0.id,
+                genreCode: $0.genreCode
             )
         }
 

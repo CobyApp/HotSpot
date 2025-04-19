@@ -9,6 +9,7 @@ struct ShopDTO: Decodable {
     let access: String
     let open: String?
     let photo: Photo
+    let genre: Genre
 
     struct Photo: Decodable {
         let mobile: Mobile
@@ -22,6 +23,14 @@ struct ShopDTO: Decodable {
         }
     }
 
+    struct Genre: Decodable {
+        let code: String
+
+        enum CodingKeys: String, CodingKey {
+            case code = "code"
+        }
+    }
+
     func toDomain() -> ShopModel {
         ShopModel(
             id: id,
@@ -31,7 +40,8 @@ struct ShopDTO: Decodable {
             longitude: lng,
             imageUrl: photo.mobile.large,
             access: access,
-            openingHours: open
+            openingHours: open,
+            genreCode: genre.code
         )
     }
 }

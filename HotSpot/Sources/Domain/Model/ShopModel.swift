@@ -17,4 +17,5 @@ struct ShopModel: Identifiable, Equatable {
     let imageUrl: String
     let access: String
     let openingHours: String?
+    let genreCode: String
 }

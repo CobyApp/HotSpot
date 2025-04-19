@@ -8,13 +8,10 @@ class ShopAnnotationView: MKMarkerAnnotationView {
         willSet {
             guard let shopAnnotation = newValue as? ShopAnnotation else { return }
             clusteringIdentifier = "Shop"
-            canShowCallout = true
-            calloutOffset = CGPoint(x: 0, y: 5)
-            markerTintColor = .black
-            glyphImage = UIImage(systemName: "mappin.circle.fill")
-            
-            let detailButton = UIButton(type: .detailDisclosure)
-            rightCalloutAccessoryView = detailButton
+            canShowCallout = false
+            isEnabled = false
+            markerTintColor = ShopGenreColor.color(for: shopAnnotation.genreCode)
+            glyphImage = ShopGenreColor.image(for: shopAnnotation.genreCode)
         }
     }
     

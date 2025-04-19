@@ -12,6 +12,7 @@ struct MapStore {
         var centerLng: Double = 139.6503
         var isInitialized: Bool = false
         var error: String? = nil
+        var currentRange: Int = 3  // Default to 1km
     }
 
     enum Action: BindableAction {
@@ -23,6 +24,7 @@ struct MapStore {
         case updateCoordinates(lat: Double, lng: Double)
         case updateShops([ShopModel])
         case handleError(Error)
+        case updateRange(Int)
     }
 
     var body: some ReducerOf<Self> {
@@ -45,13 +47,19 @@ struct MapStore {
                     await send(.fetchShops)
                 }
 
+            case let .updateRange(range):
+                state.currentRange = range
+                return .run { send in
+                    await send(.fetchShops)
+                }
+
             case .fetchShops:
                 return .run { [state] send in
                     do {
                         let request = ShopSearchRequestDTO(
                             lat: state.centerLat,
                             lng: state.centerLng,
-                            range: 3,
+                            range: state.currentRange,
                             count: 100,
                             keyword: nil,
                             genre: nil,
