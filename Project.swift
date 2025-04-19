@@ -7,17 +7,22 @@ let bundleTestID = "com.coby.HotSpotTests"
 let targetVersion = "15.0"
 let version = "1.0.0"
 let bundleVersion = "0"
+let baseURL = "http://webservice.recruit.co.jp/hotpepper"
+let apiKey = "8011379945b3b751"
 
 let project = Project(
     name: projectName,
     organizationName: organizationName,
     settings: .settings(
-        base: SettingsDictionary()
-            .automaticCodeSigning(devTeam: "3Y8YH8GWMM")
-            .swiftVersion("5.9"),
+        base: [
+            "BASE_URL": SettingValue(stringLiteral: baseURL),
+            "API_KEY": SettingValue(stringLiteral: apiKey),
+            "SWIFT_VERSION": SettingValue(stringLiteral: "5.9"),
+            "DEVELOPMENT_TEAM": SettingValue(stringLiteral: "3Y8YH8GWMM")
+        ],
         configurations: [
-            .debug(name: .debug, xcconfig: "\(projectName)/Configuration/Config.xcconfig"),
-            .release(name: .release, xcconfig: "\(projectName)/Configuration/Config.xcconfig")
+            .debug(name: .debug),
+            .release(name: .release)
         ]
     ),
     targets: [
@@ -29,22 +34,24 @@ let project = Project(
             deploymentTargets: .iOS(targetVersion),
             infoPlist: .extendingDefault(
                 with: [
-                    "CFBundleShortVersionString": "\(version)",
-                    "CFBundleVersion": "\(bundleVersion)",
-                    "CFBundleDisplayName": "\(projectName)",
-                    "UILaunchScreen": [
-                        "UIColorName": "",
-                        "UIImageName": "",
-                    ],
-                    "NSAppTransportSecurity": [
-                        "NSExceptionDomains": [
-                            "webservice.recruit.co.jp": [
-                                "NSExceptionAllowsInsecureHTTPLoads": true
-                            ]
-                        ]
-                    ],
-                    "NSLocationWhenInUseUsageDescription": "周辺の店舗を表示するために位置情報が必要です。",
-                    "NSLocationAlwaysAndWhenInUseUsageDescription": "周辺の店舗を表示するために位置情報が必要です。"
+                    "CFBundleShortVersionString": .string(version),
+                    "CFBundleVersion": .string(bundleVersion),
+                    "CFBundleDisplayName": .string(projectName),
+                    "BASE_URL": .string(baseURL),
+                    "API_KEY": .string(apiKey),
+                    "UILaunchScreen": .dictionary([
+                        "UIColorName": .string(""),
+                        "UIImageName": .string("")
+                    ]),
+                    "NSAppTransportSecurity": .dictionary([
+                        "NSExceptionDomains": .dictionary([
+                            "webservice.recruit.co.jp": .dictionary([
+                                "NSExceptionAllowsInsecureHTTPLoads": .boolean(true)
+                            ])
+                        ])
+                    ]),
+                    "NSLocationWhenInUseUsageDescription": .string("周辺の店舗を表示するために位置情報が必要です。"),
+                    "NSLocationAlwaysAndWhenInUseUsageDescription": .string("周辺の店舗を表示するために位置情報が必要です。")
                 ]
             ),
             sources: ["\(projectName)/Sources/**"],

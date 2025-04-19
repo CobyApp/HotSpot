@@ -11,75 +11,67 @@ struct MapStore {
         var centerLat: Double = 35.6762  // Default to Tokyo
         var centerLng: Double = 139.6503
         var isInitialized: Bool = false
+        var error: String? = nil
     }
 
-    enum Action {
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case onAppear
-        case mapDidMove(lat: Double, lng: Double)
         case fetchShops
-        case fetchShopsResponse(TaskResult<[ShopModel]>)
         case showSearch
         case showShopDetail(String)
+        case updateCoordinates(lat: Double, lng: Double)
+        case updateShops([ShopModel])
+        case handleError(Error)
     }
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
+
         Reduce { state, action in
             switch action {
-            case .onAppear:
-                print("🗺️ Map appeared, initializing...")
-                if !state.isInitialized {
-                    state.isInitialized = true
-                    return .send(.fetchShops)
-                }
+            case .binding:
                 return .none
 
-            case let .mapDidMove(lat, lng):
-                print("📍 Map moved to: lat=\(lat), lng=\(lng)")
+            case .onAppear:
+                return .run { send in
+                    await send(.fetchShops)
+                }
+
+            case let .updateCoordinates(lat, lng):
                 state.centerLat = lat
                 state.centerLng = lng
-                return .send(.fetchShops)
+                return .run { send in
+                    await send(.fetchShops)
+                }
 
             case .fetchShops:
-                print("🔍 Fetching shops with parameters:")
-                print("  - Center: lat=\(state.centerLat), lng=\(state.centerLng)")
-                print("  - Range: 3")
-                print("  - Count: 100")
-                
-                return .run { [centerLat = state.centerLat, centerLng = state.centerLng] send in
+                return .run { [state] send in
                     do {
-                        print("📡 Making API request...")
                         let shops = try await shopRepository.searchShops(
-                            lat: centerLat,
-                            lng: centerLng,
+                            lat: state.centerLat,
+                            lng: state.centerLng,
                             range: 3,
                             count: 100
                         )
-                        print("✅ API request successful")
-                        print("📊 Received \(shops.count) shops")
-                        await send(.fetchShopsResponse(.success(shops)))
+                        await send(.updateShops(shops))
                     } catch {
-                        print("❌ API request failed: \(error)")
-                        print("Error details: \(error.localizedDescription)")
-                        await send(.fetchShopsResponse(.failure(error)))
+                        await send(.handleError(error))
                     }
                 }
 
-            case let .fetchShopsResponse(.success(shops)):
-                print("📦 Updating state with \(shops.count) shops")
+            case let .updateShops(shops):
                 state.shops = shops
                 return .none
 
-            case let .fetchShopsResponse(.failure(error)):
-                print("⚠️ Failed to update shops: \(error)")
-                print("Error details: \(error.localizedDescription)")
+            case let .handleError(error):
+                state.error = error.localizedDescription
                 return .none
 
             case .showSearch:
-                print("🔎 Showing search view")
                 return .none
 
             case let .showShopDetail(id):
-                print("🏪 Showing shop detail for ID: \(id)")
                 state.selectedShopId = id
                 return .none
             }

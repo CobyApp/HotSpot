@@ -22,6 +22,10 @@ struct AppCoordinator {
     }
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.map, action: \.map) {
+            MapStore()
+        }
+        
         Reduce { state, action in
             switch action {
             case .map(.showSearch), .showSearch:
@@ -52,6 +56,12 @@ struct AppCoordinator {
             case .map, .search, .shopDetail:
                 return .none
             }
+        }
+        .ifLet(\.search, action: \.search) {
+            SearchStore()
+        }
+        .ifLet(\.shopDetail, action: \.shopDetail) {
+            ShopDetailStore()
         }
     }
 }

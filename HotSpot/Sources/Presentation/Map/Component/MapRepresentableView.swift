@@ -66,54 +66,21 @@ class ShopAnnotationView: MKAnnotationView {
 
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
-    var onRegionChanged: ((Double, Double) -> Void)?
+    var centerCoordinate: Binding<(Double, Double)>
+    var onRegionChanged: (CLLocationCoordinate2D) -> Void
 
-    class Coordinator: NSObject, MKMapViewDelegate, CLLocationManagerDelegate {
+    class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapRepresentableView
-        var locationManager: CLLocationManager?
-        var mapView: MKMapView?
 
         init(parent: MapRepresentableView) {
             self.parent = parent
-            super.init()
-            setupLocationManager()
-        }
-
-        private func setupLocationManager() {
-            locationManager = CLLocationManager()
-            locationManager?.delegate = self
-            locationManager?.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager?.requestWhenInUseAuthorization()
-        }
-
-        func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-            switch manager.authorizationStatus {
-            case .authorizedWhenInUse, .authorizedAlways:
-                print("📍 Location authorized")
-                manager.startUpdatingLocation()
-            case .denied, .restricted:
-                print("⚠️ Location access denied")
-            case .notDetermined:
-                print("❓ Location access not determined")
-            @unknown default:
-                break
-            }
-        }
-
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            guard let location = locations.last else { return }
-            let region = MKCoordinateRegion(
-                center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-            )
-            mapView?.setRegion(region, animated: true)
-            manager.stopUpdatingLocation()
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            let center = mapView.region.center
-            print("🗺️ Map region changed to: lat=\(center.latitude), lng=\(center.longitude)")
-            parent.onRegionChanged?(center.latitude, center.longitude)
+            let center = mapView.centerCoordinate
+            DispatchQueue.main.async {
+                self.parent.onRegionChanged(center)
+            }
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -134,18 +101,15 @@ struct MapRepresentableView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
-        context.coordinator.mapView = mapView
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
-        mapView.userTrackingMode = .none
-
         return mapView
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
         uiView.removeAnnotations(uiView.annotations)
 
-        let annotations: [ShopAnnotation] = shops.map {
+        let annotations = shops.map {
             ShopAnnotation(
                 coordinate: CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude),
                 title: $0.name

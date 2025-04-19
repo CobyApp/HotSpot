@@ -21,22 +21,23 @@ struct MapView: View {
                 ZStack(alignment: .bottom) {
                     MapRepresentableView(
                         shops: viewStore.shops,
-                        onRegionChanged: { lat, lng in
-                            viewStore.send(.mapDidMove(lat: lat, lng: lng))
+                        centerCoordinate: viewStore.binding(
+                            get: { ($0.centerLat, $0.centerLng) },
+                            send: { .updateCoordinates(lat: $0.0, lng: $0.1) }
+                        ),
+                        onRegionChanged: { center in
+                            viewStore.send(.updateCoordinates(lat: center.latitude, lng: center.longitude))
                         }
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
-                    .onAppear {
-                        viewStore.send(.onAppear)
-                    }
 
-                    // 하단 카드 스크롤
+                    // Bottom card scroll view
                     SnappingScrollView(
                         items: viewStore.shops,
                         itemWidth: BaseSize.fullWidth
                     ) { shop in
                         ThumbnailTileView(
-                            image: nil, // 이미지 URL 있으면 Kingfisher 등으로 연결
+                            image: nil, // TODO: Connect with Kingfisher when image URL is available
                             title: shop.name,
                             subTitle: shop.access,
                             description: shop.address
@@ -49,6 +50,9 @@ struct MapView: View {
                     .frame(height: 120)
                     .padding(.bottom, 30)
                 }
+            }
+            .onAppear {
+                viewStore.send(.onAppear)
             }
         }
     }
