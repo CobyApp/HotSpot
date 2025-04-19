@@ -4,6 +4,7 @@ import ComposableArchitecture
 @Reducer
 struct RestaurantDetailStore {
     struct State: Equatable {
+        var restaurantId: UUID
         var isFavorite: Bool = false
     }
     

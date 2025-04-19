@@ -4,42 +4,48 @@ import ComposableArchitecture
 @Reducer
 struct AppCoordinator {
     struct State: Equatable {
-        var search: SearchStore.State = .init()
+        var map: MapStore.State = .init()
+        var search: SearchStore.State? = nil
         var restaurantDetail: RestaurantDetailStore.State?
         var favorite: FavoriteStore.State?
         var settings: SettingsStore.State?
+        var selectedRestaurantId: UUID?
     }
 
     enum Action {
+        case map(MapStore.Action)
         case search(SearchStore.Action)
         case restaurantDetail(RestaurantDetailStore.Action)
         case favorite(FavoriteStore.Action)
         case settings(SettingsStore.Action)
 
-        case showRestaurantDetail
+        case showRestaurantDetail(UUID)
         case navigateToFavorite
         case navigateToSettings
+        case showSearch
+        case dismissSearch
         case dismissDetail
         case dismissFavorite
         case dismissSettings
     }
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.search, action: \.search) {
-            SearchStore()
-        }
-
         Reduce { state, action in
             switch action {
-            case .search(.showRestaurantDetail):
-                state.restaurantDetail = .init()
+            case .map(.showSearch), .showSearch:
+                state.search = .init()
                 return .none
                 
-            case .search(.navigateToSettings):
-                state.settings = .init()
+            case .search(.pop), .dismissSearch:
+                state.search = nil
                 return .none
                 
-            case .showRestaurantDetail:
+            case let .search(.selectRestaurant(restaurant)):
+                state.selectedRestaurantId = restaurant.id
+                return .send(.showRestaurantDetail(restaurant.id))
+                
+            case let .showRestaurantDetail(id):
+                state.restaurantDetail = .init(restaurantId: id)
                 return .none
                 
             case .navigateToFavorite:
@@ -52,6 +58,7 @@ struct AppCoordinator {
                 
             case .dismissDetail:
                 state.restaurantDetail = nil
+                state.selectedRestaurantId = nil
                 return .none
                 
             case .dismissFavorite:
@@ -62,27 +69,9 @@ struct AppCoordinator {
                 state.settings = nil
                 return .none
                 
-            case .search:
-                return .none
-                
-            case .restaurantDetail:
-                return .none
-                
-            case .favorite:
-                return .none
-                
-            case .settings:
+            case .map, .search, .restaurantDetail, .favorite, .settings:
                 return .none
             }
-        }
-        .ifLet(\.restaurantDetail, action: \.restaurantDetail) {
-            RestaurantDetailStore()
-        }
-        .ifLet(\.favorite, action: \.favorite) {
-            FavoriteStore()
-        }
-        .ifLet(\.settings, action: \.settings) {
-            SettingsStore()
         }
     }
 }

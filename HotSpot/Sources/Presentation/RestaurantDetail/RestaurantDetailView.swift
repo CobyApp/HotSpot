@@ -21,9 +21,8 @@ struct RestaurantDetailView: View {
 #Preview {
     RestaurantDetailView(
         store: Store(
-            initialState: RestaurantDetailStore.State()
-        ) {
-            RestaurantDetailStore()
-        }
+            initialState: RestaurantDetailStore.State(restaurantId: UUID()),
+            reducer: { RestaurantDetailStore() }
+        )
     )
 } 
