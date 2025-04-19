@@ -15,7 +15,7 @@ struct SearchShopsUseCase {
         self.repository = repository
     }
 
-    func execute(lat: Double, lng: Double, range: Int = 3, count: Int = 30) async throws -> [ShopModel] {
-        try await repository.searchShops(lat: lat, lng: lng, range: range, count: count)
+    func execute(request: ShopSearchRequestDTO) async throws -> [ShopModel] {
+        try await repository.searchShops(request: request)
     }
 }

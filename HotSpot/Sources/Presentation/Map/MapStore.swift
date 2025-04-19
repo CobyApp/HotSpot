@@ -48,12 +48,23 @@ struct MapStore {
             case .fetchShops:
                 return .run { [state] send in
                     do {
-                        let shops = try await shopRepository.searchShops(
+                        let request = ShopSearchRequestDTO(
                             lat: state.centerLat,
                             lng: state.centerLng,
                             range: 3,
-                            count: 100
+                            count: 100,
+                            keyword: nil,
+                            genre: nil,
+                            order: nil,
+                            start: nil,
+                            budget: nil,
+                            privateRoom: nil,
+                            wifi: nil,
+                            nonSmoking: nil,
+                            coupon: nil,
+                            openNow: nil
                         )
+                        let shops = try await shopRepository.searchShops(request: request)
                         await send(.updateShops(shops))
                     } catch {
                         await send(.handleError(error))

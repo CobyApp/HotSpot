@@ -9,5 +9,5 @@
 import Foundation
 
 protocol ShopRepository {
-    func searchShops(lat: Double, lng: Double, range: Int, count: Int) async throws -> [ShopModel]
+    func searchShops(request: ShopSearchRequestDTO) async throws -> [ShopModel]
 }
