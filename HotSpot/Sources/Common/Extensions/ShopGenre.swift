@@ -1,6 +1,29 @@
 import UIKit
 
-public enum ShopGenreColor {
+public enum ShopGenre {
+    public static func name(for genreCode: String) -> String {
+        switch genreCode {
+        case "G001": return "居酒屋"
+        case "G002": return "ダイニングバー・バル"
+        case "G003": return "創作料理"
+        case "G004": return "和食"
+        case "G005": return "洋食"
+        case "G006": return "イタリアン・フレンチ"
+        case "G007": return "中華"
+        case "G008": return "焼肉・ホルモン"
+        case "G009": return "アジア・エスニック料理"
+        case "G010": return "各国料理"
+        case "G011": return "カラオケ・パーティ"
+        case "G012": return "バー・カクテル"
+        case "G013": return "ラーメン"
+        case "G014": return "カフェ・スイーツ"
+        case "G015": return "その他グルメ"
+        case "G016": return "お好み焼き・もんじゃ"
+        case "G017": return "韓国料理"
+        default: return "その他"
+        }
+    }
+    
     public static func color(for genreCode: String) -> UIColor {
         switch genreCode {
         case "G001": return UIColor(red: 0.8, green: 0.2, blue: 0.2, alpha: 1.0) // 居酒屋 - Red

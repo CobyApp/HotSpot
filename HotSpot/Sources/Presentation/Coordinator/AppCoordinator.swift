@@ -47,7 +47,13 @@ struct AppCoordinator {
                 state.isDetailPresented = true
                 return .none
                 
-            case .shopDetail(.pop), .dismissDetail:
+            case .shopDetail(.pop):
+                state.shopDetail = nil
+                state.selectedShop = nil
+                state.isDetailPresented = false
+                return .none
+                
+            case .dismissDetail:
                 state.shopDetail = nil
                 state.selectedShop = nil
                 state.isDetailPresented = false
@@ -58,7 +64,13 @@ struct AppCoordinator {
                 state.isDetailPresented = true
                 return .send(.showShopDetail(shop))
                 
-            case .map, .search, .shopDetail:
+            case .map:
+                return .none
+                
+            case .search:
+                return .none
+                
+            case .shopDetail:
                 return .none
             }
         }

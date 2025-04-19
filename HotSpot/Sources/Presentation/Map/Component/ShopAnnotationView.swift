@@ -10,8 +10,8 @@ class ShopAnnotationView: MKMarkerAnnotationView {
             clusteringIdentifier = "Shop"
             canShowCallout = false
             isEnabled = false
-            markerTintColor = ShopGenreColor.color(for: shopAnnotation.genreCode)
-            glyphImage = ShopGenreColor.image(for: shopAnnotation.genreCode)
+            markerTintColor = ShopGenre.color(for: shopAnnotation.genreCode)
+            glyphImage = ShopGenre.image(for: shopAnnotation.genreCode)
         }
     }
     
