@@ -8,11 +8,11 @@ struct AppCoordinatorView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationView {
                 VStack {
-                    MapView(store: store.scope(state: \.map, action: { .map($0) }))
+                    MapView(store: store.scope(state: \.map, action: \.map))
                     
                     NavigationLink(
                         destination: IfLetStore(
-                            store.scope(state: \.search, action: { .search($0) }),
+                            store.scope(state: \.search, action: \.search),
                             then: { store in
                                 SearchView(store: store)
                             }
@@ -28,13 +28,13 @@ struct AppCoordinatorView: View {
                     
                     NavigationLink(
                         destination: IfLetStore(
-                            store.scope(state: \.shopDetail, action: { .shopDetail($0) }),
+                            store.scope(state: \.shopDetail, action: \.shopDetail),
                             then: { store in
                                 ShopDetailView(store: store)
                             }
                         ),
                         isActive: viewStore.binding(
-                            get: { $0.isDetailPresented },
+                            get: { $0.shopDetail != nil },
                             send: { $0 ? .showShopDetail(viewStore.selectedShop!) : .dismissDetail }
                         )
                     ) {
@@ -46,4 +46,13 @@ struct AppCoordinatorView: View {
             .navigationViewStyle(.stack)
         }
     }
+}
+
+#Preview {
+    AppCoordinatorView(
+        store: Store(
+            initialState: AppCoordinator.State(),
+            reducer: { AppCoordinator() }
+        )
+    )
 }

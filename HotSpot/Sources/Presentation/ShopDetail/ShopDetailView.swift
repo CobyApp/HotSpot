@@ -8,84 +8,25 @@ struct ShopDetailView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
-                TopBarView(
-                    leftSide: .left,
-                    leftAction: {
-                        viewStore.send(.pop)
-                    }
-                )
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        KFImage(URL(string: viewStore.shop.imageUrl))
-                            .placeholder {
-                                Image(uiImage: UIImage.icImage)
-                                    .resizable()
-                                    .frame(width: 64, height: 64)
-                                    .foregroundColor(Color.labelAlternative)
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .background(Color.fillStrong)
-                            }
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: BaseSize.screenWidth, height: BaseSize.screenWidth)
-                            .clipped()
-                        
-                        VStack(alignment: .leading, spacing: 24) {
-                            // Name and Genre
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(viewStore.shop.name)
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                
-                                Text(ShopGenre.name(for: viewStore.shop.genreCode))
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            
-                            // Address
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("住所")
-                                    .font(.headline)
-                                Text(viewStore.shop.address)
-                                    .font(.body)
-                            }
-                            
-                            // Access
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("アクセス")
-                                    .font(.headline)
-                                Text(viewStore.shop.access)
-                                    .font(.body)
-                            }
-                            
-                            // Open Hours
-                            if let openingHours = viewStore.shop.openingHours {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("営業時間")
-                                        .font(.headline)
-                                    Text(openingHours)
-                                        .font(.body)
-                                }
-                            }
-                            
-                            // Location
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("位置情報")
-                                    .font(.headline)
-                                Text("緯度: \(viewStore.shop.latitude)")
-                                    .font(.body)
-                                Text("経度: \(viewStore.shop.longitude)")
-                                    .font(.body)
-                            }
+            Group {
+                VStack(spacing: 0) {
+                    TopBarView(
+                        leftSide: .left,
+                        leftAction: {
+                            viewStore.send(.pop)
                         }
-                        .padding(.horizontal, BaseSize.horizantalPadding)
-                        .padding(.vertical, BaseSize.verticalPadding)
+                    )
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ShopImageSection(imageUrl: viewStore.shop.imageUrl)
+                            
+                            ShopInfoSection(shop: viewStore.shop)
+                        }
                     }
                 }
+                .navigationBarHidden(true)
             }
-            .navigationBarHidden(true)
         }
     }
 }

@@ -6,7 +6,7 @@ struct ShopDetailStore {
     @Dependency(\.shopRepository) var shopRepository
 
     struct State: Equatable {
-        var shop: ShopModel
+        let shop: ShopModel
     }
 
     enum Action: BindableAction {
