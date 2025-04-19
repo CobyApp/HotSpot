@@ -18,20 +18,6 @@ struct MapStore {
         var isInitialized: Bool = false
         var error: String? = nil
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
-
-        static func == (lhs: State, rhs: State) -> Bool {
-            lhs.shops == rhs.shops &&
-            lhs.visibleShops == rhs.visibleShops &&
-            lhs.selectedShopId == rhs.selectedShopId &&
-            lhs.region.center.latitude == rhs.region.center.latitude &&
-            lhs.region.center.longitude == rhs.region.center.longitude &&
-            lhs.region.span.latitudeDelta == rhs.region.span.latitudeDelta &&
-            lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
-            lhs.isInitialized == rhs.isInitialized &&
-            lhs.error == rhs.error &&
-            lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
-            lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude
-        }
     }
 
     enum Action: BindableAction {
@@ -62,62 +48,20 @@ struct MapStore {
             case let .updateRegion(region):
                 state.region = region
                 
-                // Check if we need to fetch new data based on distance
-                if let lastLocation = state.lastFetchedLocation {
-                    let distance = CLLocation(latitude: lastLocation.latitude, longitude: lastLocation.longitude)
-                        .distance(from: CLLocation(latitude: region.center.latitude, longitude: region.center.longitude))
-                    
-                    // Only fetch if moved more than 100 meters
-                    if distance > 100 {
-                        state.lastFetchedLocation = region.center
-                        return .run { send in
-                            await send(.fetchShops)
-                        }
-                    }
-                } else {
+                if shouldFetchNewData(state: state, newRegion: region) {
                     state.lastFetchedLocation = region.center
                     return .run { send in
                         await send(.fetchShops)
                     }
                 }
 
-                // Filter visible shops based on region
-                let northEast = CLLocationCoordinate2D(
-                    latitude: region.center.latitude + region.span.latitudeDelta / 2,
-                    longitude: region.center.longitude + region.span.longitudeDelta / 2
-                )
-                let southWest = CLLocationCoordinate2D(
-                    latitude: region.center.latitude - region.span.latitudeDelta / 2,
-                    longitude: region.center.longitude - region.span.longitudeDelta / 2
-                )
-
-                state.visibleShops = state.shops.filter { shop in
-                    shop.latitude <= northEast.latitude &&
-                    shop.latitude >= southWest.latitude &&
-                    shop.longitude <= northEast.longitude &&
-                    shop.longitude >= southWest.longitude
-                }
+                state.visibleShops = filterVisibleShops(state.shops, in: region)
                 return .none
 
             case .fetchShops:
                 return .run { [state] send in
                     do {
-                        let request = ShopSearchRequestDTO(
-                            lat: state.region.center.latitude,
-                            lng: state.region.center.longitude,
-                            range: 5,  // Fixed range
-                            count: 100,
-                            keyword: nil,
-                            genre: nil,
-                            order: nil,
-                            start: nil,
-                            budget: nil,
-                            privateRoom: nil,
-                            wifi: nil,
-                            nonSmoking: nil,
-                            coupon: nil,
-                            openNow: nil
-                        )
+                        let request = createSearchRequest(for: state.region)
                         let shops = try await shopRepository.searchShops(request: request)
                         await send(.updateShops(shops))
                     } catch {
@@ -127,22 +71,7 @@ struct MapStore {
 
             case let .updateShops(shops):
                 state.shops = shops
-                // Filter visible shops based on current region
-                let northEast = CLLocationCoordinate2D(
-                    latitude: state.region.center.latitude + state.region.span.latitudeDelta / 2,
-                    longitude: state.region.center.longitude + state.region.span.longitudeDelta / 2
-                )
-                let southWest = CLLocationCoordinate2D(
-                    latitude: state.region.center.latitude - state.region.span.latitudeDelta / 2,
-                    longitude: state.region.center.longitude - state.region.span.longitudeDelta / 2
-                )
-
-                state.visibleShops = shops.filter { shop in
-                    shop.latitude <= northEast.latitude &&
-                    shop.latitude >= southWest.latitude &&
-                    shop.longitude <= northEast.longitude &&
-                    shop.longitude >= southWest.longitude
-                }
+                state.visibleShops = filterVisibleShops(shops, in: state.region)
                 return .none
 
             case let .handleError(error):
@@ -157,5 +86,61 @@ struct MapStore {
                 return .none
             }
         }
+    }
+}
+
+// MARK: - Private Helpers
+private extension MapStore {
+    func shouldFetchNewData(state: State, newRegion: MKCoordinateRegion) -> Bool {
+        guard let lastLocation = state.lastFetchedLocation else {
+            return true
+        }
+        
+        let distance = CLLocation(latitude: lastLocation.latitude, longitude: lastLocation.longitude)
+            .distance(from: CLLocation(latitude: newRegion.center.latitude, longitude: newRegion.center.longitude))
+        
+        return distance > 100
+    }
+    
+    func filterVisibleShops(_ shops: [ShopModel], in region: MKCoordinateRegion) -> [ShopModel] {
+        shops.filter { shop in
+            region.contains(CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude))
+        }
+    }
+    
+    func createSearchRequest(for region: MKCoordinateRegion) -> ShopSearchRequestDTO {
+        ShopSearchRequestDTO(
+            lat: region.center.latitude,
+            lng: region.center.longitude,
+            range: 5,
+            count: 100,
+            keyword: nil,
+            genre: nil,
+            order: nil,
+            start: nil,
+            budget: nil,
+            privateRoom: nil,
+            wifi: nil,
+            nonSmoking: nil,
+            coupon: nil,
+            openNow: nil
+        )
+    }
+}
+
+// MARK: - Equatable
+extension MapStore.State {
+    static func == (lhs: MapStore.State, rhs: MapStore.State) -> Bool {
+        lhs.shops == rhs.shops &&
+        lhs.visibleShops == rhs.visibleShops &&
+        lhs.selectedShopId == rhs.selectedShopId &&
+        lhs.region.center.latitude == rhs.region.center.latitude &&
+        lhs.region.center.longitude == rhs.region.center.longitude &&
+        lhs.region.span.latitudeDelta == rhs.region.span.latitudeDelta &&
+        lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
+        lhs.isInitialized == rhs.isInitialized &&
+        lhs.error == rhs.error &&
+        lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
+        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude
     }
 }
