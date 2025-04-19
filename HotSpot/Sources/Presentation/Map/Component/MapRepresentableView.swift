@@ -3,8 +3,7 @@ import MapKit
 
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
-    var centerCoordinate: Binding<(Double, Double)>
-    var onRegionChanged: (MKCoordinateRegion) -> Void
+    var region: Binding<MKCoordinateRegion>
 
     class Coordinator: NSObject, MKMapViewDelegate {
         var parent: MapRepresentableView
@@ -14,9 +13,8 @@ struct MapRepresentableView: UIViewRepresentable {
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-            let region = mapView.region
             DispatchQueue.main.async {
-                self.parent.onRegionChanged(region)
+                self.parent.region.wrappedValue = mapView.region
             }
         }
 

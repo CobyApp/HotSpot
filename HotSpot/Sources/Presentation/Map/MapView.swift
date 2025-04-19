@@ -24,21 +24,17 @@ struct MapView: View {
 
                 ZStack(alignment: .bottom) {
                     MapRepresentableView(
-                        shops: viewStore.shops,
-                        centerCoordinate: viewStore.binding(
-                            get: { ($0.centerLat, $0.centerLng) },
-                            send: { .updateCoordinates(lat: $0.0, lng: $0.1) }
-                        ),
-                        onRegionChanged: { region in
-                            viewStore.send(.updateCoordinates(lat: region.center.latitude, lng: region.center.longitude))
-                            updateRangeIfNeeded(region: region, viewStore: viewStore)
-                        }
+                        shops: viewStore.visibleShops,
+                        region: viewStore.binding(
+                            get: { $0.region },
+                            send: { .updateRegion($0) }
+                        )
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
 
                     // Bottom card scroll view
                     SnappingScrollView(
-                        items: viewStore.shops,
+                        items: viewStore.visibleShops,
                         itemWidth: BaseSize.fullWidth
                     ) { shop in
                         ThumbnailTileView(
@@ -73,36 +69,6 @@ struct MapView: View {
             DispatchQueue.main.async {
                 shopImages[shop.id] = image
             }
-        }
-    }
-
-    private func updateRangeIfNeeded(region: MKCoordinateRegion, viewStore: ViewStore<MapStore.State, MapStore.Action>) {
-        // Calculate the approximate distance in meters based on the visible region
-        let span = region.span
-        let center = region.center
-        
-        // Calculate the distance in meters (approximate)
-        let latDistance = span.latitudeDelta * 111000 // 1 degree of latitude is approximately 111km
-        let lngDistance = span.longitudeDelta * 111000 * cos(center.latitude * .pi / 180)
-        let maxDistance = max(latDistance, lngDistance)
-        
-        // Determine the appropriate range based on the distance
-        let newRange: Int
-        if maxDistance <= 300 {
-            newRange = 1
-        } else if maxDistance <= 500 {
-            newRange = 2
-        } else if maxDistance <= 1000 {
-            newRange = 3
-        } else if maxDistance <= 2000 {
-            newRange = 4
-        } else {
-            newRange = 5
-        }
-        
-        // Only update if the range has changed
-        if viewStore.currentRange != newRange {
-            viewStore.send(.updateRange(newRange))
         }
     }
 }
