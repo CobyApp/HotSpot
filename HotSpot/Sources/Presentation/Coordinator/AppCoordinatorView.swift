@@ -34,7 +34,7 @@ struct AppCoordinatorView: View {
                             }
                         ),
                         isActive: viewStore.binding(
-                            get: { $0.shopDetail != nil },
+                            get: { $0.isDetailPresented },
                             send: { $0 ? .showShopDetail(viewStore.selectedShop!) : .dismissDetail }
                         )
                     ) {

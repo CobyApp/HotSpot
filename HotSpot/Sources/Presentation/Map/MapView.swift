@@ -55,9 +55,6 @@ struct MapView: View {
                     .padding(.bottom, 30)
                 }
             }
-            .onAppear {
-                viewStore.send(.onAppear)
-            }
         }
     }
 
