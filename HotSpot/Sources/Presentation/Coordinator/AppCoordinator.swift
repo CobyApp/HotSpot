@@ -8,6 +8,7 @@ struct AppCoordinator {
         var search: SearchStore.State?
         var shopDetail: ShopDetailStore.State?
         var selectedShop: ShopModel?
+        var isDetailPresented: Bool = false
     }
 
     enum Action {
@@ -38,19 +39,23 @@ struct AppCoordinator {
                 
             case let .search(.selectShop(shop)):
                 state.selectedShop = shop
+                state.isDetailPresented = true
                 return .send(.showShopDetail(shop))
                 
             case let .showShopDetail(shop):
                 state.shopDetail = .init(shop: shop)
+                state.isDetailPresented = true
                 return .none
                 
             case .shopDetail(.pop), .dismissDetail:
                 state.shopDetail = nil
                 state.selectedShop = nil
+                state.isDetailPresented = false
                 return .none
                 
             case let .map(.showShopDetail(shop)):
                 state.selectedShop = shop
+                state.isDetailPresented = true
                 return .send(.showShopDetail(shop))
                 
             case .map, .search, .shopDetail:

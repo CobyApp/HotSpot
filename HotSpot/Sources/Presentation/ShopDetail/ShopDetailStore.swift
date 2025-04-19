@@ -7,13 +7,10 @@ struct ShopDetailStore {
 
     struct State: Equatable {
         var shop: ShopModel
-        var isLoading: Bool = false
-        var error: String? = nil
     }
 
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-        case onAppear
         case pop
     }
 
@@ -23,9 +20,6 @@ struct ShopDetailStore {
         Reduce { state, action in
             switch action {
             case .binding:
-                return .none
-
-            case .onAppear:
                 return .none
 
             case .pop:

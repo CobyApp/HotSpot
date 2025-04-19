@@ -16,8 +16,7 @@ struct SearchView: View {
                         leftSide: .left,
                         leftAction: {
                             viewStore.send(.pop)
-                        },
-                        title: "Search"
+                        }
                     )
                 }
                 
