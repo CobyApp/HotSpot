@@ -10,7 +10,7 @@ struct MapStore {
     struct State: Equatable {
         var shops: [ShopModel] = []
         var visibleShops: [ShopModel] = []
-        var selectedShopId: String? = nil
+        var selectedShop: ShopModel? = nil
         var region: MKCoordinateRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503),
             span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
@@ -25,7 +25,7 @@ struct MapStore {
         case onAppear
         case fetchShops
         case showSearch
-        case showShopDetail(String)
+        case showShopDetail(ShopModel)
         case updateRegion(MKCoordinateRegion)
         case updateShops([ShopModel])
         case handleError(Error)
@@ -81,8 +81,8 @@ struct MapStore {
             case .showSearch:
                 return .none
 
-            case let .showShopDetail(id):
-                state.selectedShopId = id
+            case let .showShopDetail(shop):
+                state.selectedShop = shop
                 return .none
             }
         }
@@ -133,7 +133,7 @@ extension MapStore.State {
     static func == (lhs: MapStore.State, rhs: MapStore.State) -> Bool {
         lhs.shops == rhs.shops &&
         lhs.visibleShops == rhs.visibleShops &&
-        lhs.selectedShopId == rhs.selectedShopId &&
+        lhs.selectedShop == rhs.selectedShop &&
         lhs.region.center.latitude == rhs.region.center.latitude &&
         lhs.region.center.longitude == rhs.region.center.longitude &&
         lhs.region.span.latitudeDelta == rhs.region.span.latitudeDelta &&

@@ -5,9 +5,9 @@ import ComposableArchitecture
 struct AppCoordinator {
     struct State: Equatable {
         var map: MapStore.State = .init()
-        var search: SearchStore.State? = nil
+        var search: SearchStore.State?
         var shopDetail: ShopDetailStore.State?
-        var selectedShopId: String?
+        var selectedShop: ShopModel?
     }
 
     enum Action {
@@ -15,7 +15,7 @@ struct AppCoordinator {
         case search(SearchStore.Action)
         case shopDetail(ShopDetailStore.Action)
 
-        case showShopDetail(String)
+        case showShopDetail(ShopModel)
         case showSearch
         case dismissSearch
         case dismissDetail
@@ -37,21 +37,21 @@ struct AppCoordinator {
                 return .none
                 
             case let .search(.selectShop(shop)):
-                state.selectedShopId = shop.id
-                return .send(.showShopDetail(shop.id))
+                state.selectedShop = shop
+                return .send(.showShopDetail(shop))
                 
-            case let .showShopDetail(id):
-                state.shopDetail = .init(shopId: id)
+            case let .showShopDetail(shop):
+                state.shopDetail = .init(shop: shop)
                 return .none
                 
             case .shopDetail(.pop), .dismissDetail:
                 state.shopDetail = nil
-                state.selectedShopId = nil
+                state.selectedShop = nil
                 return .none
                 
-            case let .map(.showShopDetail(id)):
-                state.selectedShopId = id
-                return .send(.showShopDetail(id))
+            case let .map(.showShopDetail(shop)):
+                state.selectedShop = shop
+                return .send(.showShopDetail(shop))
                 
             case .map, .search, .shopDetail:
                 return .none

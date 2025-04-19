@@ -26,21 +26,23 @@ struct AppCoordinatorView: View {
                     }
                     .hidden()
 
-                    NavigationLink(
-                        destination: IfLetStore(
-                            store.scope(state: \.shopDetail, action: \.shopDetail),
-                            then: { store in
-                                ShopDetailView(store: store)
-                            }
-                        ),
-                        isActive: viewStore.binding(
-                            get: { $0.shopDetail != nil },
-                            send: { $0 ? .showShopDetail(viewStore.selectedShopId ?? "0") : .dismissDetail }
-                        )
-                    ) {
-                        EmptyView()
+                    if let selectedShop = viewStore.selectedShop {
+                        NavigationLink(
+                            destination: IfLetStore(
+                                store.scope(state: \.shopDetail, action: \.shopDetail),
+                                then: { store in
+                                    ShopDetailView(store: store)
+                                }
+                            ),
+                            isActive: viewStore.binding(
+                                get: { $0.shopDetail != nil },
+                                send: { $0 ? .showShopDetail(selectedShop) : .dismissDetail }
+                            )
+                        ) {
+                            EmptyView()
+                        }
+                        .hidden()
                     }
-                    .hidden()
                 }
             }
             .navigationViewStyle(.stack)

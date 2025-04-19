@@ -46,13 +46,12 @@ struct MapView: View {
                         )
                         .frame(width: BaseSize.fullWidth)
                         .onTapGesture {
-                            viewStore.send(.showShopDetail(shop.id))
+                            viewStore.send(.showShopDetail(shop))
                         }
                         .onAppear {
                             loadImage(for: shop)
                         }
                     }
-                    .frame(height: 120)
                     .padding(.bottom, 30)
                 }
             }
