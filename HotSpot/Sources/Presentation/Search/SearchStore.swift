@@ -12,22 +12,20 @@ struct SearchStore {
         var searchText: String = ""
         var error: String? = nil
         var currentLocation: CLLocationCoordinate2D?
-        var selectedShop: ShopModel? = nil
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.shops == rhs.shops &&
             lhs.searchText == rhs.searchText &&
             lhs.error == rhs.error &&
             lhs.currentLocation?.latitude == rhs.currentLocation?.latitude &&
-            lhs.currentLocation?.longitude == rhs.currentLocation?.longitude &&
-            lhs.selectedShop == rhs.selectedShop
+            lhs.currentLocation?.longitude == rhs.currentLocation?.longitude
         }
     }
 
     enum Action {
         case onAppear
         case search(String)
-        case selectShop(ShopModel)
+        case showShopDetail(ShopModel)
         case pop
         case updateLocation(CLLocationCoordinate2D)
         case updateShops([ShopModel])
@@ -56,17 +54,14 @@ struct SearchStore {
                 state.error = error.localizedDescription
                 return .none
 
-            case let .selectShop(shop):
-                state.selectedShop = shop
+            case .showShopDetail:
                 return .none
 
             case .pop:
                 return .none
 
             case let .search(text):
-                // TODO: Uncomment when back in Japan
-                // guard let location = state.currentLocation else { return .none }
-                let location = CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503) // Tokyo
+                guard let location = state.currentLocation else { return .none }
                 
                 return .run { send in
                     do {

@@ -29,7 +29,7 @@ struct SearchView: View {
                     error: viewStore.error,
                     searchText: viewStore.searchText,
                     shops: viewStore.shops,
-                    onSelectShop: { viewStore.send(.selectShop($0)) }
+                    onSelectShop: { viewStore.send(.showShopDetail($0)) }
                 )
             }
             .navigationBarHidden(true)
