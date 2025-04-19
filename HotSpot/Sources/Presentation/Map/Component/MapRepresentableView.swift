@@ -127,12 +127,24 @@ struct MapRepresentableView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: MKMapView, context: Context) {
+        print("MapRepresentableView updateUIView called")
+        print("Restaurants count: \(self.restaurants.count)")
         self.addMarkersToMapView(uiView)
+        
+        // Set initial region if needed
+        if uiView.annotations.isEmpty {
+            let region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: 37.5665, longitude: 126.9780),
+                span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+            )
+            uiView.setRegion(region, animated: true)
+        }
     }
     
     private func addMarkersToMapView(_ mapView: MKMapView) {
         mapView.removeAnnotations(mapView.annotations)
         
+        print("Adding markers for \(self.restaurants.count) restaurants")
         let annotations = self.restaurants.compactMap { restaurant -> RestaurantAnnotation? in
             guard let coordinate = restaurant.location?.toCLLocationCoordinate2D() else { return nil }
             return RestaurantAnnotation(
@@ -140,6 +152,7 @@ struct MapRepresentableView: UIViewRepresentable {
                 title: restaurant.name
             )
         }
+        print("Created \(annotations.count) annotations")
         
         mapView.addAnnotations(annotations)
     }

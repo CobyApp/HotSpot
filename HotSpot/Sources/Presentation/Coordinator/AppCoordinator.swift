@@ -7,8 +7,6 @@ struct AppCoordinator {
         var map: MapStore.State = .init()
         var search: SearchStore.State? = nil
         var restaurantDetail: RestaurantDetailStore.State?
-        var favorite: FavoriteStore.State?
-        var settings: SettingsStore.State?
         var selectedRestaurantId: UUID?
     }
 
@@ -16,17 +14,11 @@ struct AppCoordinator {
         case map(MapStore.Action)
         case search(SearchStore.Action)
         case restaurantDetail(RestaurantDetailStore.Action)
-        case favorite(FavoriteStore.Action)
-        case settings(SettingsStore.Action)
 
         case showRestaurantDetail(UUID)
-        case navigateToFavorite
-        case navigateToSettings
         case showSearch
         case dismissSearch
         case dismissDetail
-        case dismissFavorite
-        case dismissSettings
     }
 
     var body: some ReducerOf<Self> {
@@ -48,28 +40,16 @@ struct AppCoordinator {
                 state.restaurantDetail = .init(restaurantId: id)
                 return .none
                 
-            case .navigateToFavorite:
-                state.favorite = .init()
-                return .none
-                
-            case .navigateToSettings:
-                state.settings = .init()
-                return .none
-                
-            case .dismissDetail:
+            case .restaurantDetail(.pop), .dismissDetail:
                 state.restaurantDetail = nil
                 state.selectedRestaurantId = nil
                 return .none
                 
-            case .dismissFavorite:
-                state.favorite = nil
-                return .none
+            case let .map(.showRestaurantDetail(id)):
+                state.selectedRestaurantId = id
+                return .send(.showRestaurantDetail(id))
                 
-            case .dismissSettings:
-                state.settings = nil
-                return .none
-                
-            case .map, .search, .restaurantDetail, .favorite, .settings:
+            case .map, .search, .restaurantDetail:
                 return .none
             }
         }

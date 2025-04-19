@@ -21,35 +21,42 @@ struct MapView: View {
                 
                 ZStack(alignment: .bottom) {
                     MapRepresentableView(
-                        restaurants: .constant(viewStore.restaurants),
-                        topLeft: .constant(viewStore.topLeft),
-                        bottomRight: .constant(viewStore.bottomRight)
+                        restaurants: viewStore.binding(
+                            get: { $0.restaurants },
+                            send: { _ in .getRestaurants }
+                        ),
+                        topLeft: viewStore.binding(
+                            get: { $0.topLeft },
+                            send: { .updateTopLeft($0) }
+                        ),
+                        bottomRight: viewStore.binding(
+                            get: { $0.bottomRight },
+                            send: { .updateBottomRight($0) }
+                        )
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
-                    
-//                    ScrollView(.horizontal) {
-//                        LazyHStack(spacing: 8) {
-//                            ForEach(.store.filteredMemories) { restaurant in
-//                                ThumbnailTileView(
-//                                    image: memory.photos.first,
-//                                    title: memory.title,
-//                                    subTitle: memory.date.formatShort,
-//                                    description: memory.note
-//                                )
-//                                .frame(width: BaseSize.fullWidth, height: 120)
-//                                .onTapGesture {
-//                                    store.send(.showDetailMemory(memory))
-//                                }
-//                                .containerRelativeFrame(.horizontal)
-//                            }
-//                        }
-//                        .scrollTargetLayout()
-//                    }
-//                    .contentMargins(.horizontal, BaseSize.horizantalPadding, for: .scrollContent)
-//                    .scrollIndicators(.hidden)
-//                    .scrollTargetBehavior(.viewAligned)
-//                    .frame(height: 120)
-//                    .padding(.bottom, 30)
+                    .onAppear {
+                        print("MapView appeared")
+                        viewStore.send(.onAppear)
+                    }
+
+                    SnappingScrollView(
+                        items: viewStore.restaurants,
+                        itemWidth: BaseSize.fullWidth
+                    ) { restaurant in
+                        ThumbnailTileView(
+                            image: nil,
+                            title: restaurant.name,
+                            subTitle: "",
+                            description: restaurant.address
+                        )
+                        .frame(width: BaseSize.fullWidth, height: 120)
+                        .onTapGesture {
+                            viewStore.send(.showRestaurantDetail(restaurant.id))
+                        }
+                    }
+                    .frame(height: 120)
+                    .padding(.bottom, 30)
                 }
             }
         }

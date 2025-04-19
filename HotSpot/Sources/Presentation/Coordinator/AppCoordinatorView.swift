@@ -9,7 +9,6 @@ struct AppCoordinatorView: View {
             NavigationView {
                 VStack {
                     MapView(store: store.scope(state: \.map, action: \.map))
-                        .ignoresSafeArea(.all, edges: .bottom)
                     
                     NavigationLink(
                         destination: IfLetStore(
@@ -42,40 +41,7 @@ struct AppCoordinatorView: View {
                         EmptyView()
                     }
                     .hidden()
-
-                    NavigationLink(
-                        destination: IfLetStore(
-                            store.scope(state: \.favorite, action: \.favorite),
-                            then: { store in
-                                FavoriteView(store: store)
-                            }
-                        ),
-                        isActive: viewStore.binding(
-                            get: { $0.favorite != nil },
-                            send: { $0 ? .navigateToFavorite : .dismissFavorite }
-                        )
-                    ) {
-                        EmptyView()
-                    }
-                    .hidden()
-
-                    NavigationLink(
-                        destination: IfLetStore(
-                            store.scope(state: \.settings, action: \.settings),
-                            then: { store in
-                                SettingsView(store: store)
-                            }
-                        ),
-                        isActive: viewStore.binding(
-                            get: { $0.settings != nil },
-                            send: { $0 ? .navigateToSettings : .dismissSettings }
-                        )
-                    ) {
-                        EmptyView()
-                    }
-                    .hidden()
                 }
-                .navigationBarHidden(true)
             }
             .navigationViewStyle(.stack)
         }
