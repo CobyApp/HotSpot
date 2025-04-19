@@ -31,4 +31,4 @@ jobs:
         run: mise x -- tuist generate
 
       - name: Run Unit Tests
-        run: mise x -- tuist test HotSpotTests
+        run: mise x -- tuist test HotSpot
