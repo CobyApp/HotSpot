@@ -22,7 +22,7 @@ jobs:
         run: mise trust
 
       - name: Install Tuist via mise
-        run: mise x -- tuist install
+        run: mise install tuist
 
       - name: Generate Xcode project
         run: mise x -- tuist generate
