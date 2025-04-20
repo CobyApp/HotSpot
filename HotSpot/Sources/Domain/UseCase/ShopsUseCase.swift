@@ -12,7 +12,7 @@ struct ShopsUseCase {
             lat: lat,
             lng: lng,
             range: 5,
-            count: 100,
+            count: nil,
             keyword: nil,
             genre: nil,
             order: nil,
@@ -22,9 +22,7 @@ struct ShopsUseCase {
             wifi: nil,
             nonSmoking: nil,
             coupon: nil,
-            openNow: nil,
-            page: nil,
-            pageSize: nil
+            openNow: nil
         )
         
         let response = try await repository.searchShops(request: request)

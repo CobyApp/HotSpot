@@ -78,12 +78,12 @@ struct SearchStore {
                 
                 return .run { [state] send in
                     do {
-                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503)
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
                             range: 5,
-                            count: 20,
+                            count: nil,
                             keyword: state.searchText,
                             genre: nil,
                             order: nil,
@@ -93,15 +93,14 @@ struct SearchStore {
                             wifi: nil,
                             nonSmoking: nil,
                             coupon: nil,
-                            openNow: nil,
-                            page: state.paginationState.currentPage,
-                            pageSize: 20
+                            openNow: nil
                         )
                         
                         let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
-                        let result = try await useCase.loadMore(
+                        let result = try await useCase.execute(
                             request: request,
-                            currentPage: state.paginationState.currentPage
+                            currentPage: state.paginationState.currentPage,
+                            isLoadMore: true
                         )
                         
                         await send(.updateShops(state.shops + result.shops))
@@ -130,12 +129,12 @@ struct SearchStore {
                 
                 return .run { [state] send in
                     do {
-                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503)
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
                             range: 5,
-                            count: 20,
+                            count: nil,
                             keyword: text,
                             genre: nil,
                             order: nil,
@@ -145,9 +144,7 @@ struct SearchStore {
                             wifi: nil,
                             nonSmoking: nil,
                             coupon: nil,
-                            openNow: nil,
-                            page: 1,
-                            pageSize: 20
+                            openNow: nil
                         )
                         
                         let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)

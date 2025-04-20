@@ -3,7 +3,8 @@ import SwiftUI
 struct SearchBar: View {
     let searchText: String
     let onSearch: (String) -> Void
-    @FocusState var isFocused: Bool
+    @FocusState private var isFocused: Bool
+    @Binding var isSearchFocused: Bool
     
     var body: some View {
         HStack {
@@ -20,5 +21,11 @@ struct SearchBar: View {
         .background(Color(.systemGray6))
         .cornerRadius(8)
         .padding(.horizontal)
+        .onChange(of: isFocused) { newValue in
+            isSearchFocused = newValue
+        }
+        .onChange(of: isSearchFocused) { newValue in
+            isFocused = newValue
+        }
     }
 } 

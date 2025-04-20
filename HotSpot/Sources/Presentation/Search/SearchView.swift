@@ -22,7 +22,8 @@ struct SearchView: View {
                 
                 SearchBar(
                     searchText: viewStore.searchText,
-                    onSearch: { viewStore.send(.search($0)) }
+                    onSearch: { viewStore.send(.search($0)) },
+                    isSearchFocused: $isSearchFocused
                 )
                 
                 SearchResults(
@@ -39,9 +40,6 @@ struct SearchView: View {
                 )
             }
             .navigationBarHidden(true)
-            .onTapGesture {
-                isSearchFocused = false
-            }
             .onAppear {
                 viewStore.send(.onAppear)
             }

@@ -16,7 +16,8 @@ struct SearchResults: View {
             if let error = error {
                 Text(error)
                     .foregroundColor(.red)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if searchText.isEmpty {
+                EmptyResults(searchText: searchText)
             } else if shops.isEmpty {
                 EmptyResults(searchText: searchText)
             } else {
@@ -52,6 +53,12 @@ struct SearchResults: View {
                         onLoadMore()
                     }
                 }
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
