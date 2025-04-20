@@ -53,8 +53,11 @@ struct MapStore {
             case .fetchShops:
                 return .run { [state] send in
                     do {
-                        let request = createSearchRequest(for: state.region)
-                        let shops = try await shopRepository.searchShops(request: request)
+                        let useCase = ShopsUseCase(repository: shopRepository)
+                        let shops = try await useCase.execute(
+                            lat: state.region.center.latitude,
+                            lng: state.region.center.longitude
+                        )
                         await send(.updateShops(shops))
                     } catch {
                         await send(.handleError(error))
@@ -98,25 +101,6 @@ private extension MapStore {
         shops.filter { shop in
             region.contains(CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude))
         }
-    }
-    
-    func createSearchRequest(for region: MKCoordinateRegion) -> ShopSearchRequestDTO {
-        ShopSearchRequestDTO(
-            lat: region.center.latitude,
-            lng: region.center.longitude,
-            range: 5,
-            count: 100,
-            keyword: nil,
-            genre: nil,
-            order: nil,
-            start: nil,
-            budget: nil,
-            privateRoom: nil,
-            wifi: nil,
-            nonSmoking: nil,
-            coupon: nil,
-            openNow: nil
-        )
     }
 }
 

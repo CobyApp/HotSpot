@@ -7,6 +7,8 @@ struct SearchResults: View {
     let searchText: String
     let shops: [ShopModel]
     let onSelectShop: (ShopModel) -> Void
+    let isLoading: Bool
+    let onLoadMore: () -> Void
     @State private var shopImages: [String: UIImage] = [:]
     
     var body: some View {
@@ -36,8 +38,19 @@ struct SearchResults: View {
                                 loadImage(for: shop)
                             }
                         }
+                        
+                        if isLoading {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding()
+                        }
                     }
                     .padding()
+                }
+                .onAppear {
+                    if !shops.isEmpty {
+                        onLoadMore()
+                    }
                 }
             }
         }

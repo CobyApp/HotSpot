@@ -4,7 +4,7 @@ import ComposableArchitecture
 
 @Reducer
 struct SearchStore {
-    @Dependency(\.shopRepository) var shopRepository
+    @Dependency(\.searchRepository) var searchRepository
     @Dependency(\.locationManager) var locationManager
 
     struct State: Equatable {
@@ -13,6 +13,7 @@ struct SearchStore {
         var error: String? = nil
         var currentLocation: CLLocationCoordinate2D?
         var selectedShop: ShopModel? = nil
+        var paginationState: PaginationState = .init()
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.shops == rhs.shops &&
@@ -20,7 +21,10 @@ struct SearchStore {
             lhs.error == rhs.error &&
             lhs.currentLocation?.latitude == rhs.currentLocation?.latitude &&
             lhs.currentLocation?.longitude == rhs.currentLocation?.longitude &&
-            lhs.selectedShop == rhs.selectedShop
+            lhs.selectedShop == rhs.selectedShop &&
+            lhs.paginationState.currentPage == rhs.paginationState.currentPage &&
+            lhs.paginationState.isLastPage == rhs.paginationState.isLastPage &&
+            lhs.paginationState.isLoading == rhs.paginationState.isLoading
         }
     }
 
@@ -32,6 +36,8 @@ struct SearchStore {
         case updateLocation(CLLocationCoordinate2D)
         case updateShops([ShopModel])
         case handleError(Error)
+        case loadMore
+        case updatePaginationState(PaginationState)
     }
 
     var body: some ReducerOf<Self> {
@@ -63,18 +69,72 @@ struct SearchStore {
             case .pop:
                 return .none
 
-            case let .search(text):
-                // TODO: Uncomment when back in Japan
-                // guard let location = state.currentLocation else { return .none }
-                let location = CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503) // Tokyo
+            case .loadMore:
+                guard !state.paginationState.isLoading && !state.paginationState.isLastPage else {
+                    return .none
+                }
                 
-                return .run { send in
+                state.paginationState.startLoading()
+                
+                return .run { [state] send in
                     do {
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503)
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
                             range: 5,
-                            count: 100,
+                            count: 20,
+                            keyword: state.searchText,
+                            genre: nil,
+                            order: nil,
+                            start: nil,
+                            budget: nil,
+                            privateRoom: nil,
+                            wifi: nil,
+                            nonSmoking: nil,
+                            coupon: nil,
+                            openNow: nil,
+                            page: state.paginationState.currentPage,
+                            pageSize: 20
+                        )
+                        
+                        let result = try await searchRepository.searchShops(
+                            request: request,
+                            currentPage: state.paginationState.currentPage
+                        )
+                        
+                        await send(.updateShops(state.shops + result.shops))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: result.currentPage,
+                            isLastPage: !result.hasMore,
+                            isLoading: false
+                        )))
+                    } catch {
+                        await send(.handleError(error))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: state.paginationState.currentPage,
+                            isLastPage: state.paginationState.isLastPage,
+                            isLoading: false
+                        )))
+                    }
+                }
+                
+            case let .updatePaginationState(newState):
+                state.paginationState = newState
+                return .none
+
+            case let .search(text):
+                state.searchText = text
+                state.paginationState.reset()
+                
+                return .run { [state] send in
+                    do {
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503)
+                        let request = ShopSearchRequestDTO(
+                            lat: location.latitude,
+                            lng: location.longitude,
+                            range: 5,
+                            count: 20,
                             keyword: text,
                             genre: nil,
                             order: nil,
@@ -84,10 +144,22 @@ struct SearchStore {
                             wifi: nil,
                             nonSmoking: nil,
                             coupon: nil,
-                            openNow: nil
+                            openNow: nil,
+                            page: 1,
+                            pageSize: 20
                         )
-                        let shops = try await shopRepository.searchShops(request: request)
-                        await send(.updateShops(shops))
+                        
+                        let result = try await searchRepository.searchShops(
+                            request: request,
+                            currentPage: 1
+                        )
+                        
+                        await send(.updateShops(result.shops))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: result.currentPage,
+                            isLastPage: !result.hasMore,
+                            isLoading: false
+                        )))
                     } catch {
                         await send(.handleError(error))
                     }

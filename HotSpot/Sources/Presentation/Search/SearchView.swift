@@ -29,7 +29,13 @@ struct SearchView: View {
                     error: viewStore.error,
                     searchText: viewStore.searchText,
                     shops: viewStore.shops,
-                    onSelectShop: { viewStore.send(.selectShop($0)) }
+                    onSelectShop: { viewStore.send(.selectShop($0)) },
+                    isLoading: viewStore.paginationState.isLoading,
+                    onLoadMore: {
+                        if !viewStore.paginationState.isLastPage {
+                            viewStore.send(.loadMore)
+                        }
+                    }
                 )
             }
             .navigationBarHidden(true)

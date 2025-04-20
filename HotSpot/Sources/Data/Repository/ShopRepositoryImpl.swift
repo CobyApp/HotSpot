@@ -7,8 +7,7 @@ final class ShopRepositoryImpl: ShopRepository {
         self.remoteDataSource = remoteDataSource
     }
 
-    func searchShops(request: ShopSearchRequestDTO) async throws -> [ShopModel] {
-        let response = try await remoteDataSource.search(request: request)
-        return response.results.shop.map { $0.toDomain() }
+    func searchShops(request: ShopSearchRequestDTO) async throws -> ShopSearchResponseDTO {
+        try await remoteDataSource.search(request: request)
     }
 }

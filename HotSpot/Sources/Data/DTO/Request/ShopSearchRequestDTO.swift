@@ -15,6 +15,8 @@ struct ShopSearchRequestDTO {
     let nonSmoking: Bool?            // Non-smoking availability
     let coupon: Bool?                // Coupon availability
     let openNow: Bool?               // Currently open filter
+    let page: Int?                   // Page number (1-based)
+    let pageSize: Int?               // Items per page (1-100)
 
     /// Converts the DTO into a dictionary of parameters for Moya or URL encoding
     var asParameters: [String: Any] {
@@ -35,6 +37,14 @@ struct ShopSearchRequestDTO {
         if let nonSmoking = nonSmoking { params["non_smoking"] = nonSmoking ? 1 : 0 }
         if let coupon = coupon { params["coupon"] = coupon ? 1 : 0 }
         if let openNow = openNow, openNow { params["open"] = "now" }
+        
+        // Add pagination parameters if available
+        if let page = page, let pageSize = pageSize {
+            params["start"] = (page - 1) * pageSize + 1
+            params["count"] = pageSize
+        } else if let start = start {
+            params["start"] = start
+        }
 
         return params
     }
