@@ -6,7 +6,7 @@ import ComposableArchitecture
 struct SearchView: View {
     let store: StoreOf<SearchStore>
     @State private var isSearchFocused = false
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.coordinator) private var coordinator
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -15,7 +15,7 @@ struct SearchView: View {
                     TopBarView(
                         leftSide: .left,
                         leftAction: {
-                            dismiss()
+                            coordinator?.pop()
                         },
                         rightSide: .icon,
                         rightIcon: UIImage.icMore,
@@ -35,7 +35,7 @@ struct SearchView: View {
                     error: viewStore.error,
                     searchText: viewStore.searchText,
                     shops: viewStore.shops,
-                    onSelectShop: { viewStore.send(.selectShop($0)) },
+                    onSelectShop: { coordinator?.showShopDetail($0) },
                     onLoadMore: {
                         if !viewStore.paginationState.isLastPage {
                             viewStore.send(.loadMore)
@@ -55,32 +55,6 @@ struct SearchView: View {
             )) {
                 SearchFilterView(store: store)
             }
-            .background(
-                NavigationLink(
-                    destination: ShopDetailView(
-                        store: Store(
-                            initialState: ShopDetailStore.State(
-                                shop: viewStore.selectedShop ?? ShopModel(
-                                    id: "",
-                                    name: "",
-                                    address: "",
-                                    latitude: 0,
-                                    longitude: 0,
-                                    imageUrl: "",
-                                    access: "",
-                                    openingHours: "",
-                                    genreCode: ""
-                                )
-                            ),
-                            reducer: { ShopDetailStore() }
-                        )
-                    ),
-                    isActive: viewStore.binding(
-                        get: { $0.navigationPath.contains { if case .shopDetail = $0 { return true } else { return false } } },
-                        send: { _ in .pop }
-                    )
-                ) { EmptyView() }
-            )
         }
     }
 }

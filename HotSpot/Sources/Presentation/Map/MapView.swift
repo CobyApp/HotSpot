@@ -8,7 +8,7 @@ struct MapView: View {
     let store: StoreOf<MapStore>
     @State private var shopImages: [String: UIImage] = [:]
     @State private var lastRegion: MKCoordinateRegion?
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.coordinator) private var coordinator
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -19,7 +19,7 @@ struct MapView: View {
                     rightSide: .icon,
                     rightIcon: UIImage.icSearch,
                     rightAction: {
-                        viewStore.send(.showSearch)
+                        coordinator?.showSearch()
                     }
                 )
 
@@ -47,7 +47,7 @@ struct MapView: View {
                         )
                         .frame(width: BaseSize.fullWidth)
                         .onTapGesture {
-                            viewStore.send(.showShopDetail(shop))
+                            coordinator?.showShopDetail(shop)
                         }
                         .onAppear {
                             loadImage(for: shop)
@@ -56,46 +56,6 @@ struct MapView: View {
                     .padding(.bottom, 30)
                 }
             }
-            .background(
-                NavigationLink(
-                    destination: SearchView(
-                        store: Store(
-                            initialState: SearchStore.State(),
-                            reducer: { SearchStore() }
-                        )
-                    ),
-                    isActive: viewStore.binding(
-                        get: { $0.navigationPath.contains { $0 == .search } },
-                        send: { _ in .pop }
-                    )
-                ) { EmptyView() }
-            )
-            .background(
-                NavigationLink(
-                    destination: ShopDetailView(
-                        store: Store(
-                            initialState: ShopDetailStore.State(
-                                shop: viewStore.selectedShop ?? ShopModel(
-                                    id: "",
-                                    name: "",
-                                    address: "",
-                                    latitude: 0,
-                                    longitude: 0,
-                                    imageUrl: "",
-                                    access: "",
-                                    openingHours: "",
-                                    genreCode: ""
-                                )
-                            ),
-                            reducer: { ShopDetailStore() }
-                        )
-                    ),
-                    isActive: viewStore.binding(
-                        get: { $0.navigationPath.contains { if case .shopDetail = $0 { return true } else { return false } } },
-                        send: { _ in .pop }
-                    )
-                ) { EmptyView() }
-            )
         }
     }
 

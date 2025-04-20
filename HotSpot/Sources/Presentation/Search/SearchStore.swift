@@ -12,10 +12,8 @@ struct SearchStore {
         var searchText: String = ""
         var error: String? = nil
         var currentLocation: CLLocationCoordinate2D?
-        var selectedShop: ShopModel? = nil
         var paginationState: PaginationState = .init()
         var isFilterSheetPresented: Bool = false
-        var navigationPath: [NavigationDestination] = []
         
         // Filter states
         var selectedBudget: Int = 0
@@ -32,10 +30,7 @@ struct SearchStore {
             lhs.error == rhs.error &&
             lhs.currentLocation?.latitude == rhs.currentLocation?.latitude &&
             lhs.currentLocation?.longitude == rhs.currentLocation?.longitude &&
-            lhs.selectedShop == rhs.selectedShop &&
-            lhs.paginationState.currentPage == rhs.paginationState.currentPage &&
-            lhs.paginationState.isLastPage == rhs.paginationState.isLastPage &&
-            lhs.paginationState.isLoading == rhs.paginationState.isLoading &&
+            lhs.paginationState == rhs.paginationState &&
             lhs.isFilterSheetPresented == rhs.isFilterSheetPresented &&
             lhs.selectedBudget == rhs.selectedBudget &&
             lhs.hasWiFi == rhs.hasWiFi &&
@@ -43,20 +38,13 @@ struct SearchStore {
             lhs.isNonSmoking == rhs.isNonSmoking &&
             lhs.hasParking == rhs.hasParking &&
             lhs.selectedCuisine == rhs.selectedCuisine &&
-            lhs.selectedDistance == rhs.selectedDistance &&
-            lhs.navigationPath == rhs.navigationPath
+            lhs.selectedDistance == rhs.selectedDistance
         }
-    }
-
-    enum NavigationDestination: Equatable {
-        case shopDetail(ShopModel)
     }
 
     enum Action {
         case onAppear
         case search(String)
-        case selectShop(ShopModel)
-        case pop
         case updateLocation(CLLocationCoordinate2D)
         case updateShops([ShopModel])
         case handleError(Error)
@@ -97,23 +85,11 @@ struct SearchStore {
                 state.error = error.localizedDescription
                 return .none
 
-            case let .selectShop(shop):
-                state.selectedShop = shop
-                state.navigationPath.append(.shopDetail(shop))
-                return .none
-
-            case .pop:
-                if !state.navigationPath.isEmpty {
-                    state.navigationPath.removeLast()
-                }
-                return .none
-
             case let .search(text):
                 guard text != state.searchText else { return .none }
                 
                 state.searchText = text
                 state.paginationState.reset()
-                print("Search started - text: \(text)")
                 
                 return .run { [state] send in
                     do {
@@ -141,8 +117,6 @@ struct SearchStore {
                             currentPage: 1
                         )
                         
-                        print("Search result - currentPage: \(result.currentPage), hasMore: \(result.hasMore), shops count: \(result.shops.count)")
-                        
                         await send(.updateShops(result.shops))
                         await send(.updatePaginationState(PaginationState(
                             currentPage: result.currentPage,
@@ -153,16 +127,8 @@ struct SearchStore {
                         await send(.handleError(error))
                     }
                 }
-                
+
             case .loadMore:
-                guard !state.paginationState.isLoading && !state.paginationState.isLastPage else {
-                    print("LoadMore skipped - isLoading: \(state.paginationState.isLoading), isLastPage: \(state.paginationState.isLastPage), currentPage: \(state.paginationState.currentPage)")
-                    return .none
-                }
-                
-                state.paginationState.startLoading()
-                print("Loading more - currentPage: \(state.paginationState.currentPage)")
-                
                 return .run { [state] send in
                     do {
                         let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
@@ -190,11 +156,7 @@ struct SearchStore {
                             isLoadMore: true
                         )
                         
-                        print("LoadMore result - currentPage: \(result.currentPage), hasMore: \(result.hasMore), shops count: \(result.shops.count)")
-                        
-                        // Create a Set of existing shop IDs for quick lookup
                         let existingShopIds = Set(state.shops.map { $0.id })
-                        // Filter out any shops that are already in the list
                         let newShops = result.shops.filter { !existingShopIds.contains($0.id) }
                         
                         await send(.updateShops(state.shops + newShops))
@@ -205,52 +167,45 @@ struct SearchStore {
                         )))
                     } catch {
                         await send(.handleError(error))
-                        await send(.updatePaginationState(PaginationState(
-                            currentPage: state.paginationState.currentPage,
-                            isLastPage: state.paginationState.isLastPage,
-                            isLoading: false
-                        )))
                     }
                 }
-                
-            case let .updatePaginationState(newState):
-                state.paginationState = newState
-                print("PaginationState updated - currentPage: \(newState.currentPage), isLastPage: \(newState.isLastPage), isLoading: \(newState.isLoading)")
+
+            case let .updatePaginationState(paginationState):
+                state.paginationState = paginationState
                 return .none
-                
-            // Filter actions
+
             case .toggleFilterSheet:
                 state.isFilterSheetPresented.toggle()
                 return .none
-                
+
             case let .updateBudget(budget):
                 state.selectedBudget = budget
                 return .none
-                
+
             case .toggleWiFi:
                 state.hasWiFi.toggle()
                 return .none
-                
+
             case .togglePrivateRoom:
                 state.hasPrivateRoom.toggle()
                 return .none
-                
+
             case .toggleNonSmoking:
                 state.isNonSmoking.toggle()
                 return .none
-                
+
             case .toggleParking:
                 state.hasParking.toggle()
                 return .none
-                
+
             case let .updateCuisine(cuisine):
                 state.selectedCuisine = cuisine
                 return .none
-                
+
             case let .updateDistance(distance):
                 state.selectedDistance = distance
                 return .none
-                
+
             case .resetFilters:
                 state.selectedBudget = 0
                 state.hasWiFi = false
@@ -263,4 +218,4 @@ struct SearchStore {
             }
         }
     }
-} 
+}

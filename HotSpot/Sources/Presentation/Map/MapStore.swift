@@ -10,40 +10,12 @@ struct MapStore {
     struct State: Equatable {
         var shops: [ShopModel] = []
         var visibleShops: [ShopModel] = []
-        var selectedShop: ShopModel? = nil
         var region: MKCoordinateRegion = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503),
             span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         )
         var error: String? = nil
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
-        var navigationPath: [NavigationDestination] = []
-    }
-
-    enum NavigationDestination: Hashable {
-        case search
-        case shopDetail(ShopModel)
-        
-        func hash(into hasher: inout Hasher) {
-            switch self {
-            case .search:
-                hasher.combine("search")
-            case .shopDetail(let shop):
-                hasher.combine("shopDetail")
-                hasher.combine(shop.id)
-            }
-        }
-        
-        static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
-            switch (lhs, rhs) {
-            case (.search, .search):
-                return true
-            case (.shopDetail(let lhsShop), .shopDetail(let rhsShop)):
-                return lhsShop.id == rhsShop.id
-            default:
-                return false
-            }
-        }
     }
 
     enum Action {
@@ -51,9 +23,6 @@ struct MapStore {
         case fetchShops
         case updateShops([ShopModel])
         case handleError(Error)
-        case showSearch
-        case showShopDetail(ShopModel)
-        case pop
     }
 
     var body: some ReducerOf<Self> {
@@ -92,21 +61,6 @@ struct MapStore {
             case let .handleError(error):
                 state.error = error.localizedDescription
                 return .none
-
-            case .showSearch:
-                state.navigationPath.append(.search)
-                return .none
-
-            case .pop:
-                if !state.navigationPath.isEmpty {
-                    state.navigationPath.removeLast()
-                }
-                return .none
-
-            case let .showShopDetail(shop):
-                state.selectedShop = shop
-                state.navigationPath.append(.shopDetail(shop))
-                return .none
             }
         }
     }
@@ -144,14 +98,12 @@ extension MapStore.State {
     static func == (lhs: MapStore.State, rhs: MapStore.State) -> Bool {
         lhs.shops == rhs.shops &&
         lhs.visibleShops == rhs.visibleShops &&
-        lhs.selectedShop == rhs.selectedShop &&
         lhs.region.center.latitude == rhs.region.center.latitude &&
         lhs.region.center.longitude == rhs.region.center.longitude &&
         lhs.region.span.latitudeDelta == rhs.region.span.latitudeDelta &&
         lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
         lhs.error == rhs.error &&
         lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
-        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude &&
-        lhs.navigationPath == rhs.navigationPath
+        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude
     }
 }

@@ -20,4 +20,15 @@ extension EnvironmentValues {
         get { self[NavigationControllerKey.self] }
         set { self[NavigationControllerKey.self] = newValue }
     }
+}
+
+struct CoordinatorKey: EnvironmentKey {
+    static let defaultValue: AppCoordinator? = nil
+}
+
+extension EnvironmentValues {
+    var coordinator: AppCoordinator? {
+        get { self[CoordinatorKey.self] }
+        set { self[CoordinatorKey.self] = newValue }
+    }
 } 

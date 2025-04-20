@@ -1,6 +1,6 @@
 import Foundation
 
-struct PaginationState {
+struct PaginationState: Equatable {
     var currentPage: Int
     var isLastPage: Bool
     var isLoading: Bool
