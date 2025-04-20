@@ -9,7 +9,6 @@ final class AppCoordinator {
     init(window: UIWindow) {
         self.window = window
         self.navigationController = CustomNavigationController()
-        self.navigationController.isNavigationBarHidden = true
     }
     
     func start() {
