@@ -9,22 +9,16 @@ struct ShopDetailStore {
         let shop: ShopModel
     }
 
-    enum Action: BindableAction {
-        case binding(BindingAction<State>)
+    enum Action {
         case pop
     }
 
     var body: some ReducerOf<Self> {
-        BindingReducer()
-
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
             case .pop:
                 return .none
             }
         }
     }
-} 
+}

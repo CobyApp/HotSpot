@@ -19,44 +19,36 @@ struct MapStore {
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
     }
 
-    enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case fetchShops
-        case showSearch
-        case showShopDetail(ShopModel)
+    enum Action {
         case updateRegion(MKCoordinateRegion)
+        case fetchShops
         case updateShops([ShopModel])
         case handleError(Error)
+        case showSearch
+        case showShopDetail(ShopModel)
     }
 
     var body: some ReducerOf<Self> {
-        BindingReducer()
-
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
             case let .updateRegion(region):
                 state.region = region
-                
+
                 if shouldFetchNewData(state: state, newRegion: region) {
                     state.lastFetchedLocation = region.center
-                    return .run { send in
-                        await send(.fetchShops)
-                    }
+                    return .send(.fetchShops)
                 }
 
                 state.visibleShops = filterVisibleShops(state.shops, in: region)
                 return .none
 
             case .fetchShops:
-                return .run { [state] send in
+                return .run { [region = state.region] send in
                     do {
                         let useCase = ShopsUseCase(repository: shopRepository)
                         let shops = try await useCase.execute(
-                            lat: state.region.center.latitude,
-                            lng: state.region.center.longitude
+                            lat: region.center.latitude,
+                            lng: region.center.longitude
                         )
                         await send(.updateShops(shops))
                     } catch {
@@ -82,21 +74,19 @@ struct MapStore {
             }
         }
     }
-}
 
-// MARK: - Private Helpers
-private extension MapStore {
+    // MARK: - Helpers
     func shouldFetchNewData(state: State, newRegion: MKCoordinateRegion) -> Bool {
         guard let lastLocation = state.lastFetchedLocation else {
             return true
         }
-        
+
         let distance = CLLocation(latitude: lastLocation.latitude, longitude: lastLocation.longitude)
             .distance(from: CLLocation(latitude: newRegion.center.latitude, longitude: newRegion.center.longitude))
-        
+
         return distance > 100
     }
-    
+
     func filterVisibleShops(_ shops: [ShopModel], in region: MKCoordinateRegion) -> [ShopModel] {
         shops.filter { shop in
             region.contains(CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude))
