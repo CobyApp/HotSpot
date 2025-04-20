@@ -13,26 +13,7 @@ struct InfiniteScrollSearchUseCase {
         request: ShopSearchRequestDTO,
         currentPage: Int
     ) async throws -> SearchResultModel {
-        let paginatedRequest = ShopSearchRequestDTO(
-            lat: request.lat,
-            lng: request.lng,
-            range: request.range,
-            count: pageSize,
-            keyword: request.keyword,
-            genre: request.genre,
-            order: request.order,
-            start: (currentPage - 1) * pageSize + 1,
-            budget: request.budget,
-            privateRoom: request.privateRoom,
-            wifi: request.wifi,
-            nonSmoking: request.nonSmoking,
-            coupon: request.coupon,
-            openNow: request.openNow,
-            page: currentPage,
-            pageSize: pageSize
-        )
-        
-        let response = try await repository.searchShops(request: paginatedRequest)
+        let response = try await repository.searchShops(request: request)
         return SearchResultModel.from(response: response, currentPage: currentPage)
     }
     

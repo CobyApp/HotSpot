@@ -4,7 +4,7 @@ import ComposableArchitecture
 
 @Reducer
 struct SearchStore {
-    @Dependency(\.searchRepository) var searchRepository
+    @Dependency(\.shopRepository) var shopRepository
     @Dependency(\.locationManager) var locationManager
 
     struct State: Equatable {
@@ -98,7 +98,8 @@ struct SearchStore {
                             pageSize: 20
                         )
                         
-                        let result = try await searchRepository.searchShops(
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.loadMore(
                             request: request,
                             currentPage: state.paginationState.currentPage
                         )
@@ -149,7 +150,8 @@ struct SearchStore {
                             pageSize: 20
                         )
                         
-                        let result = try await searchRepository.searchShops(
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.execute(
                             request: request,
                             currentPage: 1
                         )
