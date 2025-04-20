@@ -24,7 +24,7 @@ struct AppCoordinatorView: View {
             destination: IfLetStore(
                 store.scope(state: \.search, action: \.search),
                 then: { store in
-                    SearchView(store: store)
+                    SearchView(store: store, coordinatorStore: self.store)
                         .background(searchToDetailNavigationLink(viewStore: viewStore))
                 }
             ),
