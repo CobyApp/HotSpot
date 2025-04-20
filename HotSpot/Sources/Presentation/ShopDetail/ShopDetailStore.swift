@@ -1,22 +1,19 @@
 import Foundation
 import ComposableArchitecture
 
-@Reducer
-struct ShopDetailStore {
-    @Dependency(\.shopRepository) var shopRepository
-
+struct ShopDetailStore: Reducer {
     struct State: Equatable {
         let shop: ShopModel
     }
-
-    enum Action {
-        case pop
+    
+    enum Action: Equatable {
+        case onAppear
     }
-
+    
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .pop:
+            case .onAppear:
                 return .none
             }
         }

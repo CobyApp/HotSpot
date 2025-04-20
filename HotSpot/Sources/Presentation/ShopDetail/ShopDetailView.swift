@@ -5,6 +5,7 @@ import Kingfisher
 
 struct ShopDetailView: View {
     let store: StoreOf<ShopDetailStore>
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -13,7 +14,7 @@ struct ShopDetailView: View {
                     TopBarView(
                         leftSide: .left,
                         leftAction: {
-                            viewStore.send(.pop)
+                            dismiss()
                         }
                     )
                     

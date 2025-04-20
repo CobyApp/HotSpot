@@ -17,6 +17,33 @@ struct MapStore {
         )
         var error: String? = nil
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
+        var navigationPath: [NavigationDestination] = []
+    }
+
+    enum NavigationDestination: Hashable {
+        case search
+        case shopDetail(ShopModel)
+        
+        func hash(into hasher: inout Hasher) {
+            switch self {
+            case .search:
+                hasher.combine("search")
+            case .shopDetail(let shop):
+                hasher.combine("shopDetail")
+                hasher.combine(shop.id)
+            }
+        }
+        
+        static func == (lhs: NavigationDestination, rhs: NavigationDestination) -> Bool {
+            switch (lhs, rhs) {
+            case (.search, .search):
+                return true
+            case (.shopDetail(let lhsShop), .shopDetail(let rhsShop)):
+                return lhsShop.id == rhsShop.id
+            default:
+                return false
+            }
+        }
     }
 
     enum Action {
@@ -26,6 +53,7 @@ struct MapStore {
         case handleError(Error)
         case showSearch
         case showShopDetail(ShopModel)
+        case pop
     }
 
     var body: some ReducerOf<Self> {
@@ -66,10 +94,18 @@ struct MapStore {
                 return .none
 
             case .showSearch:
+                state.navigationPath.append(.search)
+                return .none
+
+            case .pop:
+                if !state.navigationPath.isEmpty {
+                    state.navigationPath.removeLast()
+                }
                 return .none
 
             case let .showShopDetail(shop):
                 state.selectedShop = shop
+                state.navigationPath.append(.shopDetail(shop))
                 return .none
             }
         }
@@ -115,6 +151,7 @@ extension MapStore.State {
         lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
         lhs.error == rhs.error &&
         lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
-        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude
+        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude &&
+        lhs.navigationPath == rhs.navigationPath
     }
 }

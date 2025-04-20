@@ -15,6 +15,7 @@ struct SearchStore {
         var selectedShop: ShopModel? = nil
         var paginationState: PaginationState = .init()
         var isFilterSheetPresented: Bool = false
+        var navigationPath: [NavigationDestination] = []
         
         // Filter states
         var selectedBudget: Int = 0
@@ -42,8 +43,13 @@ struct SearchStore {
             lhs.isNonSmoking == rhs.isNonSmoking &&
             lhs.hasParking == rhs.hasParking &&
             lhs.selectedCuisine == rhs.selectedCuisine &&
-            lhs.selectedDistance == rhs.selectedDistance
+            lhs.selectedDistance == rhs.selectedDistance &&
+            lhs.navigationPath == rhs.navigationPath
         }
+    }
+
+    enum NavigationDestination: Equatable {
+        case shopDetail(ShopModel)
     }
 
     enum Action {
@@ -93,9 +99,13 @@ struct SearchStore {
 
             case let .selectShop(shop):
                 state.selectedShop = shop
+                state.navigationPath.append(.shopDetail(shop))
                 return .none
 
             case .pop:
+                if !state.navigationPath.isEmpty {
+                    state.navigationPath.removeLast()
+                }
                 return .none
 
             case let .search(text):

@@ -3,14 +3,12 @@ import ComposableArchitecture
 
 struct SearchFilterView: View {
     let store: StoreOf<SearchStore>
-    let coordinatorStore: StoreOf<AppCoordinator>
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            WithViewStore(coordinatorStore, observe: { $0 }) { coordinatorViewStore in
-                NavigationView {
-                    FilterForm(viewStore: viewStore, coordinatorViewStore: coordinatorViewStore)
-                }
+            NavigationView {
+                FilterForm(viewStore: viewStore)
             }
         }
     }
@@ -18,7 +16,7 @@ struct SearchFilterView: View {
 
 private struct FilterForm: View {
     let viewStore: ViewStore<SearchStore.State, SearchStore.Action>
-    let coordinatorViewStore: ViewStore<AppCoordinator.State, AppCoordinator.Action>
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         Form {
@@ -38,7 +36,7 @@ private struct FilterForm: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Apply") {
                     viewStore.send(.search(viewStore.searchText))
-                    viewStore.send(.toggleFilterSheet)
+                    dismiss()
                 }
             }
         }
@@ -132,10 +130,6 @@ private struct DistanceSection: View {
         store: Store(
             initialState: SearchStore.State(),
             reducer: { SearchStore() }
-        ),
-        coordinatorStore: Store(
-            initialState: AppCoordinator.State(),
-            reducer: { AppCoordinator() }
         )
     )
 } 

@@ -5,12 +5,14 @@ import ComposableArchitecture
 struct HotSpotApp: App {
     var body: some Scene {
         WindowGroup {
-            AppCoordinatorView(
-                store: Store(
-                    initialState: AppCoordinator.State(),
-                    reducer: { AppCoordinator() }
+            NavigationView {
+                MapView(
+                    store: Store(
+                        initialState: MapStore.State(),
+                        reducer: { MapStore() }
+                    )
                 )
-            )
+            }
         }
     }
 } 

@@ -8,6 +8,7 @@ struct MapView: View {
     let store: StoreOf<MapStore>
     @State private var shopImages: [String: UIImage] = [:]
     @State private var lastRegion: MKCoordinateRegion?
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -55,6 +56,47 @@ struct MapView: View {
                     .padding(.bottom, 30)
                 }
             }
+            .navigationBarHidden(true)
+            .background(
+                NavigationLink(
+                    destination: SearchView(
+                        store: Store(
+                            initialState: SearchStore.State(),
+                            reducer: { SearchStore() }
+                        )
+                    ),
+                    isActive: viewStore.binding(
+                        get: { $0.navigationPath.contains { $0 == .search } },
+                        send: { _ in .pop }
+                    )
+                ) { EmptyView() }
+            )
+            .background(
+                NavigationLink(
+                    destination: ShopDetailView(
+                        store: Store(
+                            initialState: ShopDetailStore.State(
+                                shop: viewStore.selectedShop ?? ShopModel(
+                                    id: "",
+                                    name: "",
+                                    address: "",
+                                    latitude: 0,
+                                    longitude: 0,
+                                    imageUrl: "",
+                                    access: "",
+                                    openingHours: "",
+                                    genreCode: ""
+                                )
+                            ),
+                            reducer: { ShopDetailStore() }
+                        )
+                    ),
+                    isActive: viewStore.binding(
+                        get: { $0.navigationPath.contains { if case .shopDetail = $0 { return true } else { return false } } },
+                        send: { _ in .pop }
+                    )
+                ) { EmptyView() }
+            )
         }
     }
 
