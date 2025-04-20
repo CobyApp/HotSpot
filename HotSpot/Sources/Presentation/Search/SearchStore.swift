@@ -69,12 +69,60 @@ struct SearchStore {
             case .pop:
                 return .none
 
+            case let .search(text):
+                guard text != state.searchText else { return .none }
+                
+                state.searchText = text
+                state.paginationState.reset()
+                print("Search started - text: \(text)")
+                
+                return .run { [state] send in
+                    do {
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
+                        let request = ShopSearchRequestDTO(
+                            lat: location.latitude,
+                            lng: location.longitude,
+                            range: 5,
+                            count: nil,
+                            keyword: text,
+                            genre: nil,
+                            order: nil,
+                            start: nil,
+                            budget: nil,
+                            privateRoom: nil,
+                            wifi: nil,
+                            nonSmoking: nil,
+                            coupon: nil,
+                            openNow: nil
+                        )
+                        
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.execute(
+                            request: request,
+                            currentPage: 1
+                        )
+                        
+                        print("Search result - currentPage: \(result.currentPage), hasMore: \(result.hasMore), shops count: \(result.shops.count)")
+                        
+                        await send(.updateShops(result.shops))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: result.currentPage,
+                            isLastPage: !result.hasMore,
+                            isLoading: false
+                        )))
+                    } catch {
+                        await send(.handleError(error))
+                    }
+                }
+                
             case .loadMore:
                 guard !state.paginationState.isLoading && !state.paginationState.isLastPage else {
+                    print("LoadMore skipped - isLoading: \(state.paginationState.isLoading), isLastPage: \(state.paginationState.isLastPage), currentPage: \(state.paginationState.currentPage)")
                     return .none
                 }
                 
                 state.paginationState.startLoading()
+                print("Loading more - currentPage: \(state.paginationState.currentPage)")
                 
                 return .run { [state] send in
                     do {
@@ -103,7 +151,14 @@ struct SearchStore {
                             isLoadMore: true
                         )
                         
-                        await send(.updateShops(state.shops + result.shops))
+                        print("LoadMore result - currentPage: \(result.currentPage), hasMore: \(result.hasMore), shops count: \(result.shops.count)")
+                        
+                        // Create a Set of existing shop IDs for quick lookup
+                        let existingShopIds = Set(state.shops.map { $0.id })
+                        // Filter out any shops that are already in the list
+                        let newShops = result.shops.filter { !existingShopIds.contains($0.id) }
+                        
+                        await send(.updateShops(state.shops + newShops))
                         await send(.updatePaginationState(PaginationState(
                             currentPage: result.currentPage,
                             isLastPage: !result.hasMore,
@@ -121,48 +176,8 @@ struct SearchStore {
                 
             case let .updatePaginationState(newState):
                 state.paginationState = newState
+                print("PaginationState updated - currentPage: \(newState.currentPage), isLastPage: \(newState.isLastPage), isLoading: \(newState.isLoading)")
                 return .none
-
-            case let .search(text):
-                state.searchText = text
-                state.paginationState.reset()
-                
-                return .run { [state] send in
-                    do {
-                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
-                        let request = ShopSearchRequestDTO(
-                            lat: location.latitude,
-                            lng: location.longitude,
-                            range: 5,
-                            count: nil,
-                            keyword: text,
-                            genre: nil,
-                            order: nil,
-                            start: nil,
-                            budget: nil,
-                            privateRoom: nil,
-                            wifi: nil,
-                            nonSmoking: nil,
-                            coupon: nil,
-                            openNow: nil
-                        )
-                        
-                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
-                        let result = try await useCase.execute(
-                            request: request,
-                            currentPage: 1
-                        )
-                        
-                        await send(.updateShops(result.shops))
-                        await send(.updatePaginationState(PaginationState(
-                            currentPage: result.currentPage,
-                            isLastPage: !result.hasMore,
-                            isLoading: false
-                        )))
-                    } catch {
-                        await send(.handleError(error))
-                    }
-                }
             }
         }
     }

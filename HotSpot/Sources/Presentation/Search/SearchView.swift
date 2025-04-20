@@ -31,7 +31,6 @@ struct SearchView: View {
                     searchText: viewStore.searchText,
                     shops: viewStore.shops,
                     onSelectShop: { viewStore.send(.selectShop($0)) },
-                    isLoading: viewStore.paginationState.isLoading,
                     onLoadMore: {
                         if !viewStore.paginationState.isLastPage {
                             viewStore.send(.loadMore)
@@ -42,6 +41,9 @@ struct SearchView: View {
             .navigationBarHidden(true)
             .onAppear {
                 viewStore.send(.onAppear)
+            }
+            .onTapGesture {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         }
     }

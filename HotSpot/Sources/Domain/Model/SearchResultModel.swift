@@ -15,7 +15,8 @@ struct SearchResultModel {
     
     static func from(response: ShopSearchResponseDTO, currentPage: Int) -> SearchResultModel {
         let shops = response.results.shop.map { $0.toDomain() }
-        let currentEnd = response.results.resultsStart + (Int(response.results.resultsReturned) ?? 0)
+        let resultsReturned = Int(response.results.resultsReturned) ?? 1
+        let currentEnd = response.results.resultsStart + resultsReturned
         let hasMore = currentEnd < response.results.resultsAvailable
         
         return SearchResultModel(
