@@ -56,7 +56,6 @@ struct MapView: View {
                     .padding(.bottom, 30)
                 }
             }
-            .navigationBarHidden(true)
             .background(
                 NavigationLink(
                     destination: SearchView(

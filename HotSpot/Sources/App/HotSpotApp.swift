@@ -1,18 +1,12 @@
 import SwiftUI
-import ComposableArchitecture
 
 @main
 struct HotSpotApp: App {
+    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                MapView(
-                    store: Store(
-                        initialState: MapStore.State(),
-                        reducer: { MapStore() }
-                    )
-                )
-            }
+            Color.clear
         }
     }
-} 
+}

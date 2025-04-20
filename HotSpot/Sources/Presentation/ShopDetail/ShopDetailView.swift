@@ -26,7 +26,6 @@ struct ShopDetailView: View {
                         }
                     }
                 }
-                .navigationBarHidden(true)
             }
         }
     }

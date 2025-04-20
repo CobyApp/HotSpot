@@ -43,7 +43,6 @@ struct SearchView: View {
                     }
                 )
             }
-            .navigationBarHidden(true)
             .onAppear {
                 viewStore.send(.onAppear)
             }
