@@ -89,7 +89,16 @@ struct MapStore {
 
     func filterVisibleShops(_ shops: [ShopModel], in region: MKCoordinateRegion) -> [ShopModel] {
         shops.filter { shop in
-            region.contains(CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude))
+            let coordinate = CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude)
+            let latMin = region.center.latitude - region.span.latitudeDelta / 2
+            let latMax = region.center.latitude + region.span.latitudeDelta / 2
+            let lonMin = region.center.longitude - region.span.longitudeDelta / 2
+            let lonMax = region.center.longitude + region.span.longitudeDelta / 2
+            
+            return coordinate.latitude >= latMin &&
+                   coordinate.latitude <= latMax &&
+                   coordinate.longitude >= lonMin &&
+                   coordinate.longitude <= lonMax
         }
     }
 }
