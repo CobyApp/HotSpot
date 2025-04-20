@@ -5,23 +5,28 @@ import ComposableArchitecture
 struct AppCoordinator {
     struct State: Equatable {
         var map: MapStore.State = .init()
-        var search: SearchStore.State? = nil
-        var restaurantDetail: RestaurantDetailStore.State?
-        var selectedRestaurantId: UUID?
+        var search: SearchStore.State?
+        var shopDetail: ShopDetailStore.State?
+        var selectedShop: ShopModel?
+        var isDetailPresented: Bool = false
     }
 
     enum Action {
         case map(MapStore.Action)
         case search(SearchStore.Action)
-        case restaurantDetail(RestaurantDetailStore.Action)
+        case shopDetail(ShopDetailStore.Action)
 
-        case showRestaurantDetail(UUID)
+        case showShopDetail(ShopModel)
         case showSearch
         case dismissSearch
         case dismissDetail
     }
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.map, action: \.map) {
+            MapStore()
+        }
+        
         Reduce { state, action in
             switch action {
             case .map(.showSearch), .showSearch:
@@ -32,26 +37,48 @@ struct AppCoordinator {
                 state.search = nil
                 return .none
                 
-            case let .search(.selectRestaurant(restaurant)):
-                state.selectedRestaurantId = restaurant.id
-                return .send(.showRestaurantDetail(restaurant.id))
+            case let .search(.selectShop(shop)):
+                state.selectedShop = shop
+                state.isDetailPresented = true
+                return .send(.showShopDetail(shop))
                 
-            case let .showRestaurantDetail(id):
-                state.restaurantDetail = .init(restaurantId: id)
+            case let .showShopDetail(shop):
+                state.shopDetail = .init(shop: shop)
+                state.isDetailPresented = true
                 return .none
                 
-            case .restaurantDetail(.pop), .dismissDetail:
-                state.restaurantDetail = nil
-                state.selectedRestaurantId = nil
+            case .shopDetail(.pop):
+                state.shopDetail = nil
+                state.selectedShop = nil
+                state.isDetailPresented = false
                 return .none
                 
-            case let .map(.showRestaurantDetail(id)):
-                state.selectedRestaurantId = id
-                return .send(.showRestaurantDetail(id))
+            case .dismissDetail:
+                state.shopDetail = nil
+                state.selectedShop = nil
+                state.isDetailPresented = false
+                return .none
                 
-            case .map, .search, .restaurantDetail:
+            case let .map(.showShopDetail(shop)):
+                state.selectedShop = shop
+                state.isDetailPresented = true
+                return .send(.showShopDetail(shop))
+                
+            case .map:
+                return .none
+                
+            case .search:
+                return .none
+                
+            case .shopDetail:
                 return .none
             }
+        }
+        .ifLet(\.search, action: \.search) {
+            SearchStore()
+        }
+        .ifLet(\.shopDetail, action: \.shopDetail) {
+            ShopDetailStore()
         }
     }
 }

@@ -1,86 +1,120 @@
 import Foundation
-
+import CoreLocation
 import ComposableArchitecture
+import MapKit
 
 @Reducer
-struct MapStore: Reducer {
+struct MapStore {
+    @Dependency(\.shopRepository) var shopRepository
+
     struct State: Equatable {
-        var topLeft: Location? = Location(lat: 37.5665, lon: 126.9780)
-        var bottomRight: Location? = Location(lat: 37.5665, lon: 126.9780)
-        var restaurants: [Restaurant] = [
-            Restaurant(
-                id: UUID(),
-                name: "BBQ치킨 강남점",
-                address: "서울시 강남구 테헤란로 123",
-                imageURL: URL(string: "https://example.com/image1.jpg"),
-                phone: "02-123-4567",
-                location: Location(lat: 37.5665, lon: 126.9780)
-            ),
-            Restaurant(
-                id: UUID(),
-                name: "BHC치킨 홍대점",
-                address: "서울시 마포구 홍대입구로 123",
-                imageURL: URL(string: "https://example.com/image2.jpg"),
-                phone: "02-234-5678",
-                location: Location(lat: 37.5665, lon: 126.9780)
-            ),
-            Restaurant(
-                id: UUID(),
-                name: "교촌치킨 이태원점",
-                address: "서울시 용산구 이태원로 123",
-                imageURL: URL(string: "https://example.com/image3.jpg"),
-                phone: "02-345-6789",
-                location: Location(lat: 37.5665, lon: 126.9780)
-            )
-        ]
-        var selectedRestaurantId: UUID? = nil
+        var shops: [ShopModel] = []
+        var visibleShops: [ShopModel] = []
+        var selectedShop: ShopModel? = nil
+        var region: MKCoordinateRegion = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503),
+            span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+        )
+        var error: String? = nil
+        var lastFetchedLocation: CLLocationCoordinate2D? = nil
     }
-    
+
     enum Action {
-        case updateTopLeft(Location?)
-        case updateBottomRight(Location?)
-        case getRestaurants
-        case getRestaurantsResponse(TaskResult<[Restaurant]>)
-        case onAppear
-        case fetchRestaurants
-        case fetchRestaurantsResponse(TaskResult<[Restaurant]>)
+        case updateRegion(MKCoordinateRegion)
+        case fetchShops
+        case updateShops([ShopModel])
+        case handleError(Error)
         case showSearch
-        case showRestaurantDetail(UUID)
+        case showShopDetail(ShopModel)
     }
-    
+
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .updateTopLeft(location):
-                state.topLeft = location
+            case let .updateRegion(region):
+                state.region = region
+
+                if shouldFetchNewData(state: state, newRegion: region) {
+                    state.lastFetchedLocation = region.center
+                    return .send(.fetchShops)
+                }
+
+                state.visibleShops = filterVisibleShops(state.shops, in: region)
                 return .none
-            case let .updateBottomRight(location):
-                state.bottomRight = location
+
+            case .fetchShops:
+                return .run { [region = state.region] send in
+                    do {
+                        let useCase = ShopsUseCase(repository: shopRepository)
+                        let shops = try await useCase.execute(
+                            lat: region.center.latitude,
+                            lng: region.center.longitude
+                        )
+                        await send(.updateShops(shops))
+                    } catch {
+                        await send(.handleError(error))
+                    }
+                }
+
+            case let .updateShops(shops):
+                state.shops = shops
+                state.visibleShops = filterVisibleShops(shops, in: state.region)
                 return .none
-            case .getRestaurants:
+
+            case let .handleError(error):
+                state.error = error.localizedDescription
                 return .none
-            case let .getRestaurantsResponse(.success(restaurants)):
-                state.restaurants = restaurants
-                return .none
-            case let .getRestaurantsResponse(.failure(error)):
-                print(error.localizedDescription)
-                return .none
-            case .onAppear:
-                print("MapStore onAppear action received")
-                return .none
-            case .fetchRestaurants:
-                return .none
-            case let .fetchRestaurantsResponse(.success(restaurants)):
-                state.restaurants = restaurants
-                return .none
-            case .fetchRestaurantsResponse(.failure):
-                return .none
+
             case .showSearch:
                 return .none
-            case let .showRestaurantDetail(id):
-                state.selectedRestaurantId = id
+
+            case let .showShopDetail(shop):
+                state.selectedShop = shop
                 return .none
             }
         }
+    }
+
+    // MARK: - Helpers
+    func shouldFetchNewData(state: State, newRegion: MKCoordinateRegion) -> Bool {
+        guard let lastLocation = state.lastFetchedLocation else {
+            return true
+        }
+
+        let distance = CLLocation(latitude: lastLocation.latitude, longitude: lastLocation.longitude)
+            .distance(from: CLLocation(latitude: newRegion.center.latitude, longitude: newRegion.center.longitude))
+
+        return distance > 100
+    }
+
+    func filterVisibleShops(_ shops: [ShopModel], in region: MKCoordinateRegion) -> [ShopModel] {
+        shops.filter { shop in
+            let coordinate = CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude)
+            let latMin = region.center.latitude - region.span.latitudeDelta / 2
+            let latMax = region.center.latitude + region.span.latitudeDelta / 2
+            let lonMin = region.center.longitude - region.span.longitudeDelta / 2
+            let lonMax = region.center.longitude + region.span.longitudeDelta / 2
+            
+            return coordinate.latitude >= latMin &&
+                   coordinate.latitude <= latMax &&
+                   coordinate.longitude >= lonMin &&
+                   coordinate.longitude <= lonMax
+        }
+    }
+}
+
+// MARK: - Equatable
+extension MapStore.State {
+    static func == (lhs: MapStore.State, rhs: MapStore.State) -> Bool {
+        lhs.shops == rhs.shops &&
+        lhs.visibleShops == rhs.visibleShops &&
+        lhs.selectedShop == rhs.selectedShop &&
+        lhs.region.center.latitude == rhs.region.center.latitude &&
+        lhs.region.center.longitude == rhs.region.center.longitude &&
+        lhs.region.span.latitudeDelta == rhs.region.span.latitudeDelta &&
+        lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
+        lhs.error == rhs.error &&
+        lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
+        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude
     }
 }

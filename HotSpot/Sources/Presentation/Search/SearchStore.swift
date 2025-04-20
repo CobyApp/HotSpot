@@ -1,98 +1,184 @@
 import Foundation
 import CoreLocation
-
 import ComposableArchitecture
 
 @Reducer
 struct SearchStore {
+    @Dependency(\.shopRepository) var shopRepository
+    @Dependency(\.locationManager) var locationManager
+
     struct State: Equatable {
+        var shops: [ShopModel] = []
         var searchText: String = ""
-        var restaurants: [Restaurant] = []
-        var isLoading: Bool = false
-        var currentPage: Int = 1
-        var hasMorePages: Bool = true
+        var error: String? = nil
+        var currentLocation: CLLocationCoordinate2D?
+        var selectedShop: ShopModel? = nil
+        var paginationState: PaginationState = .init()
+        
+        static func == (lhs: State, rhs: State) -> Bool {
+            lhs.shops == rhs.shops &&
+            lhs.searchText == rhs.searchText &&
+            lhs.error == rhs.error &&
+            lhs.currentLocation?.latitude == rhs.currentLocation?.latitude &&
+            lhs.currentLocation?.longitude == rhs.currentLocation?.longitude &&
+            lhs.selectedShop == rhs.selectedShop &&
+            lhs.paginationState.currentPage == rhs.paginationState.currentPage &&
+            lhs.paginationState.isLastPage == rhs.paginationState.isLastPage &&
+            lhs.paginationState.isLoading == rhs.paginationState.isLoading
+        }
     }
-    
+
     enum Action {
-        case searchTextChanged(String)
-        case search
-        case searchResponse(TaskResult<[Restaurant]>)
-        case loadMore
-        case selectRestaurant(Restaurant)
+        case onAppear
+        case search(String)
+        case selectShop(ShopModel)
         case pop
+        case updateLocation(CLLocationCoordinate2D)
+        case updateShops([ShopModel])
+        case handleError(Error)
+        case loadMore
+        case updatePaginationState(PaginationState)
     }
-    
+
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .searchTextChanged(text):
-                state.searchText = text
+            case .onAppear:
+                return .run { send in
+                    if let location = await locationManager.requestLocation() {
+                        await send(.updateLocation(location.coordinate))
+                    }
+                }
+
+            case let .updateLocation(location):
+                state.currentLocation = location
                 return .none
+
+            case let .updateShops(shops):
+                state.shops = shops
+                return .none
+
+            case let .handleError(error):
+                state.error = error.localizedDescription
+                return .none
+
+            case let .selectShop(shop):
+                state.selectedShop = shop
+                return .none
+
+            case .pop:
+                return .none
+
+            case let .search(text):
+                guard text != state.searchText else { return .none }
                 
-            case .search:
-                guard !state.searchText.isEmpty else { return .none }
+                state.searchText = text
+                state.paginationState.reset()
+                print("Search started - text: \(text)")
                 
-                state.isLoading = true
-                state.currentPage = 1
-                state.restaurants = []
-                state.hasMorePages = true
-                
-                return .run { [text = state.searchText] send in
-                    try await Task.sleep(nanoseconds: 500_000_000) // Simulate network delay
-                    let restaurants = generateDummyRestaurants(for: text)
-                    await send(.searchResponse(.success(restaurants)))
+                return .run { [state] send in
+                    do {
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
+                        let request = ShopSearchRequestDTO(
+                            lat: location.latitude,
+                            lng: location.longitude,
+                            range: 5,
+                            count: nil,
+                            keyword: text,
+                            genre: nil,
+                            order: nil,
+                            start: nil,
+                            budget: nil,
+                            privateRoom: nil,
+                            wifi: nil,
+                            nonSmoking: nil,
+                            coupon: nil,
+                            openNow: nil
+                        )
+                        
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.execute(
+                            request: request,
+                            currentPage: 1
+                        )
+                        
+                        print("Search result - currentPage: \(result.currentPage), hasMore: \(result.hasMore), shops count: \(result.shops.count)")
+                        
+                        await send(.updateShops(result.shops))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: result.currentPage,
+                            isLastPage: !result.hasMore,
+                            isLoading: false
+                        )))
+                    } catch {
+                        await send(.handleError(error))
+                    }
                 }
                 
-            case let .searchResponse(.success(restaurants)):
-                state.isLoading = false
-                state.restaurants = restaurants
-                return .none
-                
-            case .searchResponse(.failure):
-                state.isLoading = false
-                return .none
-                
             case .loadMore:
-                return .none
+                guard !state.paginationState.isLoading && !state.paginationState.isLastPage else {
+                    print("LoadMore skipped - isLoading: \(state.paginationState.isLoading), isLastPage: \(state.paginationState.isLastPage), currentPage: \(state.paginationState.currentPage)")
+                    return .none
+                }
                 
-            case let .selectRestaurant(restaurant):
-                return .none
+                state.paginationState.startLoading()
+                print("Loading more - currentPage: \(state.paginationState.currentPage)")
                 
-            case .pop:
+                return .run { [state] send in
+                    do {
+                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
+                        let request = ShopSearchRequestDTO(
+                            lat: location.latitude,
+                            lng: location.longitude,
+                            range: 5,
+                            count: nil,
+                            keyword: state.searchText,
+                            genre: nil,
+                            order: nil,
+                            start: nil,
+                            budget: nil,
+                            privateRoom: nil,
+                            wifi: nil,
+                            nonSmoking: nil,
+                            coupon: nil,
+                            openNow: nil
+                        )
+                        
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.execute(
+                            request: request,
+                            currentPage: state.paginationState.currentPage,
+                            isLoadMore: true
+                        )
+                        
+                        print("LoadMore result - currentPage: \(result.currentPage), hasMore: \(result.hasMore), shops count: \(result.shops.count)")
+                        
+                        // Create a Set of existing shop IDs for quick lookup
+                        let existingShopIds = Set(state.shops.map { $0.id })
+                        // Filter out any shops that are already in the list
+                        let newShops = result.shops.filter { !existingShopIds.contains($0.id) }
+                        
+                        await send(.updateShops(state.shops + newShops))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: result.currentPage,
+                            isLastPage: !result.hasMore,
+                            isLoading: false
+                        )))
+                    } catch {
+                        await send(.handleError(error))
+                        await send(.updatePaginationState(PaginationState(
+                            currentPage: state.paginationState.currentPage,
+                            isLastPage: state.paginationState.isLastPage,
+                            isLoading: false
+                        )))
+                    }
+                }
+                
+            case let .updatePaginationState(newState):
+                state.paginationState = newState
+                print("PaginationState updated - currentPage: \(newState.currentPage), isLastPage: \(newState.isLastPage), isLoading: \(newState.isLoading)")
                 return .none
             }
         }
-    }
-    
-    private func generateDummyRestaurants(for query: String, page: Int = 1) -> [Restaurant] {
-        // Always return some results for testing
-        let restaurants = [
-            Restaurant(
-                id: UUID(),
-                name: "BBQ치킨 강남점",
-                address: "서울시 강남구 테헤란로 123",
-                imageURL: URL(string: "https://example.com/image1.jpg"),
-                phone: "02-123-4567",
-                location: Location(lat: 37.5665, lon: 126.9780)
-            ),
-            Restaurant(
-                id: UUID(),
-                name: "BHC치킨 홍대점",
-                address: "서울시 마포구 홍대입구로 123",
-                imageURL: URL(string: "https://example.com/image2.jpg"),
-                phone: "02-234-5678",
-                location: Location(lat: 37.5665, lon: 126.9780)
-            ),
-            Restaurant(
-                id: UUID(),
-                name: "교촌치킨 이태원점",
-                address: "서울시 용산구 이태원로 123",
-                imageURL: URL(string: "https://example.com/image3.jpg"),
-                phone: "02-345-6789",
-                location: Location(lat: 37.5665, lon: 126.9780)
-            )
-        ]
-        
-        return restaurants
     }
 } 

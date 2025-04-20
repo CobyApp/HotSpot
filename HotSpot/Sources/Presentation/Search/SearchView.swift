@@ -6,8 +6,7 @@ import ComposableArchitecture
 
 struct SearchView: View {
     let store: StoreOf<SearchStore>
-    @FocusState private var isSearchFocused: Bool
-    @State private var localSearchText: String = ""
+    @State private var isSearchFocused = false
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -17,98 +16,34 @@ struct SearchView: View {
                         leftSide: .left,
                         leftAction: {
                             viewStore.send(.pop)
-                        },
-                        title: "Search"
+                        }
                     )
                 }
                 
-                // Search Bar
-                HStack(spacing: 12) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.gray)
-                    
-                    TextField("검색어를 입력하세요", text: $localSearchText)
-                        .textFieldStyle(.plain)
-                        .focused($isSearchFocused)
-                        .onChange(of: localSearchText) { newValue in
-                            viewStore.send(.searchTextChanged(newValue))
-                        }
-                        .onSubmit {
-                            if !localSearchText.isEmpty {
-                                isSearchFocused = false
-                                viewStore.send(.search)
-                            }
-                        }
-                        .submitLabel(.search)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                    
-                    if !localSearchText.isEmpty {
-                        Button {
-                            localSearchText = ""
-                            viewStore.send(.searchTextChanged(""))
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    
-                    if isSearchFocused {
-                        Button {
-                            localSearchText = ""
-                            viewStore.send(.searchTextChanged(""))
-                            isSearchFocused = false
-                        } label: {
-                            Text("취소")
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
-                .padding(12)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-                .padding(.horizontal)
-                .padding(.top, isSearchFocused ? 16 : 0)
-                .animation(.easeInOut, value: isSearchFocused)
+                SearchBar(
+                    searchText: viewStore.searchText,
+                    onSearch: { viewStore.send(.search($0)) },
+                    isSearchFocused: $isSearchFocused
+                )
                 
-                // Search Results
-                ZStack {
-                    if viewStore.isLoading {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if viewStore.restaurants.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 48))
-                                .foregroundColor(.gray)
-                            Text(viewStore.searchText.isEmpty ? "검색어를 입력해주세요" : "검색 결과가 없습니다")
-                                .font(.headline)
-                                .foregroundColor(.gray)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(viewStore.restaurants) { restaurant in
-                                    RestaurantCell(restaurant: restaurant)
-                                        .onTapGesture {
-                                            viewStore.send(.selectRestaurant(restaurant))
-                                        }
-                                    
-                                    if restaurant.id != viewStore.restaurants.last?.id {
-                                        Divider()
-                                            .padding(.leading)
-                                    }
-                                }
-                            }
+                SearchResults(
+                    error: viewStore.error,
+                    searchText: viewStore.searchText,
+                    shops: viewStore.shops,
+                    onSelectShop: { viewStore.send(.selectShop($0)) },
+                    onLoadMore: {
+                        if !viewStore.paginationState.isLastPage {
+                            viewStore.send(.loadMore)
                         }
                     }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                )
             }
             .navigationBarHidden(true)
+            .onAppear {
+                viewStore.send(.onAppear)
+            }
             .onTapGesture {
-                isSearchFocused = false
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         }
     }

@@ -1,11 +1,14 @@
 import SwiftUI
-
-import CobyDS
+import MapKit
 import ComposableArchitecture
+import CobyDS
+import Kingfisher
 
 struct MapView: View {
     let store: StoreOf<MapStore>
-    
+    @State private var shopImages: [String: UIImage] = [:]
+    @State private var lastRegion: MKCoordinateRegion?
+
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
@@ -18,46 +21,49 @@ struct MapView: View {
                         viewStore.send(.showSearch)
                     }
                 )
-                
+
                 ZStack(alignment: .bottom) {
                     MapRepresentableView(
-                        restaurants: viewStore.binding(
-                            get: { $0.restaurants },
-                            send: { _ in .getRestaurants }
-                        ),
-                        topLeft: viewStore.binding(
-                            get: { $0.topLeft },
-                            send: { .updateTopLeft($0) }
-                        ),
-                        bottomRight: viewStore.binding(
-                            get: { $0.bottomRight },
-                            send: { .updateBottomRight($0) }
+                        shops: viewStore.visibleShops,
+                        region: viewStore.binding(
+                            get: { $0.region },
+                            send: { .updateRegion($0) }
                         )
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
-                    .onAppear {
-                        print("MapView appeared")
-                        viewStore.send(.onAppear)
-                    }
 
+                    // Bottom card scroll view
                     SnappingScrollView(
-                        items: viewStore.restaurants,
+                        items: viewStore.visibleShops,
                         itemWidth: BaseSize.fullWidth
-                    ) { restaurant in
+                    ) { shop in
                         ThumbnailTileView(
-                            image: nil,
-                            title: restaurant.name,
-                            subTitle: "",
-                            description: restaurant.address
+                            image: shopImages[shop.id],
+                            title: shop.name,
+                            subTitle: nil,
+                            description: shop.access,
+                            subDescription: nil
                         )
-                        .frame(width: BaseSize.fullWidth, height: 120)
+                        .frame(width: BaseSize.fullWidth)
                         .onTapGesture {
-                            viewStore.send(.showRestaurantDetail(restaurant.id))
+                            viewStore.send(.showShopDetail(shop))
+                        }
+                        .onAppear {
+                            loadImage(for: shop)
                         }
                     }
-                    .frame(height: 120)
                     .padding(.bottom, 30)
                 }
+            }
+        }
+    }
+
+    private func loadImage(for shop: ShopModel) {
+        guard shopImages[shop.id] == nil else { return }
+
+        UIImage.loadThumbnail(from: shop.imageUrl) { image in
+            DispatchQueue.main.async {
+                shopImages[shop.id] = image
             }
         }
     }
