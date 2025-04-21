@@ -16,19 +16,6 @@ struct MapStore: Reducer {
         var lastFetchedLocation: MapCoordinate? = nil
         var error: ShopError? = nil
         var shouldShowNoShopsMessage: Bool = false
-        
-        static func == (lhs: State, rhs: State) -> Bool {
-            lhs.shops == rhs.shops &&
-            lhs.visibleShops == rhs.visibleShops &&
-            lhs.region.center.latitude == rhs.region.center.latitude &&
-            lhs.region.center.longitude == rhs.region.center.longitude &&
-            lhs.region.span.latitudeDelta == rhs.region.span.latitudeDelta &&
-            lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
-            lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
-            lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude &&
-            lhs.error == rhs.error &&
-            lhs.shouldShowNoShopsMessage == rhs.shouldShowNoShopsMessage
-        }
     }
 
     enum Action: Equatable {
@@ -38,28 +25,6 @@ struct MapStore: Reducer {
         case handleError(ShopError)
         case clearError
         case clearNoShopsMessage
-        
-        static func == (lhs: Action, rhs: Action) -> Bool {
-            switch (lhs, rhs) {
-            case let (.updateRegion(lRegion), .updateRegion(rRegion)):
-                return lRegion.center.latitude == rRegion.center.latitude &&
-                       lRegion.center.longitude == rRegion.center.longitude &&
-                       lRegion.span.latitudeDelta == rRegion.span.latitudeDelta &&
-                       lRegion.span.longitudeDelta == rRegion.span.longitudeDelta
-            case (.fetchShops, .fetchShops):
-                return true
-            case let (.updateShops(lShops), .updateShops(rShops)):
-                return lShops == rShops
-            case let (.handleError(lError), .handleError(rError)):
-                return lError == rError
-            case (.clearError, .clearError):
-                return true
-            case (.clearNoShopsMessage, .clearNoShopsMessage):
-                return true
-            default:
-                return false
-            }
-        }
     }
 
     var body: some ReducerOf<Self> {

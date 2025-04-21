@@ -11,26 +11,15 @@ struct SearchStore {
         var shops: [ShopModel] = []
         var searchText: String = ""
         var error: ShopError? = nil
-        var currentLocation: CLLocationCoordinate2D?
+        var currentLocation: MapCoordinate?
         var paginationState: PaginationState = .init()
-        
         var filterState: SearchFilterStore.State = .init()
-        
-        static func == (lhs: State, rhs: State) -> Bool {
-            lhs.shops == rhs.shops &&
-            lhs.searchText == rhs.searchText &&
-            lhs.error == rhs.error &&
-            lhs.currentLocation?.latitude == rhs.currentLocation?.latitude &&
-            lhs.currentLocation?.longitude == rhs.currentLocation?.longitude &&
-            lhs.paginationState == rhs.paginationState &&
-            lhs.filterState == rhs.filterState
-        }
     }
 
     enum Action {
         case onAppear
         case search(String)
-        case updateLocation(CLLocationCoordinate2D)
+        case updateLocation(MapCoordinate)
         case updateShops([ShopModel])
         case handleError(Error)
         case clearError
@@ -45,7 +34,7 @@ struct SearchStore {
             case .onAppear:
                 return .run { send in
                     if let location = await locationManager.requestLocation() {
-                        await send(.updateLocation(location.coordinate))
+                        await send(.updateLocation(MapCoordinate(coordinate: location.coordinate)))
                     }
                 }
 
@@ -80,7 +69,7 @@ struct SearchStore {
                 
                 return .run { [state] send in
                     do {
-                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
+                        let location = state.currentLocation ?? MapCoordinate(latitude: 34.6937, longitude: 135.5023)
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
@@ -118,7 +107,7 @@ struct SearchStore {
             case .loadMore:
                 return .run { [state] send in
                     do {
-                        let location = state.currentLocation ?? CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
+                        let location = state.currentLocation ?? MapCoordinate(latitude: 34.6937, longitude: 135.5023)
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
