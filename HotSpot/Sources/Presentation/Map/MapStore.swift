@@ -31,13 +31,13 @@ struct MapStore {
             switch action {
             case let .updateRegion(region):
                 state.region = region
+                state.visibleShops = filterVisibleShops(state.shops, in: region)
 
                 if shouldFetchNewData(state: state, newRegion: region) {
                     state.lastFetchedLocation = region.center
                     return .send(.fetchShops)
                 }
 
-                state.visibleShops = filterVisibleShops(state.shops, in: region)
                 return .none
 
             case .fetchShops:

@@ -61,6 +61,14 @@ struct MapView: View {
                     viewStore.send(.clearError)
                 }
             }
+            .onChange(of: viewStore.visibleShops) { shops in
+                if shops.isEmpty {
+                    coordinator?.showMessage(
+                        title: "お店が見つかりません",
+                        message: "ズームインして再度お試しください"
+                    )
+                }
+            }
         }
     }
 
