@@ -1,3 +1,4 @@
+import Foundation
 import ComposableArchitecture
 
 private enum ShopRepositoryKey: DependencyKey {

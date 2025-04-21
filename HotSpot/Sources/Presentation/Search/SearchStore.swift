@@ -13,7 +13,11 @@ struct SearchStore {
         var error: ShopError? = nil
         var currentLocation: MapCoordinate?
         var paginationState: PaginationState = .init()
-        var filterState: SearchFilterStore.State = .init()
+        var filterState: SearchFilterStore.State
+        
+        init() {
+            self.filterState = SearchFilterStore.State()
+        }
     }
 
     enum Action {
@@ -76,7 +80,7 @@ struct SearchStore {
                             range: state.filterState.selectedDistance,
                             count: nil,
                             keyword: text,
-                            genre: state.filterState.selectedCuisine > 0 ? String(state.filterState.selectedCuisine) : nil,
+                            genre: !state.filterState.selectedGenreCode.isEmpty ? state.filterState.selectedGenreCode : nil,
                             order: nil,
                             start: nil,
                             budget: state.filterState.selectedBudget > 0 ? String(state.filterState.selectedBudget) : nil,
@@ -114,7 +118,7 @@ struct SearchStore {
                             range: state.filterState.selectedDistance,
                             count: nil,
                             keyword: state.searchText,
-                            genre: state.filterState.selectedCuisine > 0 ? String(state.filterState.selectedCuisine) : nil,
+                            genre: !state.filterState.selectedGenreCode.isEmpty ? state.filterState.selectedGenreCode : nil,
                             order: nil,
                             start: nil,
                             budget: state.filterState.selectedBudget > 0 ? String(state.filterState.selectedBudget) : nil,

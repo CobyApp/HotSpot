@@ -18,7 +18,7 @@ struct SearchView: View {
                             coordinator?.pop()
                         },
                         rightSide: .icon,
-                        rightIcon: UIImage.icMore,
+                        rightIcon: UIImage.icFilter,
                         rightAction: {
                             coordinator?.showSearchFilter()
                         }

@@ -13,9 +13,11 @@ struct ShopInfoSection: View {
                         .font(.pretendard(size: 24, weight: .bold))
                         .foregroundColor(Color.labelNormal)
                     
-                    Text(ShopGenre.name(for: shop.genreCode))
-                        .font(.pretendard(size: 14, weight: .regular))
-                        .foregroundColor(Color.labelAlternative)
+                    if let genre = Genre.from(code: shop.genreCode) {
+                        Text(genre.name)
+                            .font(.pretendard(size: 14, weight: .regular))
+                            .foregroundColor(Color.labelAlternative)
+                    }
                 }
                 
                 // Address

@@ -17,17 +17,19 @@ struct ShopLocationMapView: View {
 
         Map(coordinateRegion: .constant(region), annotationItems: [ShopPin(shop: shop)]) { pin in
             MapAnnotation(coordinate: pin.coordinate) {
-                ZStack {
-                    Circle()
-                        .fill(Color(uiColor: ShopGenre.color(for: pin.genreCode)))
-                        .frame(width: 40, height: 40)
+                if let genre = Genre.from(code: pin.genreCode) {
+                    ZStack {
+                        Circle()
+                            .fill(Color(uiColor: genre.color))
+                            .frame(width: 40, height: 40)
 
-                    Image(uiImage: ShopGenre.image(for: pin.genreCode) ?? UIImage())
-                        .resizable()
-                        .renderingMode(.template)
-                        .foregroundColor(.white)
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
+                        Image(uiImage: genre.image ?? UIImage())
+                            .resizable()
+                            .renderingMode(.template)
+                            .foregroundColor(.white)
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    }
                 }
             }
         }

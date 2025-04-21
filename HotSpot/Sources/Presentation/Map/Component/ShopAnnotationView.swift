@@ -10,9 +10,12 @@ class ShopAnnotationView: MKMarkerAnnotationView {
             clusteringIdentifier = "Shop"
             canShowCallout = false
             isEnabled = true
-            markerTintColor = ShopGenre.color(for: shopAnnotation.genreCode)
-            if let originalImage = ShopGenre.image(for: shopAnnotation.genreCode) {
-                glyphImage = originalImage.withTintColor(.white, renderingMode: .alwaysTemplate)
+            
+            if let genre = Genre.from(code: shopAnnotation.genreCode) {
+                markerTintColor = genre.color
+                if let originalImage = genre.image {
+                    glyphImage = originalImage.withTintColor(.white, renderingMode: .alwaysTemplate)
+                }
             }
         }
     }
