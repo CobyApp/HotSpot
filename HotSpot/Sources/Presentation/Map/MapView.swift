@@ -33,9 +33,10 @@ struct MapView: View {
                     .ignoresSafeArea(.all, edges: .bottom)
 
                     // Bottom card scroll view
-                    SnappingScrollView(
+                    CarouselScrollViewRepresentable(
                         items: viewStore.visibleShops,
-                        itemWidth: BaseSize.fullWidth
+                        itemWidth: BaseSize.fullWidth,
+                        spacing: 8
                     ) { shop in
                         ThumbnailTileView(
                             image: shopImages[shop.id],
@@ -44,7 +45,6 @@ struct MapView: View {
                             description: shop.access,
                             subDescription: nil
                         )
-                        .frame(width: BaseSize.fullWidth)
                         .onTapGesture {
                             coordinator?.showShopDetail(shop)
                         }
@@ -52,6 +52,9 @@ struct MapView: View {
                             loadImage(for: shop)
                         }
                     }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 120)
+                    .background(Color.red)
                     .padding(.bottom, 30)
                 }
             }
