@@ -15,7 +15,6 @@ struct MapStore: Reducer {
         )
         var lastFetchedLocation: MapCoordinate? = nil
         var error: ShopError? = nil
-        var shouldShowNoShopsMessage: Bool = false
     }
 
     enum Action: Equatable {
@@ -24,8 +23,9 @@ struct MapStore: Reducer {
         case updateShops([ShopModel])
         case handleError(ShopError)
         case clearError
-        case clearNoShopsMessage
     }
+
+    enum CancelID { case fetchShops }
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -52,11 +52,11 @@ struct MapStore: Reducer {
                         await send(.handleError(.server(message: error.localizedDescription)))
                     }
                 }
+                .cancellable(id: CancelID.fetchShops, cancelInFlight: true)
 
             case let .updateShops(shops):
                 state.shops = shops
                 state.visibleShops = ShopModel.filterVisibleShops(shops, in: state.region)
-                state.shouldShowNoShopsMessage = state.visibleShops.isEmpty
                 return .none
 
             case let .handleError(error):
@@ -65,10 +65,6 @@ struct MapStore: Reducer {
 
             case .clearError:
                 state.error = nil
-                return .none
-
-            case .clearNoShopsMessage:
-                state.shouldShowNoShopsMessage = false
                 return .none
             }
         }
