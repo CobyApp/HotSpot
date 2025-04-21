@@ -44,7 +44,7 @@ struct MapView: View {
                             currentIndex: $currentIndex
                         ) { shop in
                             ThumbnailTileView(
-                                image: shopImages[shop.id],
+                                image: $shopImages[shop.id],
                                 title: shop.name,
                                 subTitle: nil,
                                 description: shop.access,

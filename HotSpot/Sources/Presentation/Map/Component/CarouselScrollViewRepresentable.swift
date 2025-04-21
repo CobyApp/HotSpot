@@ -93,7 +93,6 @@ struct CarouselScrollViewRepresentable<Item: Identifiable, Content: View>: UIVie
         }
 
         func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-            let layout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
             let cellWidthIncludingSpacing = itemWidth + spacing
 
             let offsetX = targetContentOffset.pointee.x + scrollView.contentInset.left

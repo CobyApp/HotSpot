@@ -24,7 +24,7 @@ struct SearchResults: View {
                     LazyVStack(spacing: 16) {
                         ForEach(shops) { shop in
                             ThumbnailTileView(
-                                image: shopImages[shop.id],
+                                image: $shopImages[shop.id],
                                 title: shop.name,
                                 subTitle: nil,
                                 description: shop.access,
