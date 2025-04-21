@@ -7,7 +7,7 @@ import Kingfisher
 struct MapView: View {
     let store: StoreOf<MapStore>
     @State private var shopImages: [String: UIImage] = [:]
-    @State private var lastRegion: MKCoordinateRegion?
+    @Environment(\.coordinator) private var coordinator
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -18,7 +18,7 @@ struct MapView: View {
                     rightSide: .icon,
                     rightIcon: UIImage.icSearch,
                     rightAction: {
-                        viewStore.send(.showSearch)
+                        coordinator?.showSearch()
                     }
                 )
 
@@ -46,7 +46,7 @@ struct MapView: View {
                         )
                         .frame(width: BaseSize.fullWidth)
                         .onTapGesture {
-                            viewStore.send(.showShopDetail(shop))
+                            coordinator?.showShopDetail(shop)
                         }
                         .onAppear {
                             loadImage(for: shop)

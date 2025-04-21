@@ -1,84 +1,78 @@
 import SwiftUI
+import UIKit
 import ComposableArchitecture
 
-@Reducer
-struct AppCoordinator {
-    struct State: Equatable {
-        var map: MapStore.State = .init()
-        var search: SearchStore.State?
-        var shopDetail: ShopDetailStore.State?
-        var selectedShop: ShopModel?
-        var isDetailPresented: Bool = false
+final class AppCoordinator {
+    private let window: UIWindow
+    private let navigationController: UINavigationController
+    
+    init(window: UIWindow) {
+        self.window = window
+        self.navigationController = CustomNavigationController()
     }
-
-    enum Action {
-        case map(MapStore.Action)
-        case search(SearchStore.Action)
-        case shopDetail(ShopDetailStore.Action)
-
-        case showShopDetail(ShopModel)
-        case showSearch
-        case dismissSearch
-        case dismissDetail
-    }
-
-    var body: some ReducerOf<Self> {
-        Scope(state: \.map, action: \.map) {
-            MapStore()
-        }
+    
+    func start() {
+        let mapView = MapView(
+            store: Store(
+                initialState: MapStore.State(),
+                reducer: { MapStore() }
+            )
+        )
+        .environment(\.coordinator, self)
         
-        Reduce { state, action in
-            switch action {
-            case .map(.showSearch), .showSearch:
-                state.search = .init()
-                return .none
-                
-            case .search(.pop), .dismissSearch:
-                state.search = nil
-                return .none
-                
-            case let .search(.selectShop(shop)):
-                state.selectedShop = shop
-                state.isDetailPresented = true
-                return .send(.showShopDetail(shop))
-                
-            case let .showShopDetail(shop):
-                state.shopDetail = .init(shop: shop)
-                state.isDetailPresented = true
-                return .none
-                
-            case .shopDetail(.pop):
-                state.shopDetail = nil
-                state.selectedShop = nil
-                state.isDetailPresented = false
-                return .none
-                
-            case .dismissDetail:
-                state.shopDetail = nil
-                state.selectedShop = nil
-                state.isDetailPresented = false
-                return .none
-                
-            case let .map(.showShopDetail(shop)):
-                state.selectedShop = shop
-                state.isDetailPresented = true
-                return .send(.showShopDetail(shop))
-                
-            case .map:
-                return .none
-                
-            case .search:
-                return .none
-                
-            case .shopDetail:
-                return .none
-            }
-        }
-        .ifLet(\.search, action: \.search) {
-            SearchStore()
-        }
-        .ifLet(\.shopDetail, action: \.shopDetail) {
-            ShopDetailStore()
-        }
+        let hostingController = UIHostingController(rootView: mapView)
+        navigationController.viewControllers = [hostingController]
+        
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
     }
-}
+    
+    func showSearch() {
+        let searchView = SearchView(
+            store: Store(
+                initialState: SearchStore.State(),
+                reducer: { SearchStore() }
+            )
+        )
+        .environment(\.coordinator, self)
+        
+        push(searchView)
+    }
+    
+    func showSearchFilter() {
+        let searchFilterView = SearchFilterView(
+            store: Store(
+                initialState: SearchFilterStore.State(),
+                reducer: { SearchFilterStore() }
+            )
+        )
+        .environment(\.coordinator, self)
+        
+        push(searchFilterView)
+    }
+    
+    func showShopDetail(_ shop: ShopModel) {
+        let shopDetailView = ShopDetailView(
+            store: Store(
+                initialState: ShopDetailStore.State(shop: shop),
+                reducer: { ShopDetailStore() }
+            )
+        )
+        .environment(\.coordinator, self)
+        
+        push(shopDetailView)
+    }
+    
+    private func push<Content: View>(_ view: Content, animated: Bool = true) {
+        let hostingController = UIHostingController(rootView: view)
+        navigationController.pushViewController(hostingController, animated: animated)
+    }
+    
+    func pop(animated: Bool = true) {
+        navigationController.popViewController(animated: animated)
+    }
+    
+    func popToRoot(animated: Bool = true) {
+        navigationController.popToRootViewController(animated: animated)
+    }
+} 
