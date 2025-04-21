@@ -17,7 +17,7 @@ extension UserDefaults {
     private enum FilterKey: String {
         case range = "range"
         case budget = "budget"
-        case genre = "genre"
+        case genres = "genres"
         case wifi = "wifi"
         case privateRoom = "privateRoom"
         case nonSmoking = "nonSmoking"
@@ -34,9 +34,9 @@ extension UserDefaults {
         set { set(newValue, forKey: FilterKey.budget.rawValue) }
     }
     
-    var genre: String {
-        get { string(forKey: FilterKey.genre.rawValue) ?? "" }
-        set { set(newValue, forKey: FilterKey.genre.rawValue) }
+    var genres: [String] {
+        get { stringArray(forKey: FilterKey.genres.rawValue) ?? [] }
+        set { set(newValue, forKey: FilterKey.genres.rawValue) }
     }
     
     var wifi: Bool {

@@ -24,8 +24,16 @@ struct SearchFilterView: View {
                 )
                 
                 GenreSection(
-                    selectedGenreCode: viewStore.selectedGenreCode,
-                    onGenreSelected: { viewStore.send(.updateGenre($0)) }
+                    selectedGenres: viewStore.selectedGenres,
+                    onGenreSelected: { genreCode in
+                        var updatedGenres = viewStore.selectedGenres
+                        if updatedGenres.contains(genreCode) {
+                            updatedGenres.removeAll { $0 == genreCode }
+                        } else {
+                            updatedGenres.append(genreCode)
+                        }
+                        viewStore.send(.updateGenres(updatedGenres))
+                    }
                 )
                 
                 VStack(spacing: 8) {

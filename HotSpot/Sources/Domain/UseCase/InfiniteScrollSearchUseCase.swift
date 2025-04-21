@@ -23,7 +23,7 @@ struct InfiniteScrollSearchUseCase {
             range: request.range,
             count: pageSize,
             keyword: request.keyword,
-            genre: request.genre,
+            genres: request.genres,
             order: request.order,
             start: start,
             budget: request.budget,

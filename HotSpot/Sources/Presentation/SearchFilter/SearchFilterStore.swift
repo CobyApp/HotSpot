@@ -8,7 +8,7 @@ struct SearchFilterStore {
     struct State: Equatable {
         var selectedRange: Int
         var selectedBudget: String
-        var selectedGenreCode: String
+        var selectedGenres: [String]
         var hasWiFi: Bool
         var hasPrivateRoom: Bool
         var isNonSmoking: Bool
@@ -16,14 +16,14 @@ struct SearchFilterStore {
         init(
             selectedRange: Int = UserDefaults.standard.range,
             selectedBudget: String = UserDefaults.standard.budget,
-            selectedGenreCode: String = UserDefaults.standard.genre,
+            selectedGenres: [String] = UserDefaults.standard.genres,
             hasWiFi: Bool = UserDefaults.standard.wifi,
             hasPrivateRoom: Bool = UserDefaults.standard.privateRoom,
             isNonSmoking: Bool = UserDefaults.standard.nonSmoking
         ) {
             self.selectedRange = selectedRange
             self.selectedBudget = selectedBudget
-            self.selectedGenreCode = selectedGenreCode
+            self.selectedGenres = selectedGenres
             self.hasWiFi = hasWiFi
             self.hasPrivateRoom = hasPrivateRoom
             self.isNonSmoking = isNonSmoking
@@ -33,7 +33,7 @@ struct SearchFilterStore {
     enum Action: Equatable {
         case updateRange(Int)
         case updateBudget(String)
-        case updateGenre(String)
+        case updateGenres([String])
         case updateWiFi(Bool)
         case updatePrivateRoom(Bool)
         case updateNonSmoking(Bool)
@@ -55,9 +55,9 @@ struct SearchFilterStore {
                 UserDefaults.standard.budget = budget
                 return .none
                 
-            case let .updateGenre(genre):
-                state.selectedGenreCode = genre
-                UserDefaults.standard.genre = genre
+            case let .updateGenres(genres):
+                state.selectedGenres = genres
+                UserDefaults.standard.genres = genres
                 return .none
                 
             case let .updateWiFi(hasWiFi):
