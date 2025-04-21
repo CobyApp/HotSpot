@@ -14,8 +14,8 @@ struct MapStore {
             center: CLLocationCoordinate2D(latitude: 35.6762, longitude: 139.6503),
             span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         )
-        var error: String? = nil
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
+        var error: ShopError? = nil
     }
 
     enum Action {
@@ -23,6 +23,7 @@ struct MapStore {
         case fetchShops
         case updateShops([ShopModel])
         case handleError(Error)
+        case clearError
     }
 
     var body: some ReducerOf<Self> {
@@ -59,7 +60,18 @@ struct MapStore {
                 return .none
 
             case let .handleError(error):
-                state.error = error.localizedDescription
+                switch error {
+                case is URLError:
+                    state.error = .network
+                case is DecodingError:
+                    state.error = .decoding
+                default:
+                    state.error = .server(message: error.localizedDescription)
+                }
+                return .none
+                
+            case .clearError:
+                state.error = nil
                 return .none
             }
         }

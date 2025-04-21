@@ -3,7 +3,7 @@ import CobyDS
 import Kingfisher
 
 struct SearchResults: View {
-    let error: String?
+    let error: ShopError?
     let searchText: String
     let shops: [ShopModel]
     let onSelectShop: (ShopModel) -> Void
@@ -13,7 +13,7 @@ struct SearchResults: View {
     var body: some View {
         Group {
             if let error = error {
-                Text(error)
+                Text(ShopErrorMessageMapper.message(for: error))
                     .foregroundColor(.red)
             } else if searchText.isEmpty {
                 EmptyResults(searchText: searchText)

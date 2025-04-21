@@ -5,6 +5,7 @@ import ComposableArchitecture
 final class AppCoordinator {
     private let window: UIWindow
     private let navigationController: UINavigationController
+    private var errorAlertController: UIAlertController?
     
     init(window: UIWindow) {
         self.window = window
@@ -25,6 +26,32 @@ final class AppCoordinator {
         
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
+    }
+    
+    func showError(_ error: ShopError) {
+        let errorMessage = ShopErrorMessageMapper.message(for: error)
+        showErrorAlert(message: errorMessage)
+    }
+    
+    private func showErrorAlert(message: String) {
+        errorAlertController?.dismiss(animated: false)
+        
+        let alert = UIAlertController(
+            title: "エラー",
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(
+            title: "OK",
+            style: .default,
+            handler: { [weak self] _ in
+                self?.errorAlertController = nil
+            }
+        ))
+        
+        errorAlertController = alert
+        navigationController.present(alert, animated: true)
     }
     
     func showSearch() {

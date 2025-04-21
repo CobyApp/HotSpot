@@ -10,7 +10,7 @@ struct SearchStore {
     struct State: Equatable {
         var shops: [ShopModel] = []
         var searchText: String = ""
-        var error: String? = nil
+        var error: ShopError? = nil
         var currentLocation: CLLocationCoordinate2D?
         var paginationState: PaginationState = .init()
         
@@ -33,6 +33,7 @@ struct SearchStore {
         case updateLocation(CLLocationCoordinate2D)
         case updateShops([ShopModel])
         case handleError(Error)
+        case clearError
         case loadMore
         case updatePaginationState(PaginationState)
         case updateFilterState(SearchFilterStore.State)
@@ -57,7 +58,18 @@ struct SearchStore {
                 return .none
 
             case let .handleError(error):
-                state.error = error.localizedDescription
+                switch error {
+                case is URLError:
+                    state.error = .network
+                case is DecodingError:
+                    state.error = .decoding
+                default:
+                    state.error = .server(message: error.localizedDescription)
+                }
+                return .none
+                
+            case .clearError:
+                state.error = nil
                 return .none
 
             case let .search(text):

@@ -55,6 +55,12 @@ struct MapView: View {
                     .padding(.bottom, 30)
                 }
             }
+            .onChange(of: viewStore.error) { error in
+                if let error = error {
+                    coordinator?.showError(error)
+                    viewStore.send(.clearError)
+                }
+            }
         }
     }
 

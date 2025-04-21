@@ -46,6 +46,12 @@ struct SearchView: View {
             .onAppear {
                 viewStore.send(.onAppear)
             }
+            .onChange(of: viewStore.error) { error in
+                if let error = error {
+                    coordinator?.showError(error)
+                    viewStore.send(.clearError)
+                }
+            }
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
