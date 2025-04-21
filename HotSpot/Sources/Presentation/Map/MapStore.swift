@@ -30,15 +30,12 @@ struct MapStore: Reducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+
             case let .updateRegion(region):
                 state.region = region
                 state.visibleShops = ShopModel.filterVisibleShops(state.shops, in: region)
                 state.lastFetchedLocation = region.center
-                return .run { send in
-                    try await Task.sleep(nanoseconds: 500_000_000)
-                    await send(.fetchShops)
-                }
-                .cancellable(id: CancelID.fetchShops, cancelInFlight: true)
+                return .send(.fetchShops)
 
             case .fetchShops:
                 let lat = state.region.center.latitude
@@ -76,6 +73,4 @@ struct MapStore: Reducer {
             }
         }
     }
-
-    enum CancelID { case fetchShops }
 }
