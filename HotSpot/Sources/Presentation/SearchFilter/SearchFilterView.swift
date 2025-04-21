@@ -2,7 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct SearchFilterView: View {
-    let store: StoreOf<SearchStore>
+    let store: StoreOf<SearchFilterStore>
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -15,7 +15,7 @@ struct SearchFilterView: View {
 }
 
 private struct FilterForm: View {
-    let viewStore: ViewStore<SearchStore.State, SearchStore.Action>
+    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -35,7 +35,7 @@ private struct FilterForm: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Apply") {
-                    viewStore.send(.search(viewStore.searchText))
+                    viewStore.send(.applyFilters)
                     dismiss()
                 }
             }
@@ -44,13 +44,13 @@ private struct FilterForm: View {
 }
 
 private struct BudgetSection: View {
-    let viewStore: ViewStore<SearchStore.State, SearchStore.Action>
+    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
     
     var body: some View {
         Section(header: Text("Budget")) {
             Picker("Budget", selection: viewStore.binding(
                 get: \.selectedBudget,
-                send: SearchStore.Action.updateBudget
+                send: SearchFilterStore.Action.updateBudget
             )) {
                 Text("Any").tag(0)
                 Text("¥1,000~").tag(1)
@@ -63,38 +63,38 @@ private struct BudgetSection: View {
 }
 
 private struct FeaturesSection: View {
-    let viewStore: ViewStore<SearchStore.State, SearchStore.Action>
+    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
     
     var body: some View {
         Section(header: Text("Features")) {
             Toggle("WiFi Available", isOn: viewStore.binding(
                 get: \.hasWiFi,
-                send: SearchStore.Action.toggleWiFi
+                send: SearchFilterStore.Action.toggleWiFi
             ))
             Toggle("Private Room", isOn: viewStore.binding(
                 get: \.hasPrivateRoom,
-                send: SearchStore.Action.togglePrivateRoom
+                send: SearchFilterStore.Action.togglePrivateRoom
             ))
             Toggle("Non-Smoking", isOn: viewStore.binding(
                 get: \.isNonSmoking,
-                send: SearchStore.Action.toggleNonSmoking
+                send: SearchFilterStore.Action.toggleNonSmoking
             ))
             Toggle("Parking Available", isOn: viewStore.binding(
                 get: \.hasParking,
-                send: SearchStore.Action.toggleParking
+                send: SearchFilterStore.Action.toggleParking
             ))
         }
     }
 }
 
 private struct CuisineSection: View {
-    let viewStore: ViewStore<SearchStore.State, SearchStore.Action>
+    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
     
     var body: some View {
         Section(header: Text("Cuisine")) {
             Picker("Cuisine", selection: viewStore.binding(
                 get: \.selectedCuisine,
-                send: SearchStore.Action.updateCuisine
+                send: SearchFilterStore.Action.updateCuisine
             )) {
                 Text("Any").tag(0)
                 Text("Japanese").tag(1)
@@ -107,13 +107,13 @@ private struct CuisineSection: View {
 }
 
 private struct DistanceSection: View {
-    let viewStore: ViewStore<SearchStore.State, SearchStore.Action>
+    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
     
     var body: some View {
         Section(header: Text("Distance")) {
             Picker("Distance", selection: viewStore.binding(
                 get: \.selectedDistance,
-                send: SearchStore.Action.updateDistance
+                send: SearchFilterStore.Action.updateDistance
             )) {
                 Text("300m").tag(1)
                 Text("500m").tag(2)
@@ -128,8 +128,8 @@ private struct DistanceSection: View {
 #Preview {
     SearchFilterView(
         store: Store(
-            initialState: SearchStore.State(),
-            reducer: { SearchStore() }
+            initialState: SearchFilterStore.State(),
+            reducer: { SearchFilterStore() }
         )
     )
 } 

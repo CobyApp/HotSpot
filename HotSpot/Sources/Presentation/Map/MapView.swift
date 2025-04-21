@@ -7,7 +7,6 @@ import Kingfisher
 struct MapView: View {
     let store: StoreOf<MapStore>
     @State private var shopImages: [String: UIImage] = [:]
-    @State private var lastRegion: MKCoordinateRegion?
     @Environment(\.coordinator) private var coordinator
 
     var body: some View {

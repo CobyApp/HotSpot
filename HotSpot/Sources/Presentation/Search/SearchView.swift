@@ -20,7 +20,7 @@ struct SearchView: View {
                         rightSide: .icon,
                         rightIcon: UIImage.icMore,
                         rightAction: {
-                            viewStore.send(.toggleFilterSheet)
+                            coordinator?.showSearchFilter()
                         }
                     )
                 }
@@ -48,12 +48,6 @@ struct SearchView: View {
             }
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-            }
-            .sheet(isPresented: viewStore.binding(
-                get: \.isFilterSheetPresented,
-                send: SearchStore.Action.toggleFilterSheet
-            )) {
-                SearchFilterView(store: store)
             }
         }
     }

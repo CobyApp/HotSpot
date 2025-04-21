@@ -13,16 +13,8 @@ struct SearchStore {
         var error: String? = nil
         var currentLocation: CLLocationCoordinate2D?
         var paginationState: PaginationState = .init()
-        var isFilterSheetPresented: Bool = false
         
-        // Filter states
-        var selectedBudget: Int = 0
-        var hasWiFi: Bool = false
-        var hasPrivateRoom: Bool = false
-        var isNonSmoking: Bool = false
-        var hasParking: Bool = false
-        var selectedCuisine: Int = 0
-        var selectedDistance: Int = 3
+        var filterState: SearchFilterStore.State = .init()
         
         static func == (lhs: State, rhs: State) -> Bool {
             lhs.shops == rhs.shops &&
@@ -31,14 +23,7 @@ struct SearchStore {
             lhs.currentLocation?.latitude == rhs.currentLocation?.latitude &&
             lhs.currentLocation?.longitude == rhs.currentLocation?.longitude &&
             lhs.paginationState == rhs.paginationState &&
-            lhs.isFilterSheetPresented == rhs.isFilterSheetPresented &&
-            lhs.selectedBudget == rhs.selectedBudget &&
-            lhs.hasWiFi == rhs.hasWiFi &&
-            lhs.hasPrivateRoom == rhs.hasPrivateRoom &&
-            lhs.isNonSmoking == rhs.isNonSmoking &&
-            lhs.hasParking == rhs.hasParking &&
-            lhs.selectedCuisine == rhs.selectedCuisine &&
-            lhs.selectedDistance == rhs.selectedDistance
+            lhs.filterState == rhs.filterState
         }
     }
 
@@ -50,17 +35,7 @@ struct SearchStore {
         case handleError(Error)
         case loadMore
         case updatePaginationState(PaginationState)
-        
-        // Filter actions
-        case toggleFilterSheet
-        case updateBudget(Int)
-        case toggleWiFi
-        case togglePrivateRoom
-        case toggleNonSmoking
-        case toggleParking
-        case updateCuisine(Int)
-        case updateDistance(Int)
-        case resetFilters
+        case updateFilterState(SearchFilterStore.State)
     }
 
     var body: some ReducerOf<Self> {
@@ -97,16 +72,16 @@ struct SearchStore {
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
-                            range: state.selectedDistance,
+                            range: state.filterState.selectedDistance,
                             count: nil,
                             keyword: text,
-                            genre: state.selectedCuisine > 0 ? String(state.selectedCuisine) : nil,
+                            genre: state.filterState.selectedCuisine > 0 ? String(state.filterState.selectedCuisine) : nil,
                             order: nil,
                             start: nil,
-                            budget: state.selectedBudget > 0 ? String(state.selectedBudget) : nil,
-                            privateRoom: state.hasPrivateRoom ? true : nil,
-                            wifi: state.hasWiFi ? true : nil,
-                            nonSmoking: state.isNonSmoking ? true : nil,
+                            budget: state.filterState.selectedBudget > 0 ? String(state.filterState.selectedBudget) : nil,
+                            privateRoom: state.filterState.hasPrivateRoom ? true : nil,
+                            wifi: state.filterState.hasWiFi ? true : nil,
+                            nonSmoking: state.filterState.isNonSmoking ? true : nil,
                             coupon: nil,
                             openNow: nil
                         )
@@ -135,16 +110,16 @@ struct SearchStore {
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
-                            range: state.selectedDistance,
+                            range: state.filterState.selectedDistance,
                             count: nil,
                             keyword: state.searchText,
-                            genre: state.selectedCuisine > 0 ? String(state.selectedCuisine) : nil,
+                            genre: state.filterState.selectedCuisine > 0 ? String(state.filterState.selectedCuisine) : nil,
                             order: nil,
                             start: nil,
-                            budget: state.selectedBudget > 0 ? String(state.selectedBudget) : nil,
-                            privateRoom: state.hasPrivateRoom ? true : nil,
-                            wifi: state.hasWiFi ? true : nil,
-                            nonSmoking: state.isNonSmoking ? true : nil,
+                            budget: state.filterState.selectedBudget > 0 ? String(state.filterState.selectedBudget) : nil,
+                            privateRoom: state.filterState.hasPrivateRoom ? true : nil,
+                            wifi: state.filterState.hasWiFi ? true : nil,
+                            nonSmoking: state.filterState.isNonSmoking ? true : nil,
                             coupon: nil,
                             openNow: nil
                         )
@@ -173,48 +148,12 @@ struct SearchStore {
             case let .updatePaginationState(paginationState):
                 state.paginationState = paginationState
                 return .none
-
-            case .toggleFilterSheet:
-                state.isFilterSheetPresented.toggle()
-                return .none
-
-            case let .updateBudget(budget):
-                state.selectedBudget = budget
-                return .none
-
-            case .toggleWiFi:
-                state.hasWiFi.toggle()
-                return .none
-
-            case .togglePrivateRoom:
-                state.hasPrivateRoom.toggle()
-                return .none
-
-            case .toggleNonSmoking:
-                state.isNonSmoking.toggle()
-                return .none
-
-            case .toggleParking:
-                state.hasParking.toggle()
-                return .none
-
-            case let .updateCuisine(cuisine):
-                state.selectedCuisine = cuisine
-                return .none
-
-            case let .updateDistance(distance):
-                state.selectedDistance = distance
-                return .none
-
-            case .resetFilters:
-                state.selectedBudget = 0
-                state.hasWiFi = false
-                state.hasPrivateRoom = false
-                state.isNonSmoking = false
-                state.hasParking = false
-                state.selectedCuisine = 0
-                state.selectedDistance = 3
-                return .none
+                
+            case let .updateFilterState(filterState):
+                state.filterState = filterState
+                return .run { [state] send in
+                    await send(.search(state.searchText))
+                }
             }
         }
     }

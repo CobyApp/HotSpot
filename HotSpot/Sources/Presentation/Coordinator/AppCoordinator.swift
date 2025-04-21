@@ -39,6 +39,18 @@ final class AppCoordinator {
         push(searchView)
     }
     
+    func showSearchFilter() {
+        let searchFilterView = SearchFilterView(
+            store: Store(
+                initialState: SearchFilterStore.State(),
+                reducer: { SearchFilterStore() }
+            )
+        )
+        .environment(\.coordinator, self)
+        
+        push(searchFilterView)
+    }
+    
     func showShopDetail(_ shop: ShopModel) {
         let shopDetailView = ShopDetailView(
             store: Store(
