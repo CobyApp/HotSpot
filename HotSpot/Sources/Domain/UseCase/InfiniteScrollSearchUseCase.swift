@@ -24,14 +24,12 @@ struct InfiniteScrollSearchUseCase {
             count: pageSize,
             keyword: request.keyword,
             genres: request.genres,
-            order: request.order,
             start: start,
             budgets: request.budgets,
             privateRoom: request.privateRoom,
             wifi: request.wifi,
             nonSmoking: request.nonSmoking,
-            coupon: request.coupon,
-            openNow: request.openNow
+            parking: request.parking,
         )
         
         let response = try await repository.searchShops(request: paginatedRequest)

@@ -76,14 +76,12 @@ struct SearchStore {
                             count: nil,
                             keyword: text,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
-                            order: nil,
                             start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,
-                            privateRoom: userDefaults.privateRoom ? true : nil,
-                            wifi: userDefaults.wifi ? true : nil,
-                            nonSmoking: userDefaults.nonSmoking ? true : nil,
-                            coupon: nil,
-                            openNow: nil
+                            privateRoom: userDefaults.privateRoom,
+                            wifi: userDefaults.wifi,
+                            nonSmoking: userDefaults.nonSmoking,
+                            parking: userDefaults.parking
                         )
                         
                         let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
@@ -114,14 +112,12 @@ struct SearchStore {
                             count: nil,
                             keyword: state.searchText,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
-                            order: nil,
                             start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,
-                            privateRoom: userDefaults.privateRoom ? true : nil,
-                            wifi: userDefaults.wifi ? true : nil,
-                            nonSmoking: userDefaults.nonSmoking ? true : nil,
-                            coupon: nil,
-                            openNow: nil
+                            privateRoom: userDefaults.privateRoom,
+                            wifi: userDefaults.wifi,
+                            nonSmoking: userDefaults.nonSmoking,
+                            parking: userDefaults.parking
                         )
                         
                         let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)

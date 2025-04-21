@@ -1,70 +1,78 @@
 import SwiftUI
+import CobyDS
 
 struct FeaturesSection: View {
-    let hasWiFi: Bool
-    let hasPrivateRoom: Bool
-    let isNonSmoking: Bool
-    let hasParking: Bool
+    let wifi: Int
+    let privateRoom: Int
+    let nonSmoking: Int
+    let parking: Int
     let onWiFiTapped: () -> Void
     let onPrivateRoomTapped: () -> Void
     let onNonSmokingTapped: () -> Void
     let onParkingTapped: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("設備・サービス")
-                .font(.system(size: 17, weight: .semibold))
-                .padding(.horizontal, 16)
+                .font(.system(size: 16, weight: .semibold))
             
-            VStack(spacing: 16) {
-                FeatureToggle(
+            HStack(spacing: 8) {
+                FeatureButton(
                     title: "Wi-Fiあり",
-                    isOn: hasWiFi,
-                    onToggle: onWiFiTapped
+                    isSelected: wifi != 0,
+                    action: onWiFiTapped
                 )
                 
-                FeatureToggle(
+                FeatureButton(
                     title: "個室あり",
-                    isOn: hasPrivateRoom,
-                    onToggle: onPrivateRoomTapped
+                    isSelected: privateRoom != 0,
+                    action: onPrivateRoomTapped
                 )
                 
-                FeatureToggle(
-                    title: "禁煙",
-                    isOn: isNonSmoking,
-                    onToggle: onNonSmokingTapped
+                FeatureButton(
+                    title: "禁煙席あり",
+                    isSelected: nonSmoking != 0,
+                    action: onNonSmokingTapped
                 )
                 
-                FeatureToggle(
+                FeatureButton(
                     title: "駐車場あり",
-                    isOn: hasParking,
-                    onToggle: onParkingTapped
+                    isSelected: parking != 0,
+                    action: onParkingTapped
                 )
             }
-            .padding(.horizontal, 16)
+        }
+        .padding(.horizontal, 16)
+    }
+}
+
+private struct FeatureButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 14))
+                .foregroundColor(isSelected ? .white : .black)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.blue : Color(.systemGray6))
+                .cornerRadius(16)
         }
     }
 }
 
-private struct FeatureToggle: View {
-    let title: String
-    let isOn: Bool
-    let onToggle: () -> Void
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 16))
-            Spacer()
-            Toggle("", isOn: .init(
-                get: { isOn },
-                set: { _ in onToggle() }
-            ))
-            .labelsHidden()
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color(.systemGray6))
-        .cornerRadius(12)
-    }
+#Preview {
+    FeaturesSection(
+        wifi: 1,
+        privateRoom: 0,
+        nonSmoking: 1,
+        parking: 0,
+        onWiFiTapped: {},
+        onPrivateRoomTapped: {},
+        onNonSmokingTapped: {},
+        onParkingTapped: {}
+    )
 } 

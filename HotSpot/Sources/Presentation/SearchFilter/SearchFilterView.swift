@@ -8,62 +8,83 @@ struct SearchFilterView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 16) {
-                RangeSection(
-                    selectedRange: viewStore.selectedRange,
-                    onRangeSelected: { range in
-                        viewStore.send(.updateRange(range))
+            VStack(spacing: 0) {
+                TopBarView(
+                    leftSide: .left,
+                    leftAction: {
+                        coordinator?.pop()
+                    },
+                    rightSide: .icon,
+                    rightIcon: UIImage.icRefresh,
+                    rightAction: {
+                        viewStore.send(.resetFilters)
                     }
                 )
                 
-                BudgetSection(
-                    selectedBudgets: viewStore.selectedBudgets,
-                    onBudgetSelected: { budgetCode in
-                        var updatedBudgets = viewStore.selectedBudgets
-                        if updatedBudgets.contains(budgetCode) {
-                            updatedBudgets.removeAll { $0 == budgetCode }
-                        } else if updatedBudgets.count < 2 {
-                            updatedBudgets.append(budgetCode)
-                        }
-                        viewStore.send(.updateBudgets(updatedBudgets))
+                ScrollView {
+                    VStack(spacing: 24) {
+                        RangeSection(
+                            selectedRange: viewStore.selectedRange,
+                            onRangeSelected: { range in
+                                viewStore.send(.updateRange(range))
+                            }
+                        )
+                        
+                        BudgetSection(
+                            selectedBudgets: viewStore.selectedBudgets,
+                            onBudgetSelected: { budgetCode in
+                                var updatedBudgets = viewStore.selectedBudgets
+                                if updatedBudgets.contains(budgetCode) {
+                                    updatedBudgets.removeAll { $0 == budgetCode }
+                                } else if updatedBudgets.count < 2 {
+                                    updatedBudgets.append(budgetCode)
+                                }
+                                viewStore.send(.updateBudgets(updatedBudgets))
+                            }
+                        )
+                        
+                        GenreSection(
+                            selectedGenres: viewStore.selectedGenres,
+                            onGenreSelected: { genreCode in
+                                var updatedGenres = viewStore.selectedGenres
+                                if updatedGenres.contains(genreCode) {
+                                    updatedGenres.removeAll { $0 == genreCode }
+                                } else {
+                                    updatedGenres.append(genreCode)
+                                }
+                                viewStore.send(.updateGenres(updatedGenres))
+                            }
+                        )
+                        
+                        FeaturesSection(
+                            wifi: viewStore.wifi,
+                            privateRoom: viewStore.privateRoom,
+                            nonSmoking: viewStore.nonSmoking,
+                            parking: viewStore.parking,
+                            onWiFiTapped: { viewStore.send(.updateWiFi(viewStore.wifi == 0 ? 1 : 0)) },
+                            onPrivateRoomTapped: { viewStore.send(.updatePrivateRoom(viewStore.privateRoom == 0 ? 1 : 0)) },
+                            onNonSmokingTapped: { viewStore.send(.updateNonSmoking(viewStore.nonSmoking == 0 ? 1 : 0)) },
+                            onParkingTapped: { viewStore.send(.updateParking(viewStore.parking == 0 ? 1 : 0)) }
+                        )
                     }
-                )
-                
-                GenreSection(
-                    selectedGenres: viewStore.selectedGenres,
-                    onGenreSelected: { genreCode in
-                        var updatedGenres = viewStore.selectedGenres
-                        if updatedGenres.contains(genreCode) {
-                            updatedGenres.removeAll { $0 == genreCode }
-                        } else {
-                            updatedGenres.append(genreCode)
-                        }
-                        viewStore.send(.updateGenres(updatedGenres))
-                    }
-                )
-                
-                VStack(spacing: 8) {
-                    Toggle("WiFi", isOn: viewStore.binding(
-                        get: \.hasWiFi,
-                        send: { .updateWiFi($0) }
-                    ))
-                    
-                    Toggle("개인실", isOn: viewStore.binding(
-                        get: \.hasPrivateRoom,
-                        send: { .updatePrivateRoom($0) }
-                    ))
-                    
-                    Toggle("금연", isOn: viewStore.binding(
-                        get: \.isNonSmoking,
-                        send: { .updateNonSmoking($0) }
-                    ))
+                    .padding(.vertical, 16)
                 }
-                .padding(.horizontal)
                 
-                Button("필터 초기화") {
-                    viewStore.send(.resetFilters)
+                VStack(spacing: 0) {
+                    Divider()
+                    
+                    Button {
+                        viewStore.send(.applyFilters)
+                        coordinator?.pop()
+                    } label: {
+                        Text("フィルターを適用")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.blue)
+                    }
                 }
-                .padding()
             }
         }
     }

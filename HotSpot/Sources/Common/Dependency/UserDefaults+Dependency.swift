@@ -25,7 +25,7 @@ extension UserDefaults {
     }
     
     var range: Int {
-        get { integer(forKey: FilterKey.range.rawValue) }
+        get { integer(forKey: FilterKey.range.rawValue) == 0 ? 3 : integer(forKey: FilterKey.range.rawValue) }
         set { set(newValue, forKey: FilterKey.range.rawValue) }
     }
     
@@ -39,23 +39,23 @@ extension UserDefaults {
         set { set(newValue, forKey: FilterKey.genres.rawValue) }
     }
     
-    var wifi: Bool {
-        get { bool(forKey: FilterKey.wifi.rawValue) }
+    var wifi: Int {
+        get { integer(forKey: FilterKey.wifi.rawValue) }
         set { set(newValue, forKey: FilterKey.wifi.rawValue) }
     }
     
-    var privateRoom: Bool {
-        get { bool(forKey: FilterKey.privateRoom.rawValue) }
+    var privateRoom: Int {
+        get { integer(forKey: FilterKey.privateRoom.rawValue) }
         set { set(newValue, forKey: FilterKey.privateRoom.rawValue) }
     }
     
-    var nonSmoking: Bool {
-        get { bool(forKey: FilterKey.nonSmoking.rawValue) }
+    var nonSmoking: Int {
+        get { integer(forKey: FilterKey.nonSmoking.rawValue) }
         set { set(newValue, forKey: FilterKey.nonSmoking.rawValue) }
     }
     
-    var parking: Bool {
-        get { bool(forKey: FilterKey.parking.rawValue) }
+    var parking: Int {
+        get { integer(forKey: FilterKey.parking.rawValue) }
         set { set(newValue, forKey: FilterKey.parking.rawValue) }
     }
 }

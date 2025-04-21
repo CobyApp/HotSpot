@@ -6,7 +6,7 @@ struct RangeSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("거리")
+            Text("距離")
                 .font(.system(size: 17, weight: .semibold))
                 .padding(.horizontal, 16)
             
