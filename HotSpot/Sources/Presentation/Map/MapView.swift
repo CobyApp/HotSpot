@@ -61,12 +61,13 @@ struct MapView: View {
                     viewStore.send(.clearError)
                 }
             }
-            .onChange(of: viewStore.visibleShops) { shops in
-                if shops.isEmpty {
+            .onChange(of: viewStore.shouldShowNoShopsMessage) { shouldShow in
+                if shouldShow {
                     coordinator?.showMessage(
                         title: "お店が見つかりません",
                         message: "ズームインして再度お試しください"
                     )
+                    viewStore.send(.clearNoShopsMessage)
                 }
             }
         }

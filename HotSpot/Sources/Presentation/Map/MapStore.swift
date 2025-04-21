@@ -16,6 +16,7 @@ struct MapStore {
         )
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
         var error: ShopError? = nil
+        var shouldShowNoShopsMessage: Bool = false
     }
 
     enum Action {
@@ -24,6 +25,7 @@ struct MapStore {
         case updateShops([ShopModel])
         case handleError(Error)
         case clearError
+        case clearNoShopsMessage
     }
 
     var body: some ReducerOf<Self> {
@@ -57,6 +59,7 @@ struct MapStore {
             case let .updateShops(shops):
                 state.shops = shops
                 state.visibleShops = filterVisibleShops(shops, in: state.region)
+                state.shouldShowNoShopsMessage = state.visibleShops.isEmpty
                 return .none
 
             case let .handleError(error):
@@ -72,6 +75,10 @@ struct MapStore {
                 
             case .clearError:
                 state.error = nil
+                return .none
+                
+            case .clearNoShopsMessage:
+                state.shouldShowNoShopsMessage = false
                 return .none
             }
         }
@@ -116,6 +123,7 @@ extension MapStore.State {
         lhs.region.span.longitudeDelta == rhs.region.span.longitudeDelta &&
         lhs.error == rhs.error &&
         lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
-        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude
+        lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude &&
+        lhs.shouldShowNoShopsMessage == rhs.shouldShowNoShopsMessage
     }
 }
