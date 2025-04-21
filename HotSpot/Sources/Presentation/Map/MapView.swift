@@ -7,6 +7,7 @@ import Kingfisher
 struct MapView: View {
     let store: StoreOf<MapStore>
     @State private var shopImages: [String: UIImage] = [:]
+    @State private var currentIndex: Int = 0
     @Environment(\.coordinator) private var coordinator
 
     var body: some View {
@@ -36,7 +37,8 @@ struct MapView: View {
                         CarouselScrollViewRepresentable(
                             items: viewStore.visibleShops,
                             itemWidth: BaseSize.fullWidth,
-                            spacing: 8
+                            spacing: 8,
+                            currentIndex: $currentIndex
                         ) { shop in
                             ThumbnailTileView(
                                 image: shopImages[shop.id],
@@ -71,6 +73,8 @@ struct MapView: View {
                         message: "ズームインして再度お試しください"
                     )
                 }
+                
+                currentIndex = 0
             }
         }
     }
