@@ -1,15 +1,53 @@
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
     var region: Binding<MKCoordinateRegion>
 
-    class Coordinator: NSObject, MKMapViewDelegate {
+    class Coordinator: NSObject, MKMapViewDelegate, CLLocationManagerDelegate {
         var parent: MapRepresentableView
+        private let locationManager = CLLocationManager()
+        private var isFirstLocationUpdate = true
 
         init(parent: MapRepresentableView) {
             self.parent = parent
+            super.init()
+            locationManager.delegate = self
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.startUpdatingLocation()
+        }
+
+        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+            guard let location = locations.last, isFirstLocationUpdate else { return }
+            
+            isFirstLocationUpdate = false
+            let region = MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            
+            DispatchQueue.main.async {
+                self.parent.region.wrappedValue = region
+            }
+            
+            locationManager.stopUpdatingLocation()
+        }
+
+        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+            isFirstLocationUpdate = false
+            let osakaCoordinate = CLLocationCoordinate2D(latitude: 34.6937, longitude: 135.5023)
+            let region = MKCoordinateRegion(
+                center: osakaCoordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            
+            DispatchQueue.main.async {
+                self.parent.region.wrappedValue = region
+            }
+            
+            locationManager.stopUpdatingLocation()
         }
 
         func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -39,6 +77,7 @@ struct MapRepresentableView: UIViewRepresentable {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
+        mapView.setRegion(region.wrappedValue, animated: false)
         mapView.register(ShopAnnotationView.self, forAnnotationViewWithReuseIdentifier: ShopAnnotationView.reuseIdentifier)
         return mapView
     }
@@ -56,5 +95,11 @@ struct MapRepresentableView: UIViewRepresentable {
         }
 
         uiView.addAnnotations(annotations)
+        
+        // Update map region if it has changed
+        if uiView.region.center.latitude != region.wrappedValue.center.latitude ||
+           uiView.region.center.longitude != region.wrappedValue.center.longitude {
+            uiView.setRegion(region.wrappedValue, animated: true)
+        }
     }
 }
