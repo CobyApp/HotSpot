@@ -10,44 +10,54 @@ struct ShopInfoSection: View {
                 // Name and Genre
                 VStack(alignment: .leading, spacing: 8) {
                     Text(shop.name)
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.pretendard(size: 24, weight: .bold))
+                        .foregroundColor(Color.labelNormal)
                     
                     Text(ShopGenre.name(for: shop.genreCode))
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                        .font(.pretendard(size: 14, weight: .regular))
+                        .foregroundColor(Color.labelAlternative)
                 }
                 
                 // Address
                 VStack(alignment: .leading, spacing: 4) {
                     Text("住所")
-                        .font(.headline)
+                        .font(.pretendard(size: 16, weight: .semibold))
+                        .foregroundColor(Color.labelNormal)
+                    
                     Text(shop.address)
-                        .font(.body)
+                        .font(.pretendard(size: 16, weight: .regular))
+                        .foregroundColor(Color.labelNeutral)
                 }
                 
                 // Access
                 VStack(alignment: .leading, spacing: 4) {
                     Text("アクセス")
-                        .font(.headline)
+                        .font(.pretendard(size: 16, weight: .semibold))
+                        .foregroundColor(Color.labelNormal)
+                    
                     Text(shop.access)
-                        .font(.body)
+                        .font(.pretendard(size: 16, weight: .regular))
+                        .foregroundColor(Color.labelNeutral)
                 }
                 
                 // Open Hours
                 if let openingHours = shop.openingHours {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("営業時間")
-                            .font(.headline)
+                            .font(.pretendard(size: 16, weight: .semibold))
+                            .foregroundColor(Color.labelNormal)
+                        
                         Text(openingHours)
-                            .font(.body)
+                            .font(.pretendard(size: 16, weight: .regular))
+                            .foregroundColor(Color.labelNeutral)
                     }
                 }
                 
                 // Location
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text("位置情報")
-                        .font(.headline)
+                        .font(.pretendard(size: 16, weight: .semibold))
+                        .foregroundColor(Color.labelNormal)
                     
                     ShopLocationMapView(shop: shop)
                 }

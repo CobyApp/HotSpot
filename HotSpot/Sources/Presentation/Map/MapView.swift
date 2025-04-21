@@ -32,30 +32,30 @@ struct MapView: View {
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
 
-                    // Bottom card scroll view
-                    CarouselScrollViewRepresentable(
-                        items: viewStore.visibleShops,
-                        itemWidth: BaseSize.fullWidth,
-                        spacing: 8
-                    ) { shop in
-                        ThumbnailTileView(
-                            image: shopImages[shop.id],
-                            title: shop.name,
-                            subTitle: nil,
-                            description: shop.access,
-                            subDescription: nil
-                        )
-                        .onTapGesture {
-                            coordinator?.showShopDetail(shop)
+                    if !viewStore.visibleShops.isEmpty {
+                        CarouselScrollViewRepresentable(
+                            items: viewStore.visibleShops,
+                            itemWidth: BaseSize.fullWidth,
+                            spacing: 8
+                        ) { shop in
+                            ThumbnailTileView(
+                                image: shopImages[shop.id],
+                                title: shop.name,
+                                subTitle: nil,
+                                description: shop.access,
+                                subDescription: nil
+                            )
+                            .onTapGesture {
+                                coordinator?.showShopDetail(shop)
+                            }
+                            .onAppear {
+                                loadImage(for: shop)
+                            }
                         }
-                        .onAppear {
-                            loadImage(for: shop)
-                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .padding(.bottom, 30)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 120)
-                    .background(Color.red)
-                    .padding(.bottom, 30)
                 }
             }
             .onChange(of: viewStore.error) { error in

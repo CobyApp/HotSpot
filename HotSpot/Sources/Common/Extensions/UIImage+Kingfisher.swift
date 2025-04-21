@@ -26,7 +26,7 @@ extension UIImage {
             return
         }
         
-        let processor = DownsamplingImageProcessor(size: CGSize(width: 200, height: 200))
+        let processor = DownsamplingImageProcessor(size: CGSize(width: 100, height: 100))
         KingfisherManager.shared.retrieveImage(
             with: url,
             options: [
