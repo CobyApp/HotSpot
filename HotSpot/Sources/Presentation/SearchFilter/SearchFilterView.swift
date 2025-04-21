@@ -17,9 +17,15 @@ struct SearchFilterView: View {
                 )
                 
                 BudgetSection(
-                    selectedBudgetCode: viewStore.selectedBudget,
+                    selectedBudgets: viewStore.selectedBudgets,
                     onBudgetSelected: { budgetCode in
-                        viewStore.send(.updateBudget(budgetCode))
+                        var updatedBudgets = viewStore.selectedBudgets
+                        if updatedBudgets.contains(budgetCode) {
+                            updatedBudgets.removeAll { $0 == budgetCode }
+                        } else if updatedBudgets.count < 2 {
+                            updatedBudgets.append(budgetCode)
+                        }
+                        viewStore.send(.updateBudgets(updatedBudgets))
                     }
                 )
                 

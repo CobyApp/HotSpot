@@ -26,7 +26,7 @@ struct InfiniteScrollSearchUseCase {
             genres: request.genres,
             order: request.order,
             start: start,
-            budget: request.budget,
+            budgets: request.budgets,
             privateRoom: request.privateRoom,
             wifi: request.wifi,
             nonSmoking: request.nonSmoking,

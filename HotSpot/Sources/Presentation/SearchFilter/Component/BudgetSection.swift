@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BudgetSection: View {
-    let selectedBudgetCode: String
+    let selectedBudgets: [String]
     let onBudgetSelected: (String) -> Void
     
     var body: some View {
@@ -20,8 +20,8 @@ struct BudgetSection: View {
                                 .font(.system(size: 14, weight: .medium))
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
-                                .background(selectedBudgetCode == budget.rawValue ? Color.blue : Color(.systemGray6))
-                                .foregroundColor(selectedBudgetCode == budget.rawValue ? .white : .primary)
+                                .background(selectedBudgets.contains(budget.rawValue) ? Color.blue : Color(.systemGray6))
+                                .foregroundColor(selectedBudgets.contains(budget.rawValue) ? .white : .primary)
                                 .cornerRadius(16)
                         }
                     }

@@ -16,7 +16,7 @@ extension DependencyValues {
 extension UserDefaults {
     private enum FilterKey: String {
         case range = "range"
-        case budget = "budget"
+        case budgets = "budgets"
         case genres = "genres"
         case wifi = "wifi"
         case privateRoom = "privateRoom"
@@ -29,9 +29,9 @@ extension UserDefaults {
         set { set(newValue, forKey: FilterKey.range.rawValue) }
     }
     
-    var budget: String {
-        get { string(forKey: FilterKey.budget.rawValue) ?? "" }
-        set { set(newValue, forKey: FilterKey.budget.rawValue) }
+    var budgets: [String] {
+        get { stringArray(forKey: FilterKey.budgets.rawValue) ?? [] }
+        set { set(newValue, forKey: FilterKey.budgets.rawValue) }
     }
     
     var genres: [String] {

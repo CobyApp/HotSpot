@@ -9,7 +9,7 @@ struct ShopSearchRequestDTO {
     let genres: [String]?            // Genre codes
     let order: Int?                  // Order: 1=recommend, 2=popularity
     let start: Int?                  // Starting index for paging
-    let budget: String?              // Budget code
+    let budgets: [String]?           // Budget codes
     let privateRoom: Bool?           // Private room availability
     let wifi: Bool?                  // Wi-Fi availability
     let nonSmoking: Bool?            // Non-smoking availability
@@ -29,7 +29,7 @@ struct ShopSearchRequestDTO {
         if let genres = genres, !genres.isEmpty { params["genre"] = genres.joined(separator: ",") }
         if let order = order { params["order"] = order }
         if let start = start { params["start"] = start }
-        if let budget = budget { params["budget"] = budget }
+        if let budgets = budgets, !budgets.isEmpty { params["budget"] = budgets.joined(separator: ",") }
         if let privateRoom = privateRoom { params["private_room"] = privateRoom ? 1 : 0 }
         if let wifi = wifi { params["wifi"] = wifi ? 1 : 0 }
         if let nonSmoking = nonSmoking { params["non_smoking"] = nonSmoking ? 1 : 0 }

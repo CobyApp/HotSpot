@@ -17,7 +17,7 @@ struct ShopsUseCase {
             genres: nil,
             order: nil,
             start: nil,
-            budget: nil,
+            budgets: nil,
             privateRoom: nil,
             wifi: nil,
             nonSmoking: nil,
