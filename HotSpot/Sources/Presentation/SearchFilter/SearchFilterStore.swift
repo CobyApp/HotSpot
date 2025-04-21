@@ -6,37 +6,37 @@ struct SearchFilterStore {
     @Dependency(\.userDefaults) var userDefaults
 
     struct State: Equatable {
-        var selectedDistance: Int
-        var selectedBudget: Int
-        var hasPrivateRoom: Bool
-        var hasWiFi: Bool
-        var isNonSmoking: Bool
+        var selectedRange: Int
+        var selectedBudget: String
         var selectedGenreCode: String
+        var hasWiFi: Bool
+        var hasPrivateRoom: Bool
+        var isNonSmoking: Bool
         
         init(
-            selectedDistance: Int = 0,
-            selectedBudget: Int = 0,
-            hasPrivateRoom: Bool = false,
-            hasWiFi: Bool = false,
-            isNonSmoking: Bool = false,
-            selectedGenreCode: String = ""
+            selectedRange: Int = UserDefaults.standard.range,
+            selectedBudget: String = UserDefaults.standard.budget,
+            selectedGenreCode: String = UserDefaults.standard.genre,
+            hasWiFi: Bool = UserDefaults.standard.wifi,
+            hasPrivateRoom: Bool = UserDefaults.standard.privateRoom,
+            isNonSmoking: Bool = UserDefaults.standard.nonSmoking
         ) {
-            self.selectedDistance = selectedDistance
+            self.selectedRange = selectedRange
             self.selectedBudget = selectedBudget
-            self.hasPrivateRoom = hasPrivateRoom
-            self.hasWiFi = hasWiFi
-            self.isNonSmoking = isNonSmoking
             self.selectedGenreCode = selectedGenreCode
+            self.hasWiFi = hasWiFi
+            self.hasPrivateRoom = hasPrivateRoom
+            self.isNonSmoking = isNonSmoking
         }
     }
     
     enum Action: Equatable {
-        case updateDistance(Int)
-        case updateBudget(Int)
-        case updatePrivateRoom(Bool)
-        case updateWiFi(Bool)
-        case updateNonSmoking(Bool)
+        case updateRange(Int)
+        case updateBudget(String)
         case updateGenre(String)
+        case updateWiFi(Bool)
+        case updatePrivateRoom(Bool)
+        case updateNonSmoking(Bool)
         case resetFilters
     }
     
@@ -45,45 +45,38 @@ struct SearchFilterStore {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .updateDistance(distance):
-                state.selectedDistance = distance
-                userDefaults.distance = distance
+            case let .updateRange(range):
+                state.selectedRange = range
+                UserDefaults.standard.range = range
                 return .none
                 
             case let .updateBudget(budget):
                 state.selectedBudget = budget
-                userDefaults.budget = budget
+                UserDefaults.standard.budget = budget
                 return .none
                 
-            case let .updatePrivateRoom(hasPrivateRoom):
-                state.hasPrivateRoom = hasPrivateRoom
-                userDefaults.privateRoom = hasPrivateRoom
+            case let .updateGenre(genre):
+                state.selectedGenreCode = genre
+                UserDefaults.standard.genre = genre
                 return .none
                 
             case let .updateWiFi(hasWiFi):
                 state.hasWiFi = hasWiFi
-                userDefaults.wifi = hasWiFi
+                UserDefaults.standard.wifi = hasWiFi
+                return .none
+                
+            case let .updatePrivateRoom(hasPrivateRoom):
+                state.hasPrivateRoom = hasPrivateRoom
+                UserDefaults.standard.privateRoom = hasPrivateRoom
                 return .none
                 
             case let .updateNonSmoking(isNonSmoking):
                 state.isNonSmoking = isNonSmoking
-                userDefaults.nonSmoking = isNonSmoking
-                return .none
-                
-            case let .updateGenre(genreCode):
-                state.selectedGenreCode = genreCode
-                userDefaults.genre = genreCode
+                UserDefaults.standard.nonSmoking = isNonSmoking
                 return .none
                 
             case .resetFilters:
-                state = State(
-                    selectedDistance: userDefaults.distance,
-                    selectedBudget: userDefaults.budget,
-                    hasPrivateRoom: userDefaults.privateRoom,
-                    hasWiFi: userDefaults.wifi,
-                    isNonSmoking: userDefaults.nonSmoking,
-                    selectedGenreCode: userDefaults.genre
-                )
+                state = State()
                 return .none
             }
         }

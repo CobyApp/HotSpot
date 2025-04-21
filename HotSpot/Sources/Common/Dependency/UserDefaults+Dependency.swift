@@ -14,48 +14,48 @@ extension DependencyValues {
 
 // MARK: - Filter Keys
 extension UserDefaults {
-    enum FilterKey {
-        static let distance = "distance"
-        static let budget = "budget"
-        static let genre = "genre"
-        static let wifi = "wifi"
-        static let privateRoom = "private_room"
-        static let nonSmoking = "non_smoking"
-        static let parking = "parking"
+    private enum FilterKey: String {
+        case range = "range"
+        case budget = "budget"
+        case genre = "genre"
+        case wifi = "wifi"
+        case privateRoom = "privateRoom"
+        case nonSmoking = "nonSmoking"
+        case parking = "parking"
     }
     
-    var distance: Int {
-        get { integer(forKey: FilterKey.distance) }
-        set { set(newValue, forKey: FilterKey.distance) }
+    var range: Int {
+        get { integer(forKey: FilterKey.range.rawValue) }
+        set { set(newValue, forKey: FilterKey.range.rawValue) }
     }
     
-    var budget: Int {
-        get { integer(forKey: FilterKey.budget) }
-        set { set(newValue, forKey: FilterKey.budget) }
+    var budget: String {
+        get { string(forKey: FilterKey.budget.rawValue) ?? "" }
+        set { set(newValue, forKey: FilterKey.budget.rawValue) }
     }
     
     var genre: String {
-        get { string(forKey: FilterKey.genre) ?? "" }
-        set { set(newValue, forKey: FilterKey.genre) }
+        get { string(forKey: FilterKey.genre.rawValue) ?? "" }
+        set { set(newValue, forKey: FilterKey.genre.rawValue) }
     }
     
     var wifi: Bool {
-        get { bool(forKey: FilterKey.wifi) }
-        set { set(newValue, forKey: FilterKey.wifi) }
+        get { bool(forKey: FilterKey.wifi.rawValue) }
+        set { set(newValue, forKey: FilterKey.wifi.rawValue) }
     }
     
     var privateRoom: Bool {
-        get { bool(forKey: FilterKey.privateRoom) }
-        set { set(newValue, forKey: FilterKey.privateRoom) }
+        get { bool(forKey: FilterKey.privateRoom.rawValue) }
+        set { set(newValue, forKey: FilterKey.privateRoom.rawValue) }
     }
     
     var nonSmoking: Bool {
-        get { bool(forKey: FilterKey.nonSmoking) }
-        set { set(newValue, forKey: FilterKey.nonSmoking) }
+        get { bool(forKey: FilterKey.nonSmoking.rawValue) }
+        set { set(newValue, forKey: FilterKey.nonSmoking.rawValue) }
     }
     
     var parking: Bool {
-        get { bool(forKey: FilterKey.parking) }
-        set { set(newValue, forKey: FilterKey.parking) }
+        get { bool(forKey: FilterKey.parking.rawValue) }
+        set { set(newValue, forKey: FilterKey.parking.rawValue) }
     }
 }

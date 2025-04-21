@@ -9,14 +9,18 @@ struct SearchFilterView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 16) {
-                DistanceSection(
-                    selectedDistance: viewStore.selectedDistance,
-                    onDistanceSelected: { viewStore.send(.updateDistance($0)) }
+                RangeSection(
+                    selectedRange: viewStore.selectedRange,
+                    onRangeSelected: { range in
+                        viewStore.send(.updateRange(range))
+                    }
                 )
                 
                 BudgetSection(
-                    selectedBudget: viewStore.selectedBudget,
-                    onBudgetSelected: { viewStore.send(.updateBudget($0)) }
+                    selectedBudgetCode: viewStore.selectedBudget,
+                    onBudgetSelected: { budgetCode in
+                        viewStore.send(.updateBudget(budgetCode))
+                    }
                 )
                 
                 GenreSection(

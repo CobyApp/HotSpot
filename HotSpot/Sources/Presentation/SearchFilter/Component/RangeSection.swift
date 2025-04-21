@@ -1,27 +1,27 @@
 import SwiftUI
 
-struct DistanceSection: View {
-    let selectedDistance: Int
-    let onDistanceSelected: (Int) -> Void
+struct RangeSection: View {
+    let selectedRange: Int
+    let onRangeSelected: (Int) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("距離")
+            Text("거리")
                 .font(.system(size: 17, weight: .semibold))
                 .padding(.horizontal, 16)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach([1, 2, 3, 4, 5], id: \.self) { distance in
+                    ForEach([1, 2, 3, 4, 5], id: \.self) { range in
                         Button {
-                            onDistanceSelected(distance)
+                            onRangeSelected(range)
                         } label: {
-                            Text(distanceText(for: distance))
+                            Text(rangeText(for: range))
                                 .font(.system(size: 14, weight: .medium))
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
-                                .background(selectedDistance == distance ? Color.blue : Color(.systemGray6))
-                                .foregroundColor(selectedDistance == distance ? .white : .primary)
+                                .background(selectedRange == range ? Color.blue : Color(.systemGray6))
+                                .foregroundColor(selectedRange == range ? .white : .primary)
                                 .cornerRadius(16)
                         }
                     }
@@ -31,8 +31,8 @@ struct DistanceSection: View {
         }
     }
     
-    private func distanceText(for distance: Int) -> String {
-        switch distance {
+    private func rangeText(for range: Int) -> String {
+        switch range {
         case 1: return "300m"
         case 2: return "500m"
         case 3: return "1km"

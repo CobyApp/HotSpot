@@ -6,6 +6,7 @@ import ComposableArchitecture
 struct SearchStore {
     @Dependency(\.shopRepository) var shopRepository
     @Dependency(\.locationManager) var locationManager
+    @Dependency(\.userDefaults) var userDefaults
 
     struct State: Equatable {
         var shops: [ShopModel] = []
@@ -13,11 +14,6 @@ struct SearchStore {
         var error: ShopError? = nil
         var currentLocation: MapCoordinate?
         var paginationState: PaginationState = .init()
-        var filterState: SearchFilterStore.State
-        
-        init() {
-            self.filterState = SearchFilterStore.State()
-        }
     }
 
     enum Action {
@@ -29,7 +25,6 @@ struct SearchStore {
         case clearError
         case loadMore
         case updatePaginationState(PaginationState)
-        case updateFilterState(SearchFilterStore.State)
     }
 
     var body: some ReducerOf<Self> {
@@ -77,16 +72,16 @@ struct SearchStore {
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
-                            range: state.filterState.selectedDistance,
+                            range: userDefaults.range,
                             count: nil,
                             keyword: text,
-                            genre: !state.filterState.selectedGenreCode.isEmpty ? state.filterState.selectedGenreCode : nil,
+                            genre: !userDefaults.genre.isEmpty ? userDefaults.genre : nil,
                             order: nil,
                             start: nil,
-                            budget: state.filterState.selectedBudget > 0 ? String(state.filterState.selectedBudget) : nil,
-                            privateRoom: state.filterState.hasPrivateRoom ? true : nil,
-                            wifi: state.filterState.hasWiFi ? true : nil,
-                            nonSmoking: state.filterState.isNonSmoking ? true : nil,
+                            budget: !userDefaults.budget.isEmpty ? userDefaults.budget : nil,
+                            privateRoom: userDefaults.privateRoom ? true : nil,
+                            wifi: userDefaults.wifi ? true : nil,
+                            nonSmoking: userDefaults.nonSmoking ? true : nil,
                             coupon: nil,
                             openNow: nil
                         )
@@ -115,16 +110,16 @@ struct SearchStore {
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,
-                            range: state.filterState.selectedDistance,
+                            range: userDefaults.range,
                             count: nil,
                             keyword: state.searchText,
-                            genre: !state.filterState.selectedGenreCode.isEmpty ? state.filterState.selectedGenreCode : nil,
+                            genre: !userDefaults.genre.isEmpty ? userDefaults.genre : nil,
                             order: nil,
                             start: nil,
-                            budget: state.filterState.selectedBudget > 0 ? String(state.filterState.selectedBudget) : nil,
-                            privateRoom: state.filterState.hasPrivateRoom ? true : nil,
-                            wifi: state.filterState.hasWiFi ? true : nil,
-                            nonSmoking: state.filterState.isNonSmoking ? true : nil,
+                            budget: !userDefaults.budget.isEmpty ? userDefaults.budget : nil,
+                            privateRoom: userDefaults.privateRoom ? true : nil,
+                            wifi: userDefaults.wifi ? true : nil,
+                            nonSmoking: userDefaults.nonSmoking ? true : nil,
                             coupon: nil,
                             openNow: nil
                         )
@@ -153,12 +148,6 @@ struct SearchStore {
             case let .updatePaginationState(paginationState):
                 state.paginationState = paginationState
                 return .none
-                
-            case let .updateFilterState(filterState):
-                state.filterState = filterState
-                return .run { [state] send in
-                    await send(.search(state.searchText))
-                }
             }
         }
     }
