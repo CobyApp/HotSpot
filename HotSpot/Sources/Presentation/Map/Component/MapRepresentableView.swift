@@ -5,6 +5,7 @@ import CoreLocation
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]
     var region: Binding<MapRegion>
+    var onMarkerSelected: ((Int) -> Void)?
 
     class Coordinator: NSObject, MKMapViewDelegate, CLLocationManagerDelegate {
         var parent: MapRepresentableView
@@ -17,6 +18,10 @@ struct MapRepresentableView: UIViewRepresentable {
             locationManager.delegate = self
             locationManager.requestWhenInUseAuthorization()
             locationManager.startUpdatingLocation()
+        }
+
+        func updateShops(_ newShops: [ShopModel]) {
+            parent.shops = newShops
         }
 
         func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -67,6 +72,15 @@ struct MapRepresentableView: UIViewRepresentable {
             
             return nil
         }
+
+        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            if let shopAnnotation = view.annotation as? ShopAnnotation {
+                if let index = parent.shops.firstIndex(where: { $0.id == shopAnnotation.shopId }) {
+                    parent.onMarkerSelected?(index)
+                }
+            }
+            mapView.deselectAnnotation(view.annotation, animated: false)
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -83,6 +97,8 @@ struct MapRepresentableView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
+        context.coordinator.updateShops(shops)
+        
         uiView.removeAnnotations(uiView.annotations)
 
         let annotations = shops.map {

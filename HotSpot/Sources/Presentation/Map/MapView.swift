@@ -29,7 +29,10 @@ struct MapView: View {
                         region: viewStore.binding(
                             get: { $0.region },
                             send: { .updateRegion($0) }
-                        )
+                        ),
+                        onMarkerSelected: { index in
+                            currentIndex = index
+                        }
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
 
