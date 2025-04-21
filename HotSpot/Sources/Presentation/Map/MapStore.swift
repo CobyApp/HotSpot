@@ -17,6 +17,7 @@ struct MapStore {
         var lastFetchedLocation: CLLocationCoordinate2D? = nil
         var error: ShopError? = nil
         var shouldShowNoShopsMessage: Bool = false
+        var isFetching: Bool = false
     }
 
     enum Action {
@@ -26,6 +27,7 @@ struct MapStore {
         case handleError(Error)
         case clearError
         case clearNoShopsMessage
+        case setFetching(Bool)
     }
 
     var body: some ReducerOf<Self> {
@@ -35,14 +37,19 @@ struct MapStore {
                 state.region = region
                 state.visibleShops = filterVisibleShops(state.shops, in: region)
 
-                if shouldFetchNewData(state: state, newRegion: region) {
+                if shouldFetchNewData(state: state, newRegion: region) && !state.isFetching {
                     state.lastFetchedLocation = region.center
-                    return .send(.fetchShops)
+                    return .run { send in
+                        try await Task.sleep(nanoseconds: 500_000_000)
+                        await send(.fetchShops)
+                    }
+                    .cancellable(id: "fetch-shops", cancelInFlight: true)
                 }
 
                 return .none
 
             case .fetchShops:
+                state.isFetching = true
                 return .run { [region = state.region] send in
                     do {
                         let useCase = ShopsUseCase(repository: shopRepository)
@@ -54,6 +61,7 @@ struct MapStore {
                     } catch {
                         await send(.handleError(error))
                     }
+                    await send(.setFetching(false))
                 }
 
             case let .updateShops(shops):
@@ -79,6 +87,10 @@ struct MapStore {
                 
             case .clearNoShopsMessage:
                 state.shouldShowNoShopsMessage = false
+                return .none
+                
+            case let .setFetching(isFetching):
+                state.isFetching = isFetching
                 return .none
             }
         }
@@ -124,6 +136,7 @@ extension MapStore.State {
         lhs.error == rhs.error &&
         lhs.lastFetchedLocation?.latitude == rhs.lastFetchedLocation?.latitude &&
         lhs.lastFetchedLocation?.longitude == rhs.lastFetchedLocation?.longitude &&
-        lhs.shouldShowNoShopsMessage == rhs.shouldShowNoShopsMessage
+        lhs.shouldShowNoShopsMessage == rhs.shouldShowNoShopsMessage &&
+        lhs.isFetching == rhs.isFetching
     }
 }
