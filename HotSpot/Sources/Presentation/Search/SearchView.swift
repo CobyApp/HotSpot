@@ -46,7 +46,7 @@ struct SearchView: View {
             }
             .background(Color.backgroundNormalNormal)
             .onAppear {
-                viewStore.send(.onAppear)
+                viewStore.send(.search(""))
             }
             .onChange(of: viewStore.error) { error in
                 if let error = error {

@@ -12,10 +12,10 @@ struct SearchStore {
         var searchText: String = ""
         var error: ShopError? = nil
         var paginationState: PaginationState = .init()
+        var isInitialSearch: Bool = true
     }
 
     enum Action {
-        case onAppear
         case search(String)
         case updateShops([ShopModel])
         case handleError(Error)
@@ -27,11 +27,6 @@ struct SearchStore {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .onAppear:
-                return .run { send in
-                    await send(.search(""))
-                }
-
             case let .updateShops(shops):
                 state.shops = shops
                 return .none
@@ -52,10 +47,13 @@ struct SearchStore {
                 return .none
 
             case let .search(text):
-                guard text != state.searchText else { return .none }
+                if !state.isInitialSearch && text == state.searchText {
+                    return .none
+                }
                 
                 state.searchText = text
                 state.paginationState.reset()
+                state.isInitialSearch = false
                 
                 return .run { send in
                     do {
@@ -64,7 +62,7 @@ struct SearchStore {
                             lng: userDefaults.location.longitude,
                             range: userDefaults.range,
                             count: nil,
-                            name: text,
+                            name: text.isEmpty ? nil : text,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
                             start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,
@@ -100,7 +98,7 @@ struct SearchStore {
                             lng: location.longitude,
                             range: userDefaults.range,
                             count: nil,
-                            name: state.searchText,
+                            name: state.searchText.isEmpty ? nil : state.searchText,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
                             start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,
