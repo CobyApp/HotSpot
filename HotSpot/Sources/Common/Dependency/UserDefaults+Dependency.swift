@@ -22,11 +22,26 @@ extension UserDefaults {
         case privateRoom = "privateRoom"
         case nonSmoking = "nonSmoking"
         case parking = "parking"
+        case location = "location"
     }
     
     var range: Int {
         get { integer(forKey: FilterKey.range.rawValue) == 0 ? 3 : integer(forKey: FilterKey.range.rawValue) }
         set { set(newValue, forKey: FilterKey.range.rawValue) }
+    }
+    
+    var location: MapCoordinate {
+        get {
+            let lat = double(forKey: "\(FilterKey.location.rawValue)_lat")
+            let lng = double(forKey: "\(FilterKey.location.rawValue)_lng")
+            return lat == 0 && lng == 0 
+                ? MapCoordinate(latitude: 34.6937, longitude: 135.5023) // Osaka coordinates
+                : MapCoordinate(latitude: lat, longitude: lng)
+        }
+        set {
+            set(newValue.latitude, forKey: "\(FilterKey.location.rawValue)_lat")
+            set(newValue.longitude, forKey: "\(FilterKey.location.rawValue)_lng")
+        }
     }
     
     var budgets: [String] {

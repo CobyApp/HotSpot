@@ -5,21 +5,18 @@ import ComposableArchitecture
 @Reducer
 struct SearchStore {
     @Dependency(\.shopRepository) var shopRepository
-    @Dependency(\.locationManager) var locationManager
     @Dependency(\.userDefaults) var userDefaults
 
     struct State: Equatable {
         var shops: [ShopModel] = []
         var searchText: String = ""
         var error: ShopError? = nil
-        var currentLocation: MapCoordinate?
         var paginationState: PaginationState = .init()
     }
 
     enum Action {
         case onAppear
         case search(String)
-        case updateLocation(MapCoordinate)
         case updateShops([ShopModel])
         case handleError(Error)
         case clearError
@@ -32,14 +29,8 @@ struct SearchStore {
             switch action {
             case .onAppear:
                 return .run { send in
-                    if let location = await locationManager.requestLocation() {
-                        await send(.updateLocation(MapCoordinate(coordinate: location.coordinate)))
-                    }
+                    await send(.search(""))
                 }
-
-            case let .updateLocation(location):
-                state.currentLocation = location
-                return .none
 
             case let .updateShops(shops):
                 state.shops = shops
@@ -66,12 +57,11 @@ struct SearchStore {
                 state.searchText = text
                 state.paginationState.reset()
                 
-                return .run { [state] send in
+                return .run { send in
                     do {
-                        let location = state.currentLocation ?? MapCoordinate(latitude: 34.6937, longitude: 135.5023)
                         let request = ShopSearchRequestDTO(
-                            lat: location.latitude,
-                            lng: location.longitude,
+                            lat: userDefaults.location.latitude,
+                            lng: userDefaults.location.longitude,
                             range: userDefaults.range,
                             count: nil,
                             keyword: text,
@@ -104,7 +94,7 @@ struct SearchStore {
             case .loadMore:
                 return .run { [state] send in
                     do {
-                        let location = state.currentLocation ?? MapCoordinate(latitude: 34.6937, longitude: 135.5023)
+                        let location = userDefaults.location
                         let request = ShopSearchRequestDTO(
                             lat: location.latitude,
                             lng: location.longitude,

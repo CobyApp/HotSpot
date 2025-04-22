@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreLocation
 import CobyDS
 import ComposableArchitecture
 

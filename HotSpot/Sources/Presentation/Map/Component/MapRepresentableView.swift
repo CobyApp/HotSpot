@@ -35,6 +35,7 @@ struct MapRepresentableView: UIViewRepresentable {
             
             DispatchQueue.main.async {
                 self.parent.region.wrappedValue = region
+                UserDefaults.standard.location = MapCoordinate(coordinate: location.coordinate)
             }
             
             locationManager.stopUpdatingLocation()
@@ -50,6 +51,7 @@ struct MapRepresentableView: UIViewRepresentable {
             
             DispatchQueue.main.async {
                 self.parent.region.wrappedValue = region
+                UserDefaults.standard.location = osakaCoordinate
             }
             
             locationManager.stopUpdatingLocation()
