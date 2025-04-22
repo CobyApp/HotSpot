@@ -1,6 +1,7 @@
 import SwiftUI
 import CobyDS
 import Kingfisher
+import Domain
 
 struct SearchResults: View {
     let error: ShopError?

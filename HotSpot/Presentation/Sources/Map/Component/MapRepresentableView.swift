@@ -1,6 +1,7 @@
 import SwiftUI
 import MapKit
 import CoreLocation
+import Domain
 
 struct MapRepresentableView: UIViewRepresentable {
     var shops: [ShopModel]

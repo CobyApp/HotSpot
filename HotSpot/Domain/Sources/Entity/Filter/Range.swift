@@ -1,13 +1,13 @@
 import Foundation
 
-enum Range: Int, CaseIterable {
+public enum Range: Int, CaseIterable {
     case threeHundredMeters = 1
     case fiveHundredMeters = 2
     case oneKilometer = 3
     case twoKilometers = 4
     case threeKilometers = 5
     
-    var name: String {
+    public var name: String {
         switch self {
         case .threeHundredMeters: return "300m"
         case .fiveHundredMeters: return "500m"

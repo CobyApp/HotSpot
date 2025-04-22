@@ -1,5 +1,6 @@
 import SwiftUI
 import CobyDS
+import Domain
 
 struct BudgetSection: View {
     let selectedBudgets: [String]

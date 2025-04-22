@@ -1,4 +1,5 @@
 import Foundation
+import Domain
 
 struct ShopErrorMessageMapper {
     static func message(for error: ShopError) -> String {

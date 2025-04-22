@@ -2,6 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 import CobyDS
 import Kingfisher
+import Domain
 
 struct ShopDetailView: View {
     let store: StoreOf<ShopDetailStore>

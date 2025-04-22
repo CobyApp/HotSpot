@@ -1,5 +1,6 @@
 import SwiftUI
 import MapKit
+import Domain
 
 struct ShopLocationMapView: View {
     let shop: ShopModel

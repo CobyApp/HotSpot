@@ -1,38 +1,48 @@
 import Foundation
+import Data
 
-struct InfiniteScrollSearchUseCase {
+public struct InfiniteScrollSearchUseCase {
     private let repository: ShopRepository
     private let pageSize: Int
     
-    init(repository: ShopRepository, pageSize: Int = 20) {
+    public init(repository: ShopRepository, pageSize: Int = 20) {
         self.repository = repository
         self.pageSize = pageSize
     }
     
-    func execute(
-        request: ShopSearchRequestDTO,
+    public func execute(
+        latitude: Double,
+        longitude: Double,
+        range: Int,
+        name: String?,
+        genres: [String]?,
+        budgets: [String]?,
+        privateRoom: Int,
+        wifi: Int,
+        nonSmoking: Int,
+        parking: Int,
         currentPage: Int,
         isLoadMore: Bool = false
     ) async throws -> SearchResultModel {
         let targetPage = isLoadMore ? currentPage + 1 : currentPage
         let start = (targetPage - 1) * pageSize + 1
         
-        let paginatedRequest = ShopSearchRequestDTO(
-            lat: request.lat,
-            lng: request.lng,
-            range: request.range,
+        let request = ShopSearchRequestDTO(
+            lat: latitude,
+            lng: longitude,
+            range: range,
             count: pageSize,
-            name: request.name,
-            genres: request.genres,
+            name: name,
+            genres: genres,
             start: start,
-            budgets: request.budgets,
-            privateRoom: request.privateRoom,
-            wifi: request.wifi,
-            nonSmoking: request.nonSmoking,
-            parking: request.parking,
+            budgets: budgets,
+            privateRoom: privateRoom,
+            wifi: wifi,
+            nonSmoking: nonSmoking,
+            parking: parking
         )
         
-        let response = try await repository.searchShops(request: paginatedRequest)
+        let response = try await repository.searchShops(request: request)
         return SearchResultModel.from(response: response, currentPage: targetPage)
     }
 } 

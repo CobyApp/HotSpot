@@ -1,5 +1,6 @@
 import SwiftUI
 import CobyDS
+import Domain
 
 struct FeaturesSection: View {
     let selectedFeatures: Set<String>

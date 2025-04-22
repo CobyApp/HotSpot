@@ -3,6 +3,7 @@ import MapKit
 import ComposableArchitecture
 import CobyDS
 import Kingfisher
+import Domain
 
 struct MapView: View {
     let store: StoreOf<MapStore>

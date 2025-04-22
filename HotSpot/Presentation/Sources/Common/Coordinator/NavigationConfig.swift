@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-extension UINavigationBar {
+public extension UINavigationBar {
     static func configureAppearance() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithTransparentBackground()

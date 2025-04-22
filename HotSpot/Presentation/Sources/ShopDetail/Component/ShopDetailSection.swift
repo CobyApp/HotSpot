@@ -1,5 +1,6 @@
 import SwiftUI
 import CobyDS
+import Domain
 
 struct ShopDetailSection: View {
     let shop: ShopModel

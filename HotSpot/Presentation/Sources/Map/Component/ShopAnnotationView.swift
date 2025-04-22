@@ -1,5 +1,6 @@
 import UIKit
 import MapKit
+import Domain
 
 class ShopAnnotationView: MKMarkerAnnotationView {
     static let reuseIdentifier = "ShopAnnotationView"

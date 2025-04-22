@@ -1,6 +1,6 @@
 import Moya
 
-extension MoyaProvider {
+public extension MoyaProvider {
     static var `default`: MoyaProvider<Target> {
         return MoyaProvider<Target>(
             plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
@@ -8,7 +8,7 @@ extension MoyaProvider {
     }
 }
 
-extension MoyaProvider {
+public extension MoyaProvider {
     func asyncRequest(_ target: Target) async throws -> Response {
         return try await withCheckedThrowingContinuation { continuation in
             self.request(target) { result in

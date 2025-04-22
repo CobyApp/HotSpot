@@ -2,6 +2,7 @@ import Foundation
 import CoreLocation
 import ComposableArchitecture
 import MapKit
+import Domain
 
 struct MapStore: Reducer {
     @Dependency(\.shopRepository) var shopRepository

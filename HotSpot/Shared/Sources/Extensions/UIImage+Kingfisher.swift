@@ -1,7 +1,7 @@
 import UIKit
 import Kingfisher
 
-extension UIImage {
+public extension UIImage {
     static func load(from urlString: String?, completion: @escaping (UIImage?) -> Void) {
         guard let urlString = urlString,
               let url = URL(string: urlString) else {

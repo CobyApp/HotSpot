@@ -1,5 +1,6 @@
 import Foundation
 import ComposableArchitecture
+import Data
 
 private enum ShopRepositoryKey: DependencyKey {
     static let liveValue: ShopRepository = ShopRepositoryImpl(

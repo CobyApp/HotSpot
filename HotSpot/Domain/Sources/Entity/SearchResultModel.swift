@@ -1,4 +1,5 @@
 import Foundation
+import Data
 
 public struct SearchResultModel {
     public let shops: [ShopModel]
@@ -14,7 +15,7 @@ public struct SearchResultModel {
     }
     
     public static func from(response: ShopSearchResponseDTO, currentPage: Int) -> SearchResultModel {
-        let shops = response.results.shop.map { $0.toDomain() }
+        let shops = response.results.shop.map { $0.toShopModel() }
         let resultsReturned = Int(response.results.resultsReturned) ?? 1
         let currentEnd = response.results.resultsStart + resultsReturned
         let hasMore = currentEnd < response.results.resultsAvailable

@@ -1,5 +1,6 @@
 import Foundation
 import ComposableArchitecture
+import Domain
 
 struct ShopDetailStore: Reducer {
     struct State: Equatable {

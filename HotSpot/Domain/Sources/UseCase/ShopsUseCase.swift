@@ -1,14 +1,14 @@
 import Foundation
 import Data
 
-struct ShopsUseCase {
+public struct ShopsUseCase {
     private let repository: ShopRepository
 
-    init(repository: ShopRepository) {
+    public init(repository: ShopRepository) {
         self.repository = repository
     }
 
-    func execute(lat: Double, lng: Double) async throws -> [ShopModel] {
+    public func execute(lat: Double, lng: Double) async throws -> [ShopModel] {
         let request = ShopSearchRequestDTO(
             lat: lat,
             lng: lng,

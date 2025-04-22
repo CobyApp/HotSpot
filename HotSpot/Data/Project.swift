@@ -13,8 +13,8 @@ let project = Project(
             infoPlist: .default,
             sources: ["Sources/**"],
             dependencies: [
-                .project(target: "Domain", path: "../Domain"),
-                .external(name: "Moya")
+                .external(name: "Moya"),
+                .project(target: "Shared", path: "../Shared")
             ]
         ),
         .target(

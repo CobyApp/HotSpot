@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import CobyDS
+import Domain
 
 struct SearchFilterView: View {
     let store: StoreOf<SearchFilterStore>

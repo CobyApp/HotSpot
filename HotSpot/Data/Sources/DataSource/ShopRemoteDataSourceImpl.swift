@@ -1,5 +1,6 @@
 import Foundation
 import Moya
+import Shared
 
 public final class ShopRemoteDataSourceImpl: ShopRemoteDataSource {
     private let provider: MoyaProvider<ServiceAPI>

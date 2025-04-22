@@ -1,5 +1,6 @@
 import SwiftUI
 import CobyDS
+import Domain
 
 struct GenreSection: View {
     let selectedGenres: [String]

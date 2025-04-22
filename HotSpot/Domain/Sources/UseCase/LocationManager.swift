@@ -3,12 +3,12 @@ import CoreLocation
 import ComposableArchitecture
 import Dependencies
 
-struct LocationManager: DependencyKey {
-    static var liveValue: LocationManager = .live
+public struct LocationManager: DependencyKey {
+    public static var liveValue: LocationManager = .live
     
-    var requestLocation: @Sendable () async -> CLLocation?
+    public var requestLocation: @Sendable () async -> CLLocation?
     
-    static let live = Self(
+    public static let live = Self(
         requestLocation: {
             let manager = CLLocationManager()
             manager.requestWhenInUseAuthorization()
@@ -41,7 +41,7 @@ private class LocationDelegate: NSObject, CLLocationManagerDelegate {
     }
 }
 
-extension DependencyValues {
+public extension DependencyValues {
     var locationManager: LocationManager {
         get { self[LocationManager.self] }
         set { self[LocationManager.self] = newValue }

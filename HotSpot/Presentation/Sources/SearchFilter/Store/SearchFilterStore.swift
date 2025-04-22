@@ -1,5 +1,6 @@
 import Foundation
 import ComposableArchitecture
+import Domain
 
 @Reducer
 struct SearchFilterStore {

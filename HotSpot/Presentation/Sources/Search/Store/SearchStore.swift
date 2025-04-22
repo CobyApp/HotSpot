@@ -1,21 +1,24 @@
 import Foundation
 import CoreLocation
 import ComposableArchitecture
+import Domain
 
 @Reducer
-struct SearchStore {
+public struct SearchStore {
     @Dependency(\.shopRepository) var shopRepository
     @Dependency(\.userDefaults) var userDefaults
 
-    struct State: Equatable {
-        var shops: [ShopModel] = []
-        var searchText: String = ""
-        var error: ShopError? = nil
-        var currentPage: Int = 1
-        var isLastPage: Bool = false
+    public struct State: Equatable {
+        public var shops: [ShopModel] = []
+        public var searchText: String = ""
+        public var error: ShopError? = nil
+        public var currentPage: Int = 1
+        public var isLastPage: Bool = false
+        
+        public init() {}
     }
 
-    enum Action {
+    public enum Action {
         case search
         case updateSearchText(String)
         case updateShops([ShopModel])
@@ -24,8 +27,10 @@ struct SearchStore {
         case loadMore
         case updatePage(Int, Bool)
     }
+    
+    public init() {}
 
-    var body: some ReducerOf<Self> {
+    public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case let .updateShops(shops):
@@ -57,24 +62,18 @@ struct SearchStore {
                 
                 return .run { [state] send in
                     do {
-                        let request = ShopSearchRequestDTO(
-                            lat: userDefaults.location.latitude,
-                            lng: userDefaults.location.longitude,
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.execute(
+                            latitude: userDefaults.location.latitude,
+                            longitude: userDefaults.location.longitude,
                             range: userDefaults.range,
-                            count: nil,
                             name: state.searchText.isEmpty ? nil : state.searchText,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
-                            start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,
                             privateRoom: userDefaults.privateRoom,
                             wifi: userDefaults.wifi,
                             nonSmoking: userDefaults.nonSmoking,
-                            parking: userDefaults.parking
-                        )
-                        
-                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
-                        let result = try await useCase.execute(
-                            request: request,
+                            parking: userDefaults.parking,
                             currentPage: 1
                         )
                         
@@ -91,24 +90,18 @@ struct SearchStore {
                 return .run { [state] send in
                     do {
                         let location = userDefaults.location
-                        let request = ShopSearchRequestDTO(
-                            lat: location.latitude,
-                            lng: location.longitude,
+                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
+                        let result = try await useCase.execute(
+                            latitude: location.latitude,
+                            longitude: location.longitude,
                             range: userDefaults.range,
-                            count: nil,
                             name: state.searchText.isEmpty ? nil : state.searchText,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
-                            start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,
                             privateRoom: userDefaults.privateRoom,
                             wifi: userDefaults.wifi,
                             nonSmoking: userDefaults.nonSmoking,
-                            parking: userDefaults.parking
-                        )
-                        
-                        let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
-                        let result = try await useCase.execute(
-                            request: request,
+                            parking: userDefaults.parking,
                             currentPage: state.currentPage,
                             isLoadMore: true
                         )
