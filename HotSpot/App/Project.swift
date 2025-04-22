@@ -50,7 +50,7 @@ let project = Project(
                 .project(target: "Presentation", path: "../Presentation"),
                 .project(target: "Data", path: "../Data"),
                 .project(target: "Domain", path: "../Domain"),
-                .project(target: "Core", path: "../Core")
+                .project(target: "Shared", path: "../Shared")
             ]
         ),
         .target(
