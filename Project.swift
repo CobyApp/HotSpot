@@ -54,9 +54,13 @@ let project = Project(
                     "NSLocationAlwaysAndWhenInUseUsageDescription": .string("周辺の店舗を表示するために位置情報が必要です。")
                 ]
             ),
-            sources: ["\(projectName)/Sources/**"],
-            resources: ["\(projectName)/Resources/**"],
+            sources: ["HotSpot/App/Sources/**"],
+            resources: ["HotSpot/App/Resources/**"],
             dependencies: [
+                .project(target: "Presentation", path: "HotSpot/Presentation"),
+                .project(target: "Domain", path: "HotSpot/Domain"),
+                .project(target: "Shared", path: "HotSpot/Shared"),
+                .project(target: "Data", path: "HotSpot/Data"),
                 .external(name: "CobyDS"),
                 .external(name: "Moya"),
                 .external(name: "ComposableArchitecture"),
@@ -69,7 +73,7 @@ let project = Project(
             product: .unitTests,
             bundleId: bundleTestID,
             infoPlist: .default,
-            sources: ["\(projectName)/Tests/**"],
+            sources: ["HotSpot/App/Tests/**"],
             resources: [],
             dependencies: [.target(name: projectName)]
         ),
@@ -86,4 +90,4 @@ let project = Project(
             runAction: .runAction(configuration: .release)
         )
     ]
-)
+) 
