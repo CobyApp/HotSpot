@@ -29,6 +29,8 @@ struct SearchView: View {
                     onSearch: { viewStore.send(.search($0)) },
                     isSearchFocused: $isSearchFocused
                 )
+                .padding(.horizontal, BaseSize.horizantalPadding)
+                .padding(.vertical, isSearchFocused ? BaseSize.verticalPadding : 0)
                 
                 SearchResults(
                     error: viewStore.error,
@@ -42,6 +44,7 @@ struct SearchView: View {
                     }
                 )
             }
+            .background(Color.backgroundNormalNormal)
             .onAppear {
                 viewStore.send(.onAppear)
             }
@@ -50,9 +53,6 @@ struct SearchView: View {
                     coordinator?.showError(error)
                     viewStore.send(.clearError)
                 }
-            }
-            .onTapGesture {
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         }
     }

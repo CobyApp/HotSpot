@@ -15,17 +15,11 @@ struct GenreSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(Genre.allCases, id: \.self) { genre in
-                        Button {
-                            onGenreSelected(genre.rawValue)
-                        } label: {
-                            Text(genre.name)
-                                .font(.system(size: 14, weight: .medium))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(selectedGenres.contains(genre.rawValue) ? Color.blue : Color(.systemGray6))
-                                .foregroundColor(selectedGenres.contains(genre.rawValue) ? .white : .primary)
-                                .cornerRadius(16)
-                        }
+                        FilterButton(
+                            title: genre.name,
+                            isSelected: selectedGenres.contains(genre.rawValue),
+                            action: { onGenreSelected(genre.rawValue) }
+                        )
                     }
                 }
                 .padding(.horizontal, BaseSize.horizantalPadding)

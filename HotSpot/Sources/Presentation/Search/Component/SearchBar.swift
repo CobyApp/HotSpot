@@ -1,4 +1,5 @@
 import SwiftUI
+import CobyDS
 
 struct SearchBar: View {
     let searchText: String
@@ -20,7 +21,6 @@ struct SearchBar: View {
         .padding(8)
         .background(Color(.systemGray6))
         .cornerRadius(8)
-        .padding(.horizontal)
         .onChange(of: isFocused) { newValue in
             isSearchFocused = newValue
         }

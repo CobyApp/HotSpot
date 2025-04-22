@@ -10,10 +10,10 @@ struct FilterButton: View {
         Button(action: action) {
             Text(title)
                 .font(.pretendard(size: 14, weight: .medium))
-                .foregroundColor(isSelected ? .white : Color.labelNormal)
+                .foregroundColor(isSelected ? Color.inverseLabel : Color.labelNormal)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.primary : Color(.systemGray6))
+                .background(isSelected ? Color.labelNormal : Color.fillNormal)
                 .cornerRadius(16)
         }
     }

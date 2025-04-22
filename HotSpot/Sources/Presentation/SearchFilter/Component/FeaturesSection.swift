@@ -7,7 +7,7 @@ struct FeaturesSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("特徴")
+            Text("設備")
                 .font(.pretendard(size: 16, weight: .semibold))
                 .foregroundColor(Color.labelNormal)
                 .padding(.horizontal, BaseSize.horizantalPadding)

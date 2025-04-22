@@ -15,8 +15,6 @@ struct SearchResults: View {
             if let error = error {
                 Text(ShopErrorMessageMapper.message(for: error))
                     .foregroundColor(.red)
-            } else if searchText.isEmpty {
-                EmptyResults(searchText: searchText)
             } else if shops.isEmpty {
                 EmptyResults(searchText: searchText)
             } else {
@@ -42,17 +40,18 @@ struct SearchResults: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal, BaseSize.horizantalPadding)
+                    .padding(.vertical, BaseSize.verticalPadding)
                 }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                        }
-                )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+        )
     }
     
     private func loadImage(for shop: ShopModel) {

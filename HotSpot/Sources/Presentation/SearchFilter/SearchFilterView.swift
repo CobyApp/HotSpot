@@ -81,7 +81,9 @@ struct SearchFilterView: View {
                     Text("フィルターを適用")
                 }
                 .buttonStyle(
-                    CBButtonStyle()
+                    CBButtonStyle(
+                        buttonColor: Color.redOrangeNormal
+                    )
                 )
                 .padding(.horizontal, BaseSize.horizantalPadding)
                 .padding(.bottom, BaseSize.verticalPadding)
