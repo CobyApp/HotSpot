@@ -13,11 +13,11 @@ struct SearchStore {
         var error: ShopError? = nil
         var currentPage: Int = 1
         var isLastPage: Bool = false
-        var isInitialSearch: Bool = true
     }
 
     enum Action {
-        case search(String)
+        case search
+        case updateSearchText(String)
         case updateShops([ShopModel])
         case handleError(Error)
         case clearError
@@ -47,24 +47,22 @@ struct SearchStore {
                 state.error = nil
                 return .none
 
-            case let .search(text):
-                if !state.isInitialSearch && text == state.searchText {
-                    return .none
-                }
-                
+            case let .updateSearchText(text):
                 state.searchText = text
+                return .none
+
+            case .search:
                 state.currentPage = 1
                 state.isLastPage = false
-                state.isInitialSearch = false
                 
-                return .run { send in
+                return .run { [state] send in
                     do {
                         let request = ShopSearchRequestDTO(
                             lat: userDefaults.location.latitude,
                             lng: userDefaults.location.longitude,
                             range: userDefaults.range,
                             count: nil,
-                            name: text.isEmpty ? nil : text,
+                            name: state.searchText.isEmpty ? nil : state.searchText,
                             genres: !userDefaults.genres.isEmpty ? userDefaults.genres : nil,
                             start: nil,
                             budgets: !userDefaults.budgets.isEmpty ? userDefaults.budgets : nil,

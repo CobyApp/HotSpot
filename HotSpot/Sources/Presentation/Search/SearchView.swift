@@ -26,7 +26,10 @@ struct SearchView: View {
                 
                 SearchBar(
                     searchText: viewStore.searchText,
-                    onSearch: { viewStore.send(.search($0)) },
+                    onSearch: { text in
+                        viewStore.send(.updateSearchText(text))
+                        viewStore.send(.search)
+                    },
                     isSearchFocused: $isSearchFocused
                 )
                 .padding(.horizontal, BaseSize.horizantalPadding)
@@ -46,7 +49,7 @@ struct SearchView: View {
             }
             .background(Color.backgroundNormalNormal)
             .onAppear {
-                viewStore.send(.search(""))
+                viewStore.send(.search)
             }
             .onChange(of: viewStore.error) { error in
                 if let error = error {
