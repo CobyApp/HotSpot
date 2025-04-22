@@ -19,7 +19,7 @@ struct SearchResults: View {
                 EmptyResults(searchText: searchText)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: BaseSize.cellVerticalSpacing) {
                         ForEach(shops) { shop in
                             ThumbnailTileView(
                                 image: $shopImages[shop.id],
@@ -41,7 +41,8 @@ struct SearchResults: View {
                         }
                     }
                     .padding(.horizontal, BaseSize.horizantalPadding)
-                    .padding(.vertical, BaseSize.verticalPadding)
+                    .padding(.top, 8)
+                    .padding(.bottom, BaseSize.verticalPadding)
                 }
             }
         }

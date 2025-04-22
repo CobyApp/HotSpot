@@ -9,23 +9,39 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-            TextField("검색어를 입력하세요", text: .init(
+            Image(uiImage: UIImage.icSearch)
+                .foregroundColor(Color.labelAssistive)
+            
+            TextField("店舗名で検索", text: .init(
                 get: { searchText },
                 set: { onSearch($0) }
             ))
             .textFieldStyle(.plain)
             .focused($isFocused)
+            
+            if isSearchFocused {
+                Button {
+                    isFocused = false
+                } label: {
+                    Text("キャンセル")
+                        .font(.pretendard(size: 14, weight: .medium))
+                        .foregroundColor(Color.labelNeutral)
+                }
+                .transition(.opacity)
+            }
         }
         .padding(8)
-        .background(Color(.systemGray6))
+        .background(Color.fillNormal)
         .cornerRadius(8)
         .onChange(of: isFocused) { newValue in
-            isSearchFocused = newValue
+            withAnimation(.easeInOut(duration: 0.3)) {
+                isSearchFocused = newValue
+            }
         }
         .onChange(of: isSearchFocused) { newValue in
-            isFocused = newValue
+            withAnimation(.easeInOut(duration: 0.3)) {
+                isFocused = newValue
+            }
         }
     }
 } 

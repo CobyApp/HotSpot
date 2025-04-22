@@ -9,7 +9,7 @@ struct SearchView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 if !isSearchFocused {
                     TopBarView(
                         leftSide: .left,
@@ -30,7 +30,7 @@ struct SearchView: View {
                     isSearchFocused: $isSearchFocused
                 )
                 .padding(.horizontal, BaseSize.horizantalPadding)
-                .padding(.vertical, isSearchFocused ? BaseSize.verticalPadding : 0)
+                .padding(.top, isSearchFocused ? BaseSize.verticalPadding : 0)
                 
                 SearchResults(
                     error: viewStore.error,
