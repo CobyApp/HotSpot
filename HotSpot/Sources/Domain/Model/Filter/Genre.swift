@@ -65,23 +65,40 @@ public enum Genre: String, CaseIterable {
     
     public var image: UIImage? {
         switch self {
-        case .izakaya: return UIImage(systemName: "wineglass.fill")
-        case .diningBar: return UIImage(systemName: "wineglass")
-        case .creative: return UIImage(systemName: "fork.knife")
-        case .japanese: return UIImage(systemName: "leaf.fill")
-        case .western: return UIImage(systemName: "fork.knife.circle")
-        case .italianFrench: return UIImage(systemName: "fork.knife.circle.fill")
-        case .chinese: return UIImage(systemName: "bowl.fill")
-        case .yakiniku: return UIImage(systemName: "flame.fill")
-        case .asian: return UIImage(systemName: "globe.asia.australia.fill")
-        case .international: return UIImage(systemName: "globe")
-        case .karaoke: return UIImage(systemName: "music.mic")
-        case .bar: return UIImage(systemName: "wineglass")
-        case .ramen: return UIImage(systemName: "bowl")
-        case .cafe: return UIImage(systemName: "cup.and.saucer.fill")
-        case .okonomiyaki: return UIImage(systemName: "flame")
-        case .korean: return UIImage(systemName: "bowl")
-        case .other: return UIImage(systemName: "questionmark.circle.fill")
+        case .izakaya:
+            return UIImage(systemName: "wineglass.fill")
+        case .diningBar:
+            return UIImage(systemName: "fork.knife")
+        case .creative:
+            return UIImage(systemName: "sparkles")
+        case .japanese:
+            return UIImage(systemName: "leaf.fill")
+        case .western:
+            return UIImage(systemName: "fork.knife.circle")
+        case .italianFrench:
+            return UIImage(systemName: "fork.knife.circle.fill")
+        case .chinese:
+            return UIImage(systemName: "takeoutbag.and.cup.and.straw.fill")
+        case .yakiniku:
+            return UIImage(systemName: "flame.fill")
+        case .asian:
+            return UIImage(systemName: "globe.asia.australia")
+        case .international:
+            return UIImage(systemName: "globe")
+        case .karaoke:
+            return UIImage(systemName: "music.mic")
+        case .bar:
+            return UIImage(systemName: "wineglass")
+        case .ramen:
+            return UIImage(systemName: "leaf")
+        case .cafe:
+            return UIImage(systemName: "cup.and.saucer")
+        case .okonomiyaki:
+            return UIImage(systemName: "flame")
+        case .korean:
+            return UIImage(systemName: "circle.grid.cross")
+        case .other:
+            return UIImage(systemName: "questionmark.circle")
         }
     }
     
