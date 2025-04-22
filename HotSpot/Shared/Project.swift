@@ -6,7 +6,7 @@ let project = Project(
     targets: [
         .target(
             name: "Shared",
-            destinations: .iOS,
+            destinations: [.iPhone],
             product: .framework,
             bundleId: "com.coby.HotSpot.Shared",
             deploymentTargets: .iOS("15.0"),
@@ -18,7 +18,7 @@ let project = Project(
         ),
         .target(
             name: "SharedTests",
-            destinations: .iOS,
+            destinations: [.iPhone],
             product: .unitTests,
             bundleId: "com.coby.HotSpot.SharedTests",
             infoPlist: .default,
