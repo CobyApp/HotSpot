@@ -13,11 +13,9 @@ struct ShopInfoSection: View {
                         .font(.pretendard(size: 24, weight: .bold))
                         .foregroundColor(Color.labelNormal)
                     
-                    if let genre = Genre.from(code: shop.genreCode) {
-                        Text(genre.name)
-                            .font(.pretendard(size: 14, weight: .regular))
-                            .foregroundColor(Color.labelAlternative)
-                    }
+                    Text(shop.genre.name)
+                        .font(.pretendard(size: 14, weight: .regular))
+                        .foregroundColor(Color.labelAlternative)
                 }
                 
                 // Address
@@ -43,16 +41,14 @@ struct ShopInfoSection: View {
                 }
                 
                 // Open Hours
-                if let openingHours = shop.openingHours {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("営業時間")
-                            .font(.pretendard(size: 16, weight: .semibold))
-                            .foregroundColor(Color.labelNormal)
-                        
-                        Text(openingHours)
-                            .font(.pretendard(size: 16, weight: .regular))
-                            .foregroundColor(Color.labelNeutral)
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("営業時間")
+                        .font(.pretendard(size: 16, weight: .semibold))
+                        .foregroundColor(Color.labelNormal)
+                    
+                    Text(shop.openingHours)
+                        .font(.pretendard(size: 16, weight: .regular))
+                        .foregroundColor(Color.labelNeutral)
                 }
                 
                 // Location
@@ -81,7 +77,13 @@ struct ShopInfoSection: View {
             imageUrl: "https://example.com/image.jpg",
             access: "渋谷駅から徒歩5分",
             openingHours: "11:00-23:00",
-            genreCode: "G001"
+            genre: .izakaya,
+            budget: .from1501to2000,
+            url: "https://example.com",
+            wifi: 1,
+            privateRoom: 1,
+            nonSmoking: 1,
+            parking: 1
         )
     )
 } 

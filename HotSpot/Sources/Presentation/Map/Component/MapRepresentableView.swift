@@ -108,7 +108,7 @@ struct MapRepresentableView: UIViewRepresentable {
                 coordinate: $0.coordinate.clLocationCoordinate2D,
                 title: $0.name,
                 shopId: $0.id,
-                genreCode: $0.genreCode
+                genreCode: $0.genre.rawValue
             )
         }
 

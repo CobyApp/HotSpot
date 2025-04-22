@@ -8,8 +8,14 @@ struct ShopModel: Identifiable, Equatable {
     let longitude: Double
     let imageUrl: String
     let access: String
-    let openingHours: String?
-    let genreCode: String
+    let openingHours: String
+    let genre: Genre
+    let budget: Budget
+    let url: String
+    let wifi: Int
+    let privateRoom: Int
+    let nonSmoking: Int
+    let parking: Int
     
     var coordinate: MapCoordinate {
         MapCoordinate(latitude: latitude, longitude: longitude)

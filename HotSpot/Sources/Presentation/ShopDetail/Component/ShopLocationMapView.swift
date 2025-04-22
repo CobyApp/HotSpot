@@ -17,19 +17,17 @@ struct ShopLocationMapView: View {
 
         Map(coordinateRegion: .constant(region), annotationItems: [ShopPin(shop: shop)]) { pin in
             MapAnnotation(coordinate: pin.coordinate) {
-                if let genre = Genre.from(code: pin.genreCode) {
-                    ZStack {
-                        Circle()
-                            .fill(Color(uiColor: genre.color))
-                            .frame(width: 40, height: 40)
+                ZStack {
+                    Circle()
+                        .fill(Color(uiColor: pin.genre.color))
+                        .frame(width: 40, height: 40)
 
-                        Image(uiImage: genre.image ?? UIImage())
-                            .resizable()
-                            .renderingMode(.template)
-                            .foregroundColor(.white)
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                    }
+                    Image(uiImage: pin.genre.image ?? UIImage())
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundColor(.white)
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
                 }
             }
         }
@@ -47,10 +45,10 @@ struct ShopLocationMapView: View {
 private struct ShopPin: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
-    let genreCode: String
+    let genre: Genre
 
     init(shop: ShopModel) {
         self.coordinate = CLLocationCoordinate2D(latitude: shop.latitude, longitude: shop.longitude)
-        self.genreCode = shop.genreCode
+        self.genre = shop.genre
     }
 }

@@ -44,7 +44,13 @@ struct ShopDetailView: View {
                     imageUrl: "https://example.com/image.jpg",
                     access: "渋谷駅から徒歩5分",
                     openingHours: "11:00-23:00",
-                    genreCode: "G001"
+                    genre: .izakaya,
+                    budget: .from1501to2000,
+                    url: "https://example.com",
+                    wifi: 1,
+                    privateRoom: 1,
+                    nonSmoking: 1,
+                    parking: 1
                 )
             ),
             reducer: { ShopDetailStore() }

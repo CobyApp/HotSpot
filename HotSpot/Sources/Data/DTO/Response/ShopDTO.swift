@@ -3,22 +3,19 @@ import Foundation
 struct ShopDTO: Decodable {
     let id: String
     let name: String
-    let nameKana: String?
     let address: String
-    let stationName: String?
     let lat: Double
     let lng: Double
     let access: String
     let open: String?
-    let close: String?
     let photo: Photo
     let genre: Genre
-    let catchPhrase: String
     let budget: Budget?
     let wifi: String?
     let nonSmoking: String?
     let privateRoom: String?
-    let card: String?
+    let parking: String?
+    let urls: Urls
     
     struct Photo: Decodable {
         let pc: PcPhoto
@@ -46,33 +43,42 @@ struct ShopDTO: Decodable {
             case name
             case catchPhrase = "catch"
         }
+        
+        static func from(code: String) -> HotSpot.Genre? {
+            return HotSpot.Genre(rawValue: code)
+        }
     }
     
     struct Budget: Decodable {
         let code: String
         let name: String
         let average: String?
+        
+        static func from(code: String) -> HotSpot.Budget? {
+            return HotSpot.Budget(rawValue: code)
+        }
+    }
+    
+    struct Urls: Decodable {
+        let pc: String
     }
     
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case nameKana = "name_kana"
         case address
-        case stationName = "station_name"
         case lat
         case lng
         case access
         case open
-        case close
         case photo
         case genre
-        case catchPhrase = "catch"
         case budget
         case wifi
         case nonSmoking = "non_smoking"
         case privateRoom = "private_room"
-        case card
+        case parking
+        case urls
     }
     
     func toDomain() -> ShopModel {
@@ -84,8 +90,14 @@ struct ShopDTO: Decodable {
             longitude: lng,
             imageUrl: photo.pc.large,
             access: access,
-            openingHours: open,
-            genreCode: genre.code
+            openingHours: open ?? "営業時間情報なし",
+            genre: Genre.from(code: genre.code) ?? .other,
+            budget: budget.flatMap { Budget.from(code: $0.code) } ?? .from1501to2000,
+            url: urls.pc,
+            wifi: wifi == "あり" ? 1 : 0,
+            privateRoom: privateRoom == "あり" ? 1 : 0,
+            nonSmoking: nonSmoking == "あり" ? 1 : 0,
+            parking: parking == "あり" ? 1 : 0
         )
     }
 }
