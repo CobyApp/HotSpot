@@ -38,7 +38,7 @@ struct SearchView: View {
                     shops: viewStore.shops,
                     onSelectShop: { coordinator?.showShopDetail($0) },
                     onLoadMore: {
-                        if !viewStore.paginationState.isLastPage {
+                        if !viewStore.isLastPage {
                             viewStore.send(.loadMore)
                         }
                     }

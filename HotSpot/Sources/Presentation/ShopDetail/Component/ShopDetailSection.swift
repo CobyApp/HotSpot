@@ -95,7 +95,12 @@ struct ShopDetailSection: View {
                     .foregroundColor(Color.labelNormal)
                 
                 ShopLocationMapView(shop: shop)
-                    .disabled(true)
+                    .onTapGesture {
+                        let urlString = "http://maps.apple.com/?ll=\(shop.latitude),\(shop.longitude)&q=\(shop.name)"
+                        if let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") {
+                            UIApplication.shared.open(url)
+                        }
+                    }
             }
         }
         .padding(.horizontal, BaseSize.horizantalPadding)

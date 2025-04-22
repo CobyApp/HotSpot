@@ -11,7 +11,8 @@ struct SearchStore {
         var shops: [ShopModel] = []
         var searchText: String = ""
         var error: ShopError? = nil
-        var paginationState: PaginationState = .init()
+        var currentPage: Int = 1
+        var isLastPage: Bool = false
         var isInitialSearch: Bool = true
     }
 
@@ -21,7 +22,7 @@ struct SearchStore {
         case handleError(Error)
         case clearError
         case loadMore
-        case updatePaginationState(PaginationState)
+        case updatePage(Int, Bool)
     }
 
     var body: some ReducerOf<Self> {
@@ -52,7 +53,8 @@ struct SearchStore {
                 }
                 
                 state.searchText = text
-                state.paginationState.reset()
+                state.currentPage = 1
+                state.isLastPage = false
                 state.isInitialSearch = false
                 
                 return .run { send in
@@ -79,17 +81,15 @@ struct SearchStore {
                         )
                         
                         await send(.updateShops(result.shops))
-                        await send(.updatePaginationState(PaginationState(
-                            currentPage: result.currentPage,
-                            isLastPage: !result.hasMore,
-                            isLoading: false
-                        )))
+                        await send(.updatePage(result.currentPage, !result.hasMore))
                     } catch {
                         await send(.handleError(error))
                     }
                 }
 
             case .loadMore:
+                if state.isLastPage { return .none }
+                
                 return .run { [state] send in
                     do {
                         let location = userDefaults.location
@@ -111,7 +111,7 @@ struct SearchStore {
                         let useCase = InfiniteScrollSearchUseCase(repository: shopRepository)
                         let result = try await useCase.execute(
                             request: request,
-                            currentPage: state.paginationState.currentPage,
+                            currentPage: state.currentPage,
                             isLoadMore: true
                         )
                         
@@ -119,18 +119,15 @@ struct SearchStore {
                         let newShops = result.shops.filter { !existingShopIds.contains($0.id) }
                         
                         await send(.updateShops(state.shops + newShops))
-                        await send(.updatePaginationState(PaginationState(
-                            currentPage: result.currentPage,
-                            isLastPage: !result.hasMore,
-                            isLoading: false
-                        )))
+                        await send(.updatePage(result.currentPage, !result.hasMore))
                     } catch {
                         await send(.handleError(error))
                     }
                 }
 
-            case let .updatePaginationState(paginationState):
-                state.paginationState = paginationState
+            case let .updatePage(page, isLastPage):
+                state.currentPage = page
+                state.isLastPage = isLastPage
                 return .none
             }
         }
