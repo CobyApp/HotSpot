@@ -6,41 +6,29 @@ struct SearchFilterStore {
     @Dependency(\.userDefaults) var userDefaults
 
     struct State: Equatable {
-        var selectedRange: Int
+        var selectedRange: Range
         var selectedBudgets: [String]
         var selectedGenres: [String]
-        var wifi: Int
-        var privateRoom: Int
-        var nonSmoking: Int
-        var parking: Int
+        var selectedFeatures: Set<String>
         
         init(
-            selectedRange: Int = UserDefaults.standard.range,
+            selectedRange: Range = Range(rawValue: UserDefaults.standard.range) ?? .oneKilometer,
             selectedBudgets: [String] = UserDefaults.standard.budgets,
             selectedGenres: [String] = UserDefaults.standard.genres,
-            wifi: Int = UserDefaults.standard.wifi,
-            privateRoom: Int = UserDefaults.standard.privateRoom,
-            nonSmoking: Int = UserDefaults.standard.nonSmoking,
-            parking: Int = UserDefaults.standard.parking
+            selectedFeatures: Set<String> = []
         ) {
             self.selectedRange = selectedRange
             self.selectedBudgets = selectedBudgets
             self.selectedGenres = selectedGenres
-            self.wifi = wifi
-            self.privateRoom = privateRoom
-            self.nonSmoking = nonSmoking
-            self.parking = parking
+            self.selectedFeatures = selectedFeatures
         }
     }
     
     enum Action: Equatable {
-        case updateRange(Int)
+        case updateRange(Range)
         case updateBudgets([String])
         case updateGenres([String])
-        case updateWiFi(Int)
-        case updatePrivateRoom(Int)
-        case updateNonSmoking(Int)
-        case updateParking(Int)
+        case updateFeatures(Set<String>)
         case applyFilters
         case resetFilters
     }
@@ -62,40 +50,25 @@ struct SearchFilterStore {
                 state.selectedGenres = genres
                 return .none
                 
-            case let .updateWiFi(wifi):
-                state.wifi = wifi
-                return .none
-                
-            case let .updatePrivateRoom(privateRoom):
-                state.privateRoom = privateRoom
-                return .none
-                
-            case let .updateNonSmoking(nonSmoking):
-                state.nonSmoking = nonSmoking
-                return .none
-                
-            case let .updateParking(parking):
-                state.parking = parking
+            case let .updateFeatures(features):
+                state.selectedFeatures = features
                 return .none
                 
             case .applyFilters:
-                UserDefaults.standard.range = state.selectedRange
+                UserDefaults.standard.range = state.selectedRange.rawValue
                 UserDefaults.standard.budgets = state.selectedBudgets
                 UserDefaults.standard.genres = state.selectedGenres
-                UserDefaults.standard.wifi = state.wifi
-                UserDefaults.standard.privateRoom = state.privateRoom
-                UserDefaults.standard.nonSmoking = state.nonSmoking
-                UserDefaults.standard.parking = state.parking
+                UserDefaults.standard.wifi = state.selectedFeatures.contains("Wi-Fiあり") ? 1 : 0
+                UserDefaults.standard.privateRoom = state.selectedFeatures.contains("個室あり") ? 1 : 0
+                UserDefaults.standard.nonSmoking = state.selectedFeatures.contains("禁煙席あり") ? 1 : 0
+                UserDefaults.standard.parking = state.selectedFeatures.contains("駐車場あり") ? 1 : 0
                 return .none
                 
             case .resetFilters:
-                state.selectedRange = 3
+                state.selectedRange = .oneKilometer
                 state.selectedBudgets = []
                 state.selectedGenres = []
-                state.wifi = 0
-                state.privateRoom = 0
-                state.nonSmoking = 0
-                state.parking = 0
+                state.selectedFeatures = []
                 return .none
             }
         }

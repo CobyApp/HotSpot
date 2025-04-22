@@ -24,9 +24,11 @@ struct SearchFilterView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         RangeSection(
-                            selectedRange: viewStore.selectedRange,
+                            selectedRange: viewStore.selectedRange.rawValue,
                             onRangeSelected: { range in
-                                viewStore.send(.updateRange(range))
+                                if let range = Range(rawValue: range) {
+                                    viewStore.send(.updateRange(range))
+                                }
                             }
                         )
                         
@@ -57,14 +59,16 @@ struct SearchFilterView: View {
                         )
                         
                         FeaturesSection(
-                            wifi: viewStore.wifi,
-                            privateRoom: viewStore.privateRoom,
-                            nonSmoking: viewStore.nonSmoking,
-                            parking: viewStore.parking,
-                            onWiFiTapped: { viewStore.send(.updateWiFi(viewStore.wifi == 0 ? 1 : 0)) },
-                            onPrivateRoomTapped: { viewStore.send(.updatePrivateRoom(viewStore.privateRoom == 0 ? 1 : 0)) },
-                            onNonSmokingTapped: { viewStore.send(.updateNonSmoking(viewStore.nonSmoking == 0 ? 1 : 0)) },
-                            onParkingTapped: { viewStore.send(.updateParking(viewStore.parking == 0 ? 1 : 0)) }
+                            selectedFeatures: viewStore.selectedFeatures,
+                            onFeatureSelected: { feature in
+                                var updatedFeatures = viewStore.selectedFeatures
+                                if updatedFeatures.contains(feature) {
+                                    updatedFeatures.remove(feature)
+                                } else {
+                                    updatedFeatures.insert(feature)
+                                }
+                                viewStore.send(.updateFeatures(updatedFeatures))
+                            }
                         )
                     }
                     .padding(.vertical, 16)

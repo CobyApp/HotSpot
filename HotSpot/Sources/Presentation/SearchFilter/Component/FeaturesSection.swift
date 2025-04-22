@@ -2,78 +2,35 @@ import SwiftUI
 import CobyDS
 
 struct FeaturesSection: View {
-    let wifi: Int
-    let privateRoom: Int
-    let nonSmoking: Int
-    let parking: Int
-    let onWiFiTapped: () -> Void
-    let onPrivateRoomTapped: () -> Void
-    let onNonSmokingTapped: () -> Void
-    let onParkingTapped: () -> Void
+    let selectedFeatures: Set<String>
+    let onFeatureSelected: (String) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("設備・サービス")
+        VStack(alignment: .leading, spacing: 12) {
+            Text("特徴")
                 .font(.pretendard(size: 16, weight: .semibold))
                 .foregroundColor(Color.labelNormal)
+                .padding(.horizontal, BaseSize.horizantalPadding)
             
-            HStack(spacing: 8) {
-                FeatureButton(
-                    title: "Wi-Fiあり",
-                    isSelected: wifi != 0,
-                    action: onWiFiTapped
-                )
-                
-                FeatureButton(
-                    title: "個室あり",
-                    isSelected: privateRoom != 0,
-                    action: onPrivateRoomTapped
-                )
-                
-                FeatureButton(
-                    title: "禁煙席あり",
-                    isSelected: nonSmoking != 0,
-                    action: onNonSmokingTapped
-                )
-                
-                FeatureButton(
-                    title: "駐車場あり",
-                    isSelected: parking != 0,
-                    action: onParkingTapped
-                )
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Feature.allCases, id: \.self) { feature in
+                        FilterButton(
+                            title: feature.name,
+                            isSelected: selectedFeatures.contains(feature.rawValue),
+                            action: { onFeatureSelected(feature.rawValue) }
+                        )
+                    }
+                }
+                .padding(.horizontal, BaseSize.horizantalPadding)
             }
-        }
-        .padding(.horizontal, BaseSize.horizantalPadding)
-    }
-}
-
-private struct FeatureButton: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 14))
-                .foregroundColor(isSelected ? .white : .black)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(isSelected ? Color.blue : Color(.systemGray6))
-                .cornerRadius(16)
         }
     }
 }
 
 #Preview {
     FeaturesSection(
-        wifi: 1,
-        privateRoom: 0,
-        nonSmoking: 1,
-        parking: 0,
-        onWiFiTapped: {},
-        onPrivateRoomTapped: {},
-        onNonSmokingTapped: {},
-        onParkingTapped: {}
+        selectedFeatures: ["Wi-Fiあり", "個室あり", "禁煙席あり", "駐車場あり"],
+        onFeatureSelected: { _ in }
     )
 } 
