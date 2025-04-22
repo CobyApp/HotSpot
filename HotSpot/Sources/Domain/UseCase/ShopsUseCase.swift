@@ -13,7 +13,7 @@ struct ShopsUseCase {
             lng: lng,
             range: 5,
             count: nil,
-            keyword: nil,
+            name: nil,
             genres: nil,
             start: nil,
             budgets: nil,

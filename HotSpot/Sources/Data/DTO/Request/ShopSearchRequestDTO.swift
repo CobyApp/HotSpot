@@ -5,7 +5,7 @@ struct ShopSearchRequestDTO {
     let lng: Double                   // Longitude
     let range: Int                    // Search range (1–5)
     let count: Int?                   // Number of results (1–100)
-    let keyword: String?             // Keyword search
+    let name: String?                 // Name search
     let genres: [String]?            // Genre codes
     let start: Int?                  // Starting index for paging
     let budgets: [String]?           // Budget codes
@@ -27,7 +27,7 @@ struct ShopSearchRequestDTO {
         ]
 
         if let count = count { params["count"] = count }
-        if let keyword = keyword { params["keyword"] = keyword }
+        if let name = name { params["name"] = name }
         if let genres = genres, !genres.isEmpty { params["genre"] = genres.joined(separator: ",") }
         if let start = start { params["start"] = start }
         if let budgets = budgets, !budgets.isEmpty { params["budget"] = budgets.joined(separator: ",") }

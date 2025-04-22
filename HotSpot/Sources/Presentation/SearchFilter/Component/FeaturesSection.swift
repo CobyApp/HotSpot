@@ -14,7 +14,8 @@ struct FeaturesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("設備・サービス")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.pretendard(size: 16, weight: .semibold))
+                .foregroundColor(Color.labelNormal)
             
             HStack(spacing: 8) {
                 FeatureButton(
@@ -42,7 +43,7 @@ struct FeaturesSection: View {
                 )
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, BaseSize.horizantalPadding)
     }
 }
 

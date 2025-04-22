@@ -71,21 +71,21 @@ struct ShopDetailSection: View {
             
             // URL Button
             if let url = URL(string: shop.url) {
-                Button(action: {
+                Button {
                     UIApplication.shared.open(url)
-                }) {
+                } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "link")
-                            .font(.system(size: 16))
+                        
                         Text("ウェブサイトを見る")
-                            .font(.pretendard(size: 16, weight: .medium))
                     }
-                    .foregroundColor(Color.labelNormal)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.fillNormal)
-                    .cornerRadius(8)
                 }
+                .buttonStyle(
+                    CBButtonStyle(
+                        buttonType: .outlined,
+                        buttonSize: .medium
+                    )
+                )
             }
             
             // Location Map

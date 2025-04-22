@@ -1,4 +1,5 @@
 import SwiftUI
+import CobyDS
 
 struct BudgetSection: View {
     let selectedBudgets: [String]
@@ -7,8 +8,9 @@ struct BudgetSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("予算")
-                .font(.system(size: 17, weight: .semibold))
-                .padding(.horizontal, 16)
+                .font(.pretendard(size: 16, weight: .semibold))
+                .foregroundColor(Color.labelNormal)
+                .padding(.horizontal, BaseSize.horizantalPadding)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -26,7 +28,7 @@ struct BudgetSection: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, BaseSize.horizantalPadding)
             }
         }
     }

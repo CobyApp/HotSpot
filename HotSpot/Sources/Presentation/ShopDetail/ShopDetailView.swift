@@ -26,6 +26,7 @@ struct ShopDetailView: View {
                     .padding(.bottom, BaseSize.verticalPadding)
                 }
             }
+            .background(Color.backgroundNormalNormal)
         }
     }
 }

@@ -70,22 +70,19 @@ struct SearchFilterView: View {
                     .padding(.vertical, 16)
                 }
                 
-                VStack(spacing: 0) {
-                    Divider()
-                    
-                    Button {
-                        viewStore.send(.applyFilters)
-                        coordinator?.pop()
-                    } label: {
-                        Text("フィルターを適用")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.blue)
-                    }
+                Button {
+                    viewStore.send(.applyFilters)
+                    coordinator?.pop()
+                } label: {
+                    Text("フィルターを適用")
                 }
+                .buttonStyle(
+                    CBButtonStyle()
+                )
+                .padding(.horizontal, BaseSize.horizantalPadding)
+                .padding(.bottom, BaseSize.verticalPadding)
             }
+            .background(Color.backgroundNormalNormal)
         }
     }
 }
