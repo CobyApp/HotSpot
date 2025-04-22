@@ -1,4 +1,4 @@
-# 簡易仕様書サンプル
+# 簡易仕様書
 
 ### 作者
 Coby
@@ -28,7 +28,33 @@ Xcode 16.3
 Swift 5.9
 
 ### テーブル定義(ER図)などの設計ドキュメント
-準備中
+
+#### 店舗情報 (Shop)
+| カラム名 | 型 | 説明 | 制約 |
+|---------|----|------|------|
+| id | String | 店舗ID | NOT NULL |
+| name | String | 店舗名 | NOT NULL |
+| address | String | 住所 | NOT NULL |
+| latitude | Double | 緯度 | NOT NULL |
+| longitude | Double | 経度 | NOT NULL |
+| image_url | String | 画像URL | NOT NULL |
+| access | String | アクセス情報 | NOT NULL |
+| opening_hours | String | 営業時間 | NOT NULL |
+| genre | String | ジャンル | NOT NULL |
+| budget | String | 予算 | NOT NULL |
+| url | String | 店舗URL | NOT NULL |
+| wifi | Int | WiFi有無 | NOT NULL |
+| private_room | Int | 個室有無 | NOT NULL |
+| non_smoking | Int | 禁煙有無 | NOT NULL |
+| parking | Int | 駐車場有無 | NOT NULL |
+
+#### 検索結果 (SearchResult)
+| カラム名 | 型 | 説明 | 制約 |
+|---------|----|------|------|
+| shops | [Shop] | 店舗リスト | NOT NULL |
+| current_page | Int | 現在のページ | NOT NULL |
+| has_more | Bool | 次のページ有無 | NOT NULL |
+| total_count | Int | 総件数 | NOT NULL |
 
 ### 開発環境構築手順
 1. リポジトリをクローン
