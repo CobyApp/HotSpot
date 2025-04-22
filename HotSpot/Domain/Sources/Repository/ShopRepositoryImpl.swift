@@ -1,4 +1,5 @@
 import Foundation
+import Data
 
 public final class ShopRepositoryImpl: ShopRepository {
     private let remoteDataSource: ShopRemoteDataSource
