@@ -1,12 +1,12 @@
 import Foundation
 import Moya
 
-enum ServiceAPI {
+public enum ServiceAPI {
     case searchShops(ShopSearchRequestDTO)
 }
 
 extension ServiceAPI: TargetType {
-    var baseURL: URL {
+    public var baseURL: URL {
         guard let baseURLString = Bundle.main.object(forInfoDictionaryKey: "BASE_URL") as? String,
               let url = URL(string: baseURLString) else {
             fatalError("BASE_URL is not set in configuration")
@@ -14,21 +14,21 @@ extension ServiceAPI: TargetType {
         return url
     }
 
-    var path: String {
+    public var path: String {
         switch self {
         case .searchShops:
             return "/gourmet/v1/"
         }
     }
 
-    var method: Moya.Method {
+    public var method: Moya.Method {
         switch self {
         case .searchShops:
             return .get
         }
     }
 
-    var task: Task {
+    public var task: Task {
         guard let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String else {
             fatalError("API_KEY is not set in configuration")
         }
@@ -42,11 +42,11 @@ extension ServiceAPI: TargetType {
         }
     }
 
-    var headers: [String: String]? {
+    public var headers: [String: String]? {
         return nil
     }
 
-    var validationType: ValidationType {
+    public var validationType: ValidationType {
         return .successCodes
     }
 }

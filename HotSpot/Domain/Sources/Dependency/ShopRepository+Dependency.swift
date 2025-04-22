@@ -7,7 +7,7 @@ private enum ShopRepositoryKey: DependencyKey {
     )
 }
 
-extension DependencyValues {
+public extension DependencyValues {
     var shopRepository: ShopRepository {
         get { self[ShopRepositoryKey.self] }
         set { self[ShopRepositoryKey.self] = newValue }

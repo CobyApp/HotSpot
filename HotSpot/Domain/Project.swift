@@ -12,9 +12,7 @@ let project = Project(
             deploymentTargets: .iOS("15.0"),
             infoPlist: .default,
             sources: ["Sources/**"],
-            dependencies: [
-                .project(target: "Shared", path: "../Shared")
-            ]
+            dependencies: []
         ),
         .target(
             name: "DomainTests",

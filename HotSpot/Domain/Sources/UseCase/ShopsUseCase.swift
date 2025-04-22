@@ -1,4 +1,5 @@
 import Foundation
+import Data
 
 struct ShopsUseCase {
     private let repository: ShopRepository
@@ -24,6 +25,6 @@ struct ShopsUseCase {
         )
         
         let response = try await repository.searchShops(request: request)
-        return response.results.shop.map { $0.toDomain() }
+        return response.results.shop.map { $0.toShopModel() }
     }
 }

@@ -5,7 +5,7 @@ private enum UserDefaultsKey: DependencyKey {
     static let liveValue = UserDefaults.standard
 }
 
-extension DependencyValues {
+public extension DependencyValues {
     var userDefaults: UserDefaults {
         get { self[UserDefaultsKey.self] }
         set { self[UserDefaultsKey.self] = newValue }
@@ -13,7 +13,7 @@ extension DependencyValues {
 }
 
 // MARK: - Filter Keys
-extension UserDefaults {
+public extension UserDefaults {
     private enum FilterKey: String {
         case range = "range"
         case budgets = "budgets"

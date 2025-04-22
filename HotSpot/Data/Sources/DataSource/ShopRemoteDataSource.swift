@@ -1,5 +1,5 @@
 import Foundation
 
-protocol ShopRemoteDataSource {
+public protocol ShopRemoteDataSource {
     func search(request: ShopSearchRequestDTO) async throws -> ShopSearchResponseDTO
 }
