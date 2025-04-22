@@ -82,7 +82,7 @@ struct SearchFilterView: View {
                 }
                 .buttonStyle(
                     CBButtonStyle(
-                        buttonColor: Color.redOrangeNormal
+                        buttonColor: Color.limeNormal
                     )
                 )
                 .padding(.horizontal, BaseSize.horizantalPadding)
