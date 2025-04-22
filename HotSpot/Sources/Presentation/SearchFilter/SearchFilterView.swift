@@ -1,126 +1,94 @@
 import SwiftUI
 import ComposableArchitecture
+import CobyDS
 
 struct SearchFilterView: View {
     let store: StoreOf<SearchFilterStore>
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.coordinator) private var coordinator
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            NavigationView {
-                FilterForm(viewStore: viewStore)
-            }
-        }
-    }
-}
-
-private struct FilterForm: View {
-    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        Form {
-            BudgetSection(viewStore: viewStore)
-            FeaturesSection(viewStore: viewStore)
-            CuisineSection(viewStore: viewStore)
-            DistanceSection(viewStore: viewStore)
-        }
-        .navigationTitle("Filter")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Reset") {
-                    viewStore.send(.resetFilters)
+            VStack(spacing: 0) {
+                TopBarView(
+                    leftSide: .left,
+                    leftAction: {
+                        coordinator?.pop()
+                    },
+                    rightSide: .icon,
+                    rightIcon: UIImage.icRefresh,
+                    rightAction: {
+                        viewStore.send(.resetFilters)
+                    }
+                )
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        RangeSection(
+                            selectedRange: viewStore.selectedRange.rawValue,
+                            onRangeSelected: { range in
+                                if let range = Range(rawValue: range) {
+                                    viewStore.send(.updateRange(range))
+                                }
+                            }
+                        )
+                        
+                        BudgetSection(
+                            selectedBudgets: viewStore.selectedBudgets,
+                            onBudgetSelected: { budgetCode in
+                                var updatedBudgets = viewStore.selectedBudgets
+                                if updatedBudgets.contains(budgetCode) {
+                                    updatedBudgets.removeAll { $0 == budgetCode }
+                                } else if updatedBudgets.count < 2 {
+                                    updatedBudgets.append(budgetCode)
+                                }
+                                viewStore.send(.updateBudgets(updatedBudgets))
+                            }
+                        )
+                        
+                        GenreSection(
+                            selectedGenres: viewStore.selectedGenres,
+                            onGenreSelected: { genreCode in
+                                var updatedGenres = viewStore.selectedGenres
+                                if updatedGenres.contains(genreCode) {
+                                    updatedGenres.removeAll { $0 == genreCode }
+                                } else {
+                                    updatedGenres.append(genreCode)
+                                }
+                                viewStore.send(.updateGenres(updatedGenres))
+                            }
+                        )
+                        
+                        FeaturesSection(
+                            selectedFeatures: viewStore.selectedFeatures,
+                            onFeatureSelected: { feature in
+                                var updatedFeatures = viewStore.selectedFeatures
+                                if updatedFeatures.contains(feature) {
+                                    updatedFeatures.remove(feature)
+                                } else {
+                                    updatedFeatures.insert(feature)
+                                }
+                                viewStore.send(.updateFeatures(updatedFeatures))
+                            }
+                        )
+                    }
+                    .padding(.vertical, 16)
                 }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Apply") {
+                
+                Button {
                     viewStore.send(.applyFilters)
-                    dismiss()
+                    coordinator?.pop()
+                } label: {
+                    Text("フィルターを適用")
                 }
+                .buttonStyle(
+                    CBButtonStyle(
+                        buttonColor: Color.limeNormal
+                    )
+                )
+                .padding(.horizontal, BaseSize.horizantalPadding)
+                .padding(.bottom, BaseSize.verticalPadding)
             }
-        }
-    }
-}
-
-private struct BudgetSection: View {
-    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
-    
-    var body: some View {
-        Section(header: Text("Budget")) {
-            Picker("Budget", selection: viewStore.binding(
-                get: \.selectedBudget,
-                send: SearchFilterStore.Action.updateBudget
-            )) {
-                Text("Any").tag(0)
-                Text("¥1,000~").tag(1)
-                Text("¥3,000~").tag(2)
-                Text("¥5,000~").tag(3)
-                Text("¥10,000~").tag(4)
-            }
-        }
-    }
-}
-
-private struct FeaturesSection: View {
-    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
-    
-    var body: some View {
-        Section(header: Text("Features")) {
-            Toggle("WiFi Available", isOn: viewStore.binding(
-                get: \.hasWiFi,
-                send: SearchFilterStore.Action.toggleWiFi
-            ))
-            Toggle("Private Room", isOn: viewStore.binding(
-                get: \.hasPrivateRoom,
-                send: SearchFilterStore.Action.togglePrivateRoom
-            ))
-            Toggle("Non-Smoking", isOn: viewStore.binding(
-                get: \.isNonSmoking,
-                send: SearchFilterStore.Action.toggleNonSmoking
-            ))
-            Toggle("Parking Available", isOn: viewStore.binding(
-                get: \.hasParking,
-                send: SearchFilterStore.Action.toggleParking
-            ))
-        }
-    }
-}
-
-private struct CuisineSection: View {
-    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
-    
-    var body: some View {
-        Section(header: Text("Cuisine")) {
-            Picker("Cuisine", selection: viewStore.binding(
-                get: \.selectedCuisine,
-                send: SearchFilterStore.Action.updateCuisine
-            )) {
-                Text("Any").tag(0)
-                Text("Japanese").tag(1)
-                Text("Italian").tag(2)
-                Text("French").tag(3)
-                Text("Chinese").tag(4)
-            }
-        }
-    }
-}
-
-private struct DistanceSection: View {
-    let viewStore: ViewStore<SearchFilterStore.State, SearchFilterStore.Action>
-    
-    var body: some View {
-        Section(header: Text("Distance")) {
-            Picker("Distance", selection: viewStore.binding(
-                get: \.selectedDistance,
-                send: SearchFilterStore.Action.updateDistance
-            )) {
-                Text("300m").tag(1)
-                Text("500m").tag(2)
-                Text("1km").tag(3)
-                Text("2km").tag(4)
-                Text("3km").tag(5)
-            }
+            .background(Color.backgroundNormalNormal)
         }
     }
 }
@@ -132,4 +100,4 @@ private struct DistanceSection: View {
             reducer: { SearchFilterStore() }
         )
     )
-} 
+}

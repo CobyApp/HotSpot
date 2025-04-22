@@ -5,6 +5,8 @@ import ComposableArchitecture
 final class AppCoordinator {
     private let window: UIWindow
     private let navigationController: UINavigationController
+    private var errorAlertController: UIAlertController?
+    private var messageAlertController: UIAlertController?
     
     init(window: UIWindow) {
         self.window = window
@@ -25,6 +27,44 @@ final class AppCoordinator {
         
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
+    }
+    
+    func showError(_ error: ShopError) {
+        let errorMessage = ShopErrorMessageMapper.message(for: error)
+        showAlert(title: "エラー", message: errorMessage)
+    }
+    
+    func showMessage(title: String, message: String) {
+        showAlert(title: title, message: message)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        // 이미 표시된 알림이 있다면 제거
+        errorAlertController?.dismiss(animated: false)
+        messageAlertController?.dismiss(animated: false)
+        
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(
+            title: "OK",
+            style: .default,
+            handler: { [weak self] _ in
+                self?.errorAlertController = nil
+                self?.messageAlertController = nil
+            }
+        ))
+        
+        if title == "エラー" {
+            errorAlertController = alert
+        } else {
+            messageAlertController = alert
+        }
+        
+        navigationController.present(alert, animated: true)
     }
     
     func showSearch() {

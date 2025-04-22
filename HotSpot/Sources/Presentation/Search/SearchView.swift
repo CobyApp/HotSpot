@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreLocation
 import CobyDS
 import ComposableArchitecture
 
@@ -10,7 +9,7 @@ struct SearchView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
+            VStack(spacing: 8) {
                 if !isSearchFocused {
                     TopBarView(
                         leftSide: .left,
@@ -18,7 +17,7 @@ struct SearchView: View {
                             coordinator?.pop()
                         },
                         rightSide: .icon,
-                        rightIcon: UIImage.icMore,
+                        rightIcon: UIImage.icFilter,
                         rightAction: {
                             coordinator?.showSearchFilter()
                         }
@@ -27,9 +26,14 @@ struct SearchView: View {
                 
                 SearchBar(
                     searchText: viewStore.searchText,
-                    onSearch: { viewStore.send(.search($0)) },
+                    onSearch: { text in
+                        viewStore.send(.updateSearchText(text))
+                        viewStore.send(.search)
+                    },
                     isSearchFocused: $isSearchFocused
                 )
+                .padding(.horizontal, BaseSize.horizantalPadding)
+                .padding(.top, isSearchFocused ? BaseSize.verticalPadding : 0)
                 
                 SearchResults(
                     error: viewStore.error,
@@ -37,17 +41,21 @@ struct SearchView: View {
                     shops: viewStore.shops,
                     onSelectShop: { coordinator?.showShopDetail($0) },
                     onLoadMore: {
-                        if !viewStore.paginationState.isLastPage {
+                        if !viewStore.isLastPage {
                             viewStore.send(.loadMore)
                         }
                     }
                 )
             }
+            .background(Color.backgroundNormalNormal)
             .onAppear {
-                viewStore.send(.onAppear)
+                viewStore.send(.search)
             }
-            .onTapGesture {
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            .onChange(of: viewStore.error) { error in
+                if let error = error {
+                    coordinator?.showError(error)
+                    viewStore.send(.clearError)
+                }
             }
         }
     }

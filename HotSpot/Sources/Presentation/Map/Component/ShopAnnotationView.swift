@@ -9,9 +9,14 @@ class ShopAnnotationView: MKMarkerAnnotationView {
             guard let shopAnnotation = newValue as? ShopAnnotation else { return }
             clusteringIdentifier = "Shop"
             canShowCallout = false
-            isEnabled = false
-            markerTintColor = ShopGenre.color(for: shopAnnotation.genreCode)
-            glyphImage = ShopGenre.image(for: shopAnnotation.genreCode)
+            isEnabled = true
+            
+            if let genre = Genre.from(code: shopAnnotation.genreCode) {
+                markerTintColor = genre.color
+                if let originalImage = genre.image {
+                    glyphImage = originalImage.withTintColor(.white, renderingMode: .alwaysTemplate)
+                }
+            }
         }
     }
     
@@ -28,5 +33,9 @@ class ShopAnnotationView: MKMarkerAnnotationView {
     private func setupView() {
         frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(false, animated: false)
     }
 } 

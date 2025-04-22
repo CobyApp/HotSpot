@@ -7,6 +7,7 @@ import Kingfisher
 struct MapView: View {
     let store: StoreOf<MapStore>
     @State private var shopImages: [String: UIImage] = [:]
+    @State private var currentIndex: Int = 0
     @Environment(\.coordinator) private var coordinator
 
     var body: some View {
@@ -28,32 +29,55 @@ struct MapView: View {
                         region: viewStore.binding(
                             get: { $0.region },
                             send: { .updateRegion($0) }
-                        )
+                        ),
+                        onMarkerSelected: { index in
+                            currentIndex = index
+                        }
                     )
                     .ignoresSafeArea(.all, edges: .bottom)
 
-                    // Bottom card scroll view
-                    SnappingScrollView(
-                        items: viewStore.visibleShops,
-                        itemWidth: BaseSize.fullWidth
-                    ) { shop in
-                        ThumbnailTileView(
-                            image: shopImages[shop.id],
-                            title: shop.name,
-                            subTitle: nil,
-                            description: shop.access,
-                            subDescription: nil
-                        )
-                        .frame(width: BaseSize.fullWidth)
-                        .onTapGesture {
-                            coordinator?.showShopDetail(shop)
+                    if !viewStore.visibleShops.isEmpty {
+                        CarouselScrollViewRepresentable(
+                            items: viewStore.visibleShops,
+                            itemWidth: BaseSize.fullWidth,
+                            spacing: 8,
+                            currentIndex: $currentIndex
+                        ) { shop in
+                            ThumbnailTileView(
+                                image: $shopImages[shop.id],
+                                title: shop.name,
+                                subTitle: nil,
+                                description: shop.access,
+                                subDescription: nil
+                            )
+                            .onTapGesture {
+                                coordinator?.showShopDetail(shop)
+                            }
+                            .onAppear {
+                                loadImage(for: shop)
+                            }
                         }
-                        .onAppear {
-                            loadImage(for: shop)
-                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .padding(.bottom, 30)
                     }
-                    .padding(.bottom, 30)
                 }
+            }
+            .onChange(of: viewStore.error) { error in
+                if let error = error {
+                    coordinator?.showError(error)
+                    viewStore.send(.clearError)
+                }
+            }
+            .onChange(of: viewStore.visibleShops) { shops in
+                if shops.isEmpty {
+                    coordinator?.showMessage(
+                        title: "お店が見つかりません",
+                        message: "ズームインして再度お試しください"
+                    )
+                }
+                
+                currentIndex = 0
             }
         }
     }

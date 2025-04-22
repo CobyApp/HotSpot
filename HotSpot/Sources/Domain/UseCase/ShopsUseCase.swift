@@ -13,16 +13,14 @@ struct ShopsUseCase {
             lng: lng,
             range: 5,
             count: nil,
-            keyword: nil,
-            genre: nil,
-            order: nil,
+            name: nil,
+            genres: nil,
             start: nil,
-            budget: nil,
-            privateRoom: nil,
-            wifi: nil,
-            nonSmoking: nil,
-            coupon: nil,
-            openNow: nil
+            budgets: nil,
+            privateRoom: 0,
+            wifi: 0,
+            nonSmoking: 0,
+            parking: 0
         )
         
         let response = try await repository.searchShops(request: request)

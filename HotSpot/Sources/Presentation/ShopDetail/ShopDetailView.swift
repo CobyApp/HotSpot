@@ -9,24 +9,24 @@ struct ShopDetailView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            Group {
-                VStack(spacing: 0) {
-                    TopBarView(
-                        leftSide: .left,
-                        leftAction: {
-                            coordinator?.pop()
-                        }
-                    )
-                    
-                    ScrollView(showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            ShopImageSection(imageUrl: viewStore.shop.imageUrl)
-                            
-                            ShopInfoSection(shop: viewStore.shop)
-                        }
+            VStack(spacing: 0) {
+                TopBarView(
+                    leftSide: .left,
+                    leftAction: {
+                        coordinator?.pop()
                     }
+                )
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ShopImageSection(imageUrl: viewStore.shop.imageUrl)
+                        
+                        ShopDetailSection(shop: viewStore.shop)
+                    }
+                    .padding(.bottom, BaseSize.verticalPadding)
                 }
             }
+            .background(Color.backgroundNormalNormal)
         }
     }
 }
@@ -44,7 +44,13 @@ struct ShopDetailView: View {
                     imageUrl: "https://example.com/image.jpg",
                     access: "渋谷駅から徒歩5分",
                     openingHours: "11:00-23:00",
-                    genreCode: "G001"
+                    genre: .izakaya,
+                    budget: .from1501to2000,
+                    url: "https://example.com",
+                    wifi: 1,
+                    privateRoom: 1,
+                    nonSmoking: 1,
+                    parking: 1
                 )
             ),
             reducer: { ShopDetailStore() }

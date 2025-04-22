@@ -1,17 +1,20 @@
 import SwiftUI
+import CobyDS
 
 struct EmptyResults: View {
     let searchText: String
     
     var body: some View {
         VStack(spacing: 16) {
-            Image(systemName: "magnifyingglass")
+            Image(systemName: "exclamationmark.circle")
                 .font(.system(size: 48))
-                .foregroundColor(.gray)
-            Text(searchText.isEmpty ? "검색어를 입력해주세요" : "검색 결과가 없습니다")
-                .font(.headline)
-                .foregroundColor(.gray)
+                .foregroundColor(Color.labelAssistive)
+            
+            Text(searchText.isEmpty ? "店舗名で検索してください" : "検索結果が見つかりません")
+                .font(.pretendard(size: 16, weight: .medium))
+                .foregroundColor(Color.labelAssistive)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.backgroundNormalNormal)
     }
 } 

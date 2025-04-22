@@ -3,7 +3,7 @@ import CobyDS
 import Kingfisher
 
 struct SearchResults: View {
-    let error: String?
+    let error: ShopError?
     let searchText: String
     let shops: [ShopModel]
     let onSelectShop: (ShopModel) -> Void
@@ -13,18 +13,16 @@ struct SearchResults: View {
     var body: some View {
         Group {
             if let error = error {
-                Text(error)
+                Text(ShopErrorMessageMapper.message(for: error))
                     .foregroundColor(.red)
-            } else if searchText.isEmpty {
-                EmptyResults(searchText: searchText)
             } else if shops.isEmpty {
                 EmptyResults(searchText: searchText)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 16) {
+                    LazyVStack(spacing: BaseSize.cellVerticalSpacing) {
                         ForEach(shops) { shop in
                             ThumbnailTileView(
-                                image: shopImages[shop.id],
+                                image: $shopImages[shop.id],
                                 title: shop.name,
                                 subTitle: nil,
                                 description: shop.access,
@@ -42,17 +40,19 @@ struct SearchResults: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal, BaseSize.horizantalPadding)
+                    .padding(.top, 8)
+                    .padding(.bottom, BaseSize.verticalPadding)
                 }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                        }
-                )
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                }
+        )
     }
     
     private func loadImage(for shop: ShopModel) {
