@@ -9,22 +9,21 @@ struct ShopDetailView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            Group {
-                VStack(spacing: 0) {
-                    TopBarView(
-                        leftSide: .left,
-                        leftAction: {
-                            coordinator?.pop()
-                        }
-                    )
-                    
-                    ScrollView(showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            ShopImageSection(imageUrl: viewStore.shop.imageUrl)
-                            
-                            ShopInfoSection(shop: viewStore.shop)
-                        }
+            VStack(spacing: 0) {
+                TopBarView(
+                    leftSide: .left,
+                    leftAction: {
+                        coordinator?.pop()
                     }
+                )
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ShopImageSection(imageUrl: viewStore.shop.imageUrl)
+                        
+                        ShopDetailSection(shop: viewStore.shop)
+                    }
+                    .padding(.bottom, BaseSize.verticalPadding)
                 }
             }
         }
